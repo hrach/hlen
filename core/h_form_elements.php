@@ -185,12 +185,12 @@ class HFormElement
 
         if($label)
         {
-            $this->label = new HElement('label');
+            $this->label = new HHtml('label');
             $this->label['for'] = "Form".$id;
             $this->label->setContent($label);
         }
 
-        $this->element = new HElement($tag);
+        $this->element = new HHtml($tag);
         $this->element['class'] = $tag;
         $this->element['id'] = "Form".$id;
         $this->element['name'] = $id;

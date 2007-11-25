@@ -1,67 +1,172 @@
 <?php
 
-/**
- * Hlen Framework
- *
- * Copyright (c) 2007 Jan -Hrach- Skrasek (http://hrach.netuje.cz)
- *
- * @author     Jan Skrasek
- * @copyright  Copyright (c) 2007 Jan Skrasek
- * @category   Hlen
- * @package    Hlen-Core
- */
-
-
-class HHtml
+class HHtml implements ArrayAccess
 {
 
     /** @var string */
-    public $base;
+    private $content;
+
+    /** @var string */
+    private $element;
+
+    /** @var array */
+    private $data;
+
+    /** @var boolean */
+    private $paar;
+
+    /** @var array */
+    public $emptyElements = array('img', 'hr', 'br', 'input', 'meta', 'area', 'base', 'col', 'link', 'param', 'frame', 'embed');
 
     /**
      * constructor
-     *
-     * @param void
+     * 
+     * @param string $element
+     * @param boolean $paar
      * @return void
      */
-    public function __construct()
+    function __construct($element)
     {
-        $this->base = HHttp::getBase();
+        $this->element = $element;
     }
 
     /**
-     * make a - link
+     * set the content of element
      *
-     * @param string $url
-     * @param string $title
-     * @return string
+     * @param string $text
+     * @return void
      */
-    public function a($url, $title = "", $options = array())
+    public function setContent($text)
     {
-        $el = new HElement('a');
-
-        foreach($options as $key => $val)
-            $el[$key] = $val;
-
-        $el['href'] = $this->url($url);
-        $el->setContent(getVal($title, $options['href']));
-
-        return $el->get();
+        $this->content = $text;
     }
 
     /**
-     * make url
-     * 
-     * @param string $url
-     * @param boolean $absolute
+     * get content of element
+     *
+     * @param void
      * @return string
      */
-    public function url($url, $absolute = false)
+    public function getContent()
     {
-        if($absolute || strpos($url, 'http://') === false)
-            $url = HHttp::getUrl() . HApplication::makeSystemUrl($url);
+        return $this->content;
+    }
 
-        return $url;
+    /**
+     * return html string
+     *
+     * @param void
+     * @return string
+     */
+    public function get()
+    {
+        $el = $this->startTag();
+        $el .= $this->content;
+        $el .= $this->endTag();
+
+        return $el;
+    }
+
+    /**
+     * start tag
+     *
+     * @param void
+     * @return string
+     */
+    public function startTag()
+    {
+        $el = "<". $this->element . $this->getAttrs();
+
+        if(in_array($this->element, $this->emptyElements))
+            $el .= " />";
+        else
+            $el .= ">";
+
+        return $el;
+    }
+
+    /**
+     * end tag
+     *
+     * @param void
+     * @return string
+     */
+    public function endTag()
+    {
+        if(!in_array($this->element, $this->emptyElements))
+            return "</". $this->element .">";
+    }
+
+    /**
+     * return html string of attributes
+     * 
+     * @param void
+     * @return string
+     */
+    private function getAttrs()
+    {
+        $attrs = '';
+        foreach($this->data as $key => $val)
+        {
+            $attrs .= " $key=\"$val\"";
+        }
+        return $attrs;
+    }
+
+    /**
+     * save attribut
+     * @param string $key
+     * @param mixed $value
+     */
+    public function offsetSet($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+
+    /**
+     * return attribut
+     * @param string $key
+     * @return mixed
+     */
+    public function offsetGet($key)
+    {
+        $this->check($key, true);
+        return $this->data[$key];
+    }
+
+    /**
+     * remove attribut
+     *
+     * @param string $key
+     */
+    public function offsetUnset($key)
+    {
+        $this->check($key, true);
+        unset($this->data[$key]);
+    }
+
+    /**
+     * check attribut
+     *
+     * @param string $key
+     * @param boolean
+     */
+    public function offsetExists($key)
+    {
+        return $this->check($key);
+    }
+
+    /**
+     * check key -> in list of attributs
+     *
+     * @param string $key
+     * @return boolean
+     */
+    private function check($key)
+    {
+        if (!array_key_exists($key, $this->data))
+            return false;
+        return true;
     }
 
 }

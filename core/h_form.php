@@ -139,7 +139,7 @@ class HForm implements ArrayAccess
      */
     public function start()
     {
-        $this->formElement = new HElement('form');
+        $this->formElement = new HHtml('form');
         $this->formElement['action'] = $this->url;
         $this->formElement['method'] = $this->method;
 
