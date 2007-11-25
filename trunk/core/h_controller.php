@@ -40,7 +40,7 @@ class HController {
     function __construct()
     {
         $this->data = $_POST['data'];
-        $this->load('hhtml');
+        $this->load('hlink');
     }
 
     /**
