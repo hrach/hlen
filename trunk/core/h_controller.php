@@ -72,12 +72,9 @@ class HController {
                     $config = $config[$_SERVER['SERVER_NAME']];
                     $this->dibi->connect($config);
                 break;
-                case 'hhtml':
-                    if(!empty($this->vars['hhtml'])) continue;
-                    $this->vars['hhtml'] = new HHtml();
-                break;
-                case 'hform':
-                    if(!empty($this->hhtml)) continue;
+                case 'hlink':
+                    if(!empty($this->vars['hlink'])) continue;
+                    $this->vars['hlink'] = new HLink();
                 break;
             }
         }
