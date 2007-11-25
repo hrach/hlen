@@ -102,7 +102,7 @@ class HFormElementSelect extends HFormElement
     {
         foreach($options as $key => $val)
         {
-            $option = new HElement('option');
+            $option = new HHtml('option');
             $option['value'] = $key;
             $option->setContent($val);
 
