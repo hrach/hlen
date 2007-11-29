@@ -25,7 +25,7 @@ class HDibi {
      */
     public function __construct()
     {
-        load(HLEN_CORE.'core/components/dibi.compact.php');
+        load(COMPONENTS.'dibi.compact.php');
     }
 
     public function afterRender()

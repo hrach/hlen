@@ -44,7 +44,7 @@ class HLink
             $el[$key] = $val;
 
         $el['href'] = $this->url($url);
-        $el->setContent(getVal($title, $options['href']));
+        $el->setContent(HBasics::getVal($title, $options['href']));
 
         return $el->get();
     }

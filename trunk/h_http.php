@@ -15,13 +15,41 @@
 class HHttp
 {
 
+    /** @var boolean */
+    private static $sanitize = false;
+
+    /**
+     * sanitize data
+     *
+     * @param void
+     * @return void
+     */
+    private static function sanitizeData()
+    {
+        if (get_magic_quotes_gpc()) {
+            $process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST, &$_FILES);
+            while (list($key, $val) = each($process)) {
+                foreach ($val as $k => $v) {
+                    unset($process[$key][$k]);
+                    if (is_array($v)) {
+                        $process[$key][stripslashes($k)] = $v;
+                        $process[] = &$process[$key][stripslashes($k)];
+                    } else {
+                        $process[$key][stripslashes($k)] = stripslashes($v);
+                    }
+                }
+            }
+            unset($process);
+        }
+    }
+
     /**
      * get ip
      *
      * @param void
      * @return string
      */
-    public function getIp()
+    public static function getIp()
     {
         return $_SERVER['REMOTE_ADDR'];
     }
@@ -32,7 +60,7 @@ class HHttp
      * @param void
      * @return string
      */
-    public function getRequestMethod()
+    public static function getRequestMethod()
     {
         return strtolower( $_SERVER['REQUEST_METHOD'] );
     }
@@ -86,6 +114,8 @@ class HHttp
      */
     public static function getPost($var = null)
     {
+        if(HHttp::$sanitize === false) HHttp::sanitizeData();
+
         if($var)
             return $_POST[$var];
         else
@@ -100,6 +130,8 @@ class HHttp
      */
     public static function getGet($var = null)
     {
+        if(HHttp::$sanitize === false) HHttp::sanitizeData();
+
         if($var)
             return $_GET[$var];
         else
