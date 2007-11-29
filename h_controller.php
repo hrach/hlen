@@ -55,13 +55,13 @@ class HController {
             switch ($name)
             {
                 case 'hdibi':
-                    load(HLEN_CORE.'core/h_dibi.php');
+                    load(CORE.'h_dibi.php');
                     load(APP.'models/model.php');
                     if(!class_exists('Model', false))
                         eval("class Model extends HDibi {};");
 
-                    $model = camelize(HRouter::$controller);
-                    load(APP."models/".underscore($model).".php");
+                    $model = HBasics::camelize(HRouter::$controller);
+                    load(APP."models/".HBasics::underscore($model).".php");
                     if(!class_exists($model, false))
                         eval("class $model extends Model {} ");
 
@@ -157,10 +157,10 @@ class HController {
                 $view .= HRouter::$service."/";
         }
 
-        $view .= underscore($this->view).".php";
+        $view .= HBasics::underscore($this->view).".php";
 
-        if(HRouter::$system && file_exists(HLEN_CORE.$view))
-            $this->viewPath = HLEN_CORE.$view;
+        if(HRouter::$system && file_exists(CORE.$view))
+            $this->viewPath = CORE.$view;
         elseif(file_exists(APP.$view))
             $this->viewPath = APP.$view;
         else
@@ -174,9 +174,9 @@ class HController {
      */
     private function __makeLayoutPaths()
     {
-        $layouts[] = APP . "views/" . underscore($this->layout) . ".php";
-        $layouts[] = HLEN_CORE . "views/" . underscore($this->layout) . ".php";
-        $layouts[] = HLEN_CORE . "views/default.php";
+        $layouts[] = APP . "views/" . HBasics::underscore($this->layout) . ".php";
+        $layouts[] = CORE . "views/" . HBasics::underscore($this->layout) . ".php";
+        $layouts[] = CORE . "views/default.php";
         foreach($layouts as $x => $layout)
             if(file_exists($layout))
                 break;

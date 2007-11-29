@@ -11,8 +11,43 @@
  * @package    Hlen-Core
  */
 
+define('CORE', dirname(__FILE__).'/');
+define('COMPONENTS', CORE.'components/');
+define('APP', dirname($_SERVER['SCRIPT_FILENAME']).'/application/');
 
-final class HApplication {
+require_once(CORE.'h_basics.php');
+
+/**
+ * __autoload
+ * @param string $class
+ * @return void
+ */
+function __autoload($class)
+{
+    $file = HBasics::underscore($class);
+    require_once CORE."$file.php";
+}
+
+/**
+ * try load a file
+ * @param string $fileName
+ * @param boolean $once = true
+ * @return boolean
+ */
+function load($fileName, $once = true)
+{
+    if(file_exists($fileName))
+    {
+        if($once)
+            require_once($fileName);
+        else
+            require($fileName);
+        return true;
+    }
+    return false;
+}
+
+class HApplication {
 
     /** @var int */
     private static $startTime;
@@ -87,7 +122,7 @@ final class HApplication {
 
         if( load(APP."controllers/".HRouter::$controller."_controller.php") ||
             ( HRouter::$system &&
-              load(HLEN_CORE."controllers/".HRouter::$controller."_controller.php")
+              load(CORE."controllers/".HRouter::$controller."_controller.php")
             )
           )
             return true;
@@ -97,7 +132,7 @@ final class HApplication {
 
     private static function createController()
     {
-        $controller = camelize(HRouter::$controller) ."Controller";
+        $controller = HBasics::camelize(HRouter::$controller) ."Controller";
         
         if(!class_exists($controller, false))
             throw new RuntimeException(HRouter::$controller, 1001);
