@@ -12,7 +12,7 @@
  */
 
 
-final class HDebug
+class HDebug
 {
 
     /**

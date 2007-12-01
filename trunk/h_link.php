@@ -15,20 +15,6 @@
 class HLink
 {
 
-    /** @var string */
-    public $base;
-
-    /**
-     * constructor
-     *
-     * @param void
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->base = HHttp::getBase();
-    }
-
     /**
      * make a - link
      *
@@ -36,14 +22,14 @@ class HLink
      * @param string $title
      * @return string
      */
-    public function a($url, $title = "", $options = array())
+    static public function a($url, $title = "", $options = array())
     {
         $el = new HHtml('a');
 
         foreach($options as $key => $val)
             $el[$key] = $val;
 
-        $el['href'] = $this->url($url);
+        $el['href'] = self::url($url);
         $el->setContent(HBasics::getVal($title, $options['href']));
 
         return $el->get();
@@ -51,15 +37,15 @@ class HLink
 
     /**
      * make url
-     * 
+     *
      * @param string $url
      * @param boolean $absolute
      * @return string
      */
-    public function url($url, $absolute = false)
+    static public function url($url, $absolute = false)
     {
         if($absolute || strpos($url, 'http://') === false)
-            $url = HHttp::getUrl() . HApplication::makeSystemUrl($url);
+            $url = HHttp::getUrl() . HApplication::systemUrl($url);
 
         return $url;
     }
