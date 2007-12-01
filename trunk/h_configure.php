@@ -12,7 +12,7 @@
  */
 
 
-final class HConfigure
+class HConfigure
 {
 
     /** @var array */

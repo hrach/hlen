@@ -12,15 +12,11 @@
  */
 
 
-class HController {
+class HController extends HObject
+{
 
     /** @var array */
     private $vars = array();
-
-    /** @var array */
-    public $components = array();
-    /** @var array */
-    public $helpers = array();
 
     /** @var string */
     public $title = null;
@@ -32,6 +28,11 @@ class HController {
     /** @var string */
     public $layout = "default";
 
+    /** @var string */
+    protected $viewPath;
+    /** @var string */
+    protected $layoutPath;
+
     /**
      * constructor
      * @param void
@@ -40,44 +41,6 @@ class HController {
     function __construct()
     {
         $this->data = $_POST['data'];
-        $this->load('hlink');
-    }
-
-    /**
-     * loader
-     * @param string
-     * @return boolean
-     */
-    public function load($components)
-    {
-        foreach((array) $components as $name)
-        {
-            switch ($name)
-            {
-                case 'hdibi':
-                    load(CORE.'h_dibi.php');
-                    load(APP.'models/model.php');
-                    if(!class_exists('Model', false))
-                        eval("class Model extends HDibi {};");
-
-                    $model = HBasics::camelize(HRouter::$controller);
-                    load(APP."models/".HBasics::underscore($model).".php");
-                    if(!class_exists($model, false))
-                        eval("class $model extends Model {} ");
-
-                    $this->dibi = new $model;
-                    load(APP.'config/dibi.php');
-
-                    $config = HConfigure::read('Dibi.connections');
-                    $config = $config[$_SERVER['SERVER_NAME']];
-                    $this->dibi->connect($config);
-                break;
-                case 'hlink':
-                    if(!empty($this->vars['hlink'])) continue;
-                    $this->vars['hlink'] = new HLink();
-                break;
-            }
-        }
     }
 
     /**
@@ -139,7 +102,6 @@ class HController {
     {
         if(method_exists(HApplication::$controller, 'afterRender'))
             HApplication::$controller->afterRender();
-        $this->dibi->afterRender();
     }
 
     /**
@@ -159,7 +121,7 @@ class HController {
 
         $view .= HBasics::underscore($this->view).".php";
 
-        if(HRouter::$system && file_exists(CORE.$view))
+        if(HApplication::$system && file_exists(CORE.$view))
             $this->viewPath = CORE.$view;
         elseif(file_exists(APP.$view))
             $this->viewPath = APP.$view;
