@@ -66,7 +66,7 @@ class HApplication {
         } catch (Exception $e) {
             try {
 
-                self::error( $e->getCode(), $e->getMessage() );
+                self::error( $e, $e->getCode(), $e->getMessage() );
                 exit;
 
             } catch (Exception $er) {
@@ -84,9 +84,9 @@ class HApplication {
      *
      * @return void
      */
-    private static function error($code, $message)
+    private static function error($exception, $code, $message)
     {
-        HRouter::$args = array($code, $message, HRouter::$controller, HRouter::$action);
+        HRouter::$args = array($exception, HRouter::$controller, HRouter::$action);
         HRouter::$controller = "system";
         HRouter::$action = "error";
 
