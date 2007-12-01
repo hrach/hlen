@@ -15,7 +15,7 @@ define('CORE', dirname(__FILE__).'/');
 define('COMPONENTS', CORE.'components/');
 define('APP', dirname($_SERVER['SCRIPT_FILENAME']).'/application/');
 
-require_once(CORE.'h_basics.php');
+require_once CORE.'h_basics.php';
 
 /**
  * __autoload
@@ -28,35 +28,18 @@ function __autoload($class)
     require_once CORE."$file.php";
 }
 
-/**
- * try load a file
- * @param string $fileName
- * @param boolean $once = true
- * @return boolean
- */
-function load($fileName, $once = true)
-{
-    if(file_exists($fileName))
-    {
-        if($once)
-            require_once($fileName);
-        else
-            require($fileName);
-        return true;
-    }
-    return false;
-}
-
 class HApplication {
 
-    /** @var int */
-    private static $startTime;
+    /** @var integer */
+    static private $startTime;
 
     /** @var HController */
-    public static $controller;
+    static public $controller;
 
     /** @var boolean */
-    public static $error = false;
+    static public $error = false;
+    /** @var boolean */
+    static public $system = false;
 
     /**
      * run the application
@@ -66,100 +49,127 @@ class HApplication {
      */
     public static function run()
     {
-        HApplication::$startTime = microtime(true);
+        self::$startTime = microtime(true);
 
-        load(APP.'config/bootstrap.php');
-        load(APP.'config/core.php');
+        HBasics::load(APP.'config/bootstrap.php');
+        HBasics::load(APP.'config/core.php');
 
-        HRouter::start();
+        HRouter::start(APP.'config/router.php');
 
         try {
 
-            HApplication::loadController();
-            HApplication::createController();
-            HApplication::callMethod();
-            HApplication::$controller->renderView();
-
-        } catch (DibiException $e) {
-
-            echo "SQL: <br/>";
-            HDebug::dump($e);
+            self::loadController();
+            self::createController();
+            self::callMethod();
+            self::$controller->renderView();
 
         } catch (Exception $e) {
-
             try {
-                HApplication::error($e->getCode(), $e->getMessage());
+
+                self::error( $e->getCode(), $e->getMessage() );
                 exit;
+
             } catch (Exception $er) {
                 HDebug::dump($er);
+                // TODO
             }
-
         }
 
         if(HConfigure::read('Core.debug') > 1)
-            echo "<!-- time: ".round((microtime(true)- HApplication::$startTime)*1000, 2)." ms -->";
+            echo "<!-- time: ".round((microtime(true)- self::$startTime)*1000, 2)." ms -->";
     }
 
+    /**
+     * method caller
+     *
+     * @return void
+     */
     private static function error($code, $message)
     {
         HRouter::$args = array($code, $message, HRouter::$controller, HRouter::$action);
         HRouter::$controller = "system";
         HRouter::$action = "error";
-        HRouter::$system = true;
-        HApplication::$error = true;
 
-        HApplication::loadController();
-        HApplication::createController();
-        HApplication::callMethod();
-        HApplication::$controller->renderView();
+        self::$error = true;
+        self::$system = true;
+
+        self::loadController();
+        self::createController();
+        self::callMethod();
+        self::$controller->renderView();
     }
 
+    /**
+     * load controller file
+     *
+     * @param void
+     * @return void
+     */
     private static function loadController()
     {
-        load(APP.'/controllers/controller.php');
-        if(!class_exists('Controller', false))
-            eval("class Controller extends HController {}");
+        HBasics::load( APP.'/controllers/controller.php' );
 
-        if( load(APP."controllers/".HRouter::$controller."_controller.php") ||
-            ( HRouter::$system &&
-              load(CORE."controllers/".HRouter::$controller."_controller.php")
-            )
-          )
+        if (!class_exists('Controller', false)) {
+            eval("class Controller extends HController {}");
+        }
+
+        if ( HBasics::load(APP."controllers/".HRouter::$controller."_controller.php") ||
+             ( self::$system &&
+               HBasics::load(CORE."controllers/".HRouter::$controller."_controller.php"))
+        ) {
             return true;
+        }
 
         throw new RuntimeException(HRouter::$controller, 1001);
     }
 
+    /**
+     * create controller's object
+     *
+     * @param void
+     * @return void
+     */
     private static function createController()
     {
-        $controller = HBasics::camelize(HRouter::$controller) ."Controller";
-        
-        if(!class_exists($controller, false))
+        $controller = HBasics::camelize( HRouter::$controller ) ."Controller";
+
+        if (!class_exists( $controller, false )) {
             throw new RuntimeException(HRouter::$controller, 1001);
-        else
-            HApplication::$controller = new $controller;
+        } else {
+            self::$controller = new $controller;
+        }
     }
 
+    /**
+     * method caller
+     *
+     * @param void
+     * @return void
+     */
     private static function callMethod()
     {
-        HApplication::$controller->view = HRouter::$action;
-        if(!method_exists(HApplication::$controller, HRouter::$action))
+        self::$controller->view = HRouter::$action;
+
+        if (!method_exists( self::$controller, HRouter::$action ))  {
             throw new BadMethodCallException(HRouter::$action, 1002);
-        else
-            call_user_func_array( array(HApplication::$controller, HRouter::$action), HRouter::$args );
+        } else {
+            call_user_func_array( array(self::$controller, HRouter::$action), HRouter::$args );
+        }
     }
-    
 
     /**
      * make system url
-     * @param string
+     *
+     * @param string $url
      * @return string
      */
-    public static function makeSystemUrl($string)
+    public static function systemUrl($url)
     {
-        if($string[0] !== '/')
-            $string = HRouter::$controller.'/'.$string;
-        return HHttp::sanitizeUrl($string);
+        if ($url[0] !== '/') {
+            $url = HRouter::$controller.'/'.$url;
+        }
+
+        return HHttp::sanitizeUrl($url);
     }
 
 }

@@ -58,7 +58,7 @@ class HForm implements ArrayAccess
     public function __construct($url = '')
     {
         if(class_exists('HApplication', false))
-            $this->url = HHttp::getBase() . HApplication::makeSystemUrl($url);
+            $this->url = HHttp::getBase() . HApplication::systemUrl($url);
         else
             $this->url = HHttp::getBase() . $url;
     }

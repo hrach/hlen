@@ -11,62 +11,92 @@
  * @package    Hlen-Core
  */
 
+require_once dirname(__FILE__).'/components/dibi.compact.php';
 
-class HDibi {
+class HDibi extends HObject
+{
 
     /** @var array */
-    private $debugSql = array();
+    static private $debugSql = array();
+
+    /** @var boolean */
+    static private $debug = false;
 
     /**
-     * constructor
+     * return model object
      *
-     * @param void
-     * @return void
+     * @param string $modelName
+     * @return object
      */
-    public function __construct()
+    static public function getModel($modelName)
     {
-        load(COMPONENTS.'dibi.compact.php');
+        if ( HBasics::load(APP."models/".HBasics::underscore($modelName).".php")) {
+            return new $modelName;
+        }
+        return null;
     }
 
-    public function afterRender()
+    /**
+     * connect to db
+     *
+     * @param array $config
+     * @param boolean $debug = false
+     */
+    public function connect($config, $debug = false)
     {
-        if(HConfigure::read('Core.debug') > 1)
-            echo $this->getDebug();
-    }
+        self::$debug = $debug;
 
-    public function connect($config)
-    {
-        try {
-            dibi::connect(array(
-                'driver'    => $config['driver'],
-                'host'      => $config['server'],
-                'username'  => $config['user'],
-                'password'  => $config['password'],
-                'database'  => $config['database'],
-                'charset'   => $config['encoding'],
-            ));
-        } catch (DibiException $e) {
-            HDebug::dump($e);
+        if (is_array($config))
+        {
+            $serverName = $_SERVER['SERVER_NAME'];
+            if(substr($serverName, 0, 4) === 'www.')
+                $serverName = substr($serverName, 5);
+
+            dibi::connect( $config[$serverName] );
+        }
+        else
+        {
+            dibi::connect( $config );
         }
 
-        if(HConfigure::read('Core.debug') > 1)
-            dibi::addHandler(array(get_class($this), 'sqlHandler'));
+        if (self::$debug) {
+            dibi::addHandler('HDibi::sqlHandler');
+        }
     }
 
-    public function sqlHandler($connection, $event, $arg)
+    /**
+     * sql handler - saving information of result of sql query 
+     *
+     * @param object? $connection
+     * @param string $event
+     * @param array? $arg
+     */
+    static public function sqlHandler($connection, $event, $arg)
     {
-        if($event === 'afterQuery')
-            HApplication::$controller->dibi->debugSql[] = array('query' => dibi::$sql,
-                                                                'time' => dibi::$elapsedTime,
-                                                                'affRows' => dibi::affectedRows()
-                                                                );
+        if ($event === 'afterQuery') {
+            HDibi::$debugSql[] = array('query' => dibi::$sql, 'time' => dibi::$elapsedTime, 'affRows' => dibi::affectedRows());
+        }
     }
 
+    /**
+     *
+     */
+    static public function afterRender()
+    {
+        if(self::$debug)
+            echo self::getDebug();
+    }
+
+
+    /**
+     *
+     */
     public function getDebug()
     {
         $ret = "<table id=\"hlenSqlDebug\">\n";
         $ret .= "<tr><th>SQL Dotaz</th><th>Řádků</th><th>Čas</th></tr>\n";
-        foreach($this->debugSql as $query) {
+        foreach ($this->debugSql as $query)
+        {
             $ret .= "<tr><td>".$query['query']."</td>";
             $ret .= "<td>".$query['affRows']."</td>";
             $ret .= "<td>".sprintf('%0.3f', $query['time'] * 1000)."</td></tr>\n";

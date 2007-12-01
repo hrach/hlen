@@ -12,7 +12,7 @@
  */
 
 
-final class HRouter {
+class HRouter {
 
     /** @var string */
     private static $url;
@@ -47,14 +47,16 @@ final class HRouter {
      * @param void
      * @return void
      */
-    public static function start()
+    public static function start($router, $isFunction = false)
     {
         HRouter::$url = HHttp::urlToArray( HHttp::sanitizeUrl( HHttp::getGet('url') ));
 
-        load(APP.'config/router.php');
+        if ($isFunction)
+            call_user_method($router);
+        else
+            HBasics::load($router);
 
-        if(HRouter::$allowDefault)
-        {
+        if (HRouter::$allowDefault) {
             HRouter::connect('/:controller/:action', array('args' => true));
             HRouter::connect('/:controller');
         }
@@ -83,7 +85,7 @@ final class HRouter {
         $url = HHttp::sanitizeUrl( HHttp::getGet('url') );
         $rule = HHttp::sanitizeUrl($rule);
         $newUrl = HHttp::sanitizeUrl($newUrl);
-        if($url === $rule)
+        if ($url === $rule)
         {
             HRouter::$url = HHttp::urlToArray($newUrl);
             return true;
@@ -100,38 +102,49 @@ final class HRouter {
      */
     public static function connect($rule, $options = array())
     {
-        if(HRouter::$routing) return false;
+        if (HRouter::$routing) {
+            return false;
+        }
 
         $router['action'] = 'index';
         $rule = HHttp::urlToArray(HHttp::sanitizeUrl($rule));
         HRouter::checkServices();
 
-        if(count($rule) < count(HRouter::$url) && $options['args'] !== true) return false;
-        foreach($rule as $x => $text)
+        if (count($rule) < count(HRouter::$url) && $options['args'] !== true) {
+            return false;
+        }
+
+        foreach ($rule as $x => $text)
         {
-            if(HRouter::getFragment($x) === false)
+            if (HRouter::getFragment($x) === false) {
                 return false;
-            if(in_array($text, HRouter::$reserved))
-            {
-                if($text === ':arg')
-                    $router['args'][] = HRouter::getFragment($x);
-                else
-                    $router[substr($text, 1)] = HRouter::getFragment($x);
             }
-            elseif($text !== HRouter::getFragment($x))
+
+            if (in_array($text, HRouter::$reserved))
+            {
+                if ($text === ':arg') {
+                    $router['args'][] = HRouter::getFragment($x);
+                } else {
+                    $router[substr($text, 1)] = HRouter::getFragment($x);
+                }
+            }
+            elseif ($text !== HRouter::getFragment($x)) {
                 return false;
+            }
         }
 
-        foreach($options as $key => $option)
+        foreach ($options as $key => $option)
         {
-            if(in_array($key, array('controller', 'action')))
+            if (in_array($key, array('controller', 'action'))) {
                 $router[$key] = $option;
+            }
         }
 
-        if($options['args'] === true)
+        if ($options['args'] === true)
         {
             $x++;
-            while(HRouter::getFragment($x) !== false)
+
+            while (HRouter::getFragment($x) !== false)
             {
                 $router['args'][] = HRouter::getFragment($x);
                 $x++;
@@ -141,9 +154,6 @@ final class HRouter {
         HRouter::$controller   = $router['controller'];
         HRouter::$action       = $router['action'];
         HRouter::$args         = $router['args'];
-
-        if(!empty($options['system']))
-            HRouter::$system   = $options['system'];
 
         HRouter::$routing = true;
         return true;
@@ -157,10 +167,10 @@ final class HRouter {
      */
     private static function getFragment($x)
     {
-        if(isset(HRouter::$url[$x]))
+        if (isset(HRouter::$url[$x])) {
             return HRouter::$url[$x];
-        else
-            return false;
+        }
+        return false;
     }
 
     /**
@@ -171,17 +181,19 @@ final class HRouter {
      */
     private static function checkServices()
     {
-        if(empty(HRouter::$services))
+        if (empty(HRouter::$services)) {
             return false;
+        }
 
-        foreach(HRouter::$services as $service)
+        foreach (HRouter::$services as $service)
         {
-            if(HRouter::$url[0] === $service)
+            if (HRouter::$url[0] === $service)
             {
                 HRouter::$service = $service;
                 unset(HRouter::$url[0]);
-                foreach(HRouter::$url as $part)
+                foreach (HRouter::$url as $part) {
                     $newUrl[] = $part;
+                }
                 HRouter::$url = $newUrl;
                 return true;
             }
