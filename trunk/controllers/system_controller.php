@@ -3,8 +3,14 @@
 class SystemController extends Controller
 {
 
-    public function error($code, $message)
+    public function error($exception)
     {
+        if (get_parent_class($exception) === 'DibiException') {
+            $code = 'sql';
+        } else {
+            $code = $exception->getCode();
+        }
+
         $arg = func_get_args();
         $this->set('arg', $arg);
 

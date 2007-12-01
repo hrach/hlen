@@ -115,18 +115,20 @@ class HController extends HObject
             $view = "views/_errors/";
         } else {
             $view = "views/".HRouter::$controller."/";
-            if(!empty(HRouter::$service))
+            if (!empty(HRouter::$service)) {
                 $view .= HRouter::$service."/";
+            }
         }
 
         $view .= HBasics::underscore($this->view).".php";
 
-        if(HApplication::$system && file_exists(CORE.$view))
+        if (HApplication::$system && file_exists(CORE.$view)) {
             $this->viewPath = CORE.$view;
-        elseif(file_exists(APP.$view))
+        } elseif (file_exists(APP.$view)) {
             $this->viewPath = APP.$view;
-        else
+        } else {
             throw new RuntimeException($view, 1003);
+        }
     }
 
     /**
@@ -139,9 +141,12 @@ class HController extends HObject
         $layouts[] = APP . "views/" . HBasics::underscore($this->layout) . ".php";
         $layouts[] = CORE . "views/" . HBasics::underscore($this->layout) . ".php";
         $layouts[] = CORE . "views/default.php";
-        foreach($layouts as $x => $layout)
-            if(file_exists($layout))
+
+        foreach ($layouts as $x => $layout) {
+            if (file_exists($layout)) {
                 break;
+            }
+        }
 
         $this->layoutPath = $layouts[$x];
     }
