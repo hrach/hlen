@@ -116,10 +116,12 @@ class HHttp
     {
         if(HHttp::$sanitize === false) HHttp::sanitizeData();
 
+        $post = $_POST;
+
         if($var)
-            return $_POST[$var];
+            return $post[$var];
         else
-            return $_POST;
+            return $post;
     }
 
     /**

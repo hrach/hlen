@@ -14,7 +14,7 @@
 require_once dirname(__FILE__).'/h_form_elements.php';
 require_once dirname(__FILE__).'/h_form_condition.php';
 
-class HForm implements ArrayAccess
+class HForm extends HObject implements ArrayAccess
 {
 
     /** @var consts */
@@ -191,25 +191,26 @@ class HForm implements ArrayAccess
      */
     public function validate()
     {
-        $ret = true;
-        foreach($this->data as $element)
+        $return = true;
+        foreach ($this->data as $element)
         {
-            if(!$element->validate($this->submitedData[$element->getId()], $this))
-                $ret = false;
+            if ( !$element->validate( $this->submitedData, $this ) ) {
+                $return = false;
+            }
         }
-        return $ret;
+
+        return $return;
     }
 
     /**
      * add validate error
      *
-     * @param string $id
      * @param string $message
      * @return void
      */
-    public function addError($id, $message)
+    public function addError($message)
     {
-        $this->errors[] = array('id' => $id, 'message' => $message);
+        $this->errors[] = $message;
     }
 
     /**
@@ -231,30 +232,28 @@ class HForm implements ArrayAccess
      */
     public function isSubmited()
     {
-        if(HHttp::getRequestMethod() === 'post')
+        if (HHttp::getRequestMethod() === 'post') {
             $data = HHttp::getPost();
-        else
+        } else {
             $data = HHttp::getGet();
+        }
 
-        foreach($this->data as $el)
+        foreach ($data as $id => $val) {
+            $data[$id] = trim($val);
+        }
+
+        foreach ($this->data as $el)
         {
-            if(!empty($data[$el->getId()]) && $data[$el->getId()] != $el->getEmpty())
+            if ($el->isSubmited($data))
             {
-                $this->submitedData = $data;
-                $submited = array();
-                foreach($this->data as $el)
+                foreach($this->data as $element)
                 {
-                    switch($el->getTag())
-                    {
-                        case 'submit':
-                            $submited[$el->getId()] = (bool) $this->submitedData[$el->getId()];
-                        break;
-                        default:
-                            $submited[$el->getId()] = $this->submitedData[$el->getId()];
-                        break;
+                    if( $element->getTag() === 'submit') {
+                        $data[$element->getId()] = (bool) $data[$element->getId()];
                     }
                 }
-                $this->submitedData = $submited;
+
+                $this->submitedData = $data;
                 return true;
             }
         }
