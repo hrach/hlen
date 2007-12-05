@@ -77,7 +77,7 @@ class HController extends HObject
      */
     public function redirect($url)
     {
-        HHttp::redirect( HHttp::getUrl() . HApplication::makeSystemUrl($url) );
+        HHttp::redirect( HHttp::getUrl() . HApplication::systemUrl($url) );
         exit;
     }
 

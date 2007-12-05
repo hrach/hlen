@@ -29,6 +29,17 @@ class HFormElementInput extends HFormElement
         $this->element['type'] = $type;
     }
 
+    /**
+     * get tag - return type
+     *
+     * @param void
+     * @return string
+     */
+    public function getTag()
+    {
+        return $this->element['type'];
+    }
+
 }
 
 class HFormElementTextArea extends HFormElement
@@ -226,9 +237,26 @@ class HFormElement
      * @param void
      * @return string
      */
-    public function getEmpty()
+    public function getEmptyValue()
     {
         return $this->emptyValue;
+    }
+
+    /**
+     * is the value submited
+     *
+     * @param array $data
+     * @return boolean
+     */
+    public function isSubmited($data)
+    {
+        $value = $data[$this->getId()];
+
+        if ( $value !== $this->getEmptyValue() && !empty($value) ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -279,15 +307,16 @@ class HFormElement
     /**
      * add Rule
      *
-     * @param int $rule
+     * @param integer $rule
      * @param string $message
      * @param mixed $arg
      * @return void
      */
     public function addRule($rule, $message, $arg)
     {
-        $cond = new HFormCondition(0);
+        $cond = new HFormCondition();
         $cond->addRule($rule, $message, $arg);
+
         $this->conds[] = $cond;
     }
 
@@ -300,40 +329,14 @@ class HFormElement
      */
     public function validate($data, $form)
     {
-        foreach($this->conds as $cond)
-        {
-            if(!$cond->canValidate($data, $form)) continue;
-            $rules = $cond->getRules();
-            foreach($rules as $rule)
-            {
-                switch($rule['rule'])
-                {
-                    case HForm::EQUAL:
-                        if(is_object($rule['arg']))
-                            $arg = $form->submitedData[$rule['arg']->getId()];
-                        else
-                            $arg = $rule['arg'];
+        $value = $data[ $this->getId() ];
 
-                        if($data !== $arg) {
-                            $form->addError( $this->getId(), $rule['message'] );
-                            return false;
-                        }
-                    break;
-                    case HForm::FILLED:
-                        if(empty($data)) {
-                            $form->addError( $this->getId(), $rule['message'] );
-                            return false;
-                        }
-                    break;
-                    case HForm::EMAIL:
-                        if(!ereg('[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}', $data)) {
-                            $form->addError( $this->getId(), $rule['message'] );
-                            return false;
-                        }
-                    break;
-                }
-            }
+        foreach ($this->conds as $cond)
+        {
+            if( !$cond->validate($value, $form) )
+                return false;
         }
+        
         return true;
     }
 
