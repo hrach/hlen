@@ -11,6 +11,7 @@
  * @package    Hlen-Core
  */
 
+require_once dirname(__FILE__).'/h_object.php';
 require_once dirname(__FILE__).'/h_form_elements.php';
 require_once dirname(__FILE__).'/h_form_condition.php';
 
@@ -40,6 +41,9 @@ class HForm extends HObject implements ArrayAccess
     /** @var array */
     public $submitedData = array();
 
+    /** @var array */
+    public $submitedDataWS = array();
+
     /** @var HElement */
     private $formElement;
 
@@ -55,12 +59,13 @@ class HForm extends HObject implements ArrayAccess
      * @param void
      * @return void
      */
-    public function __construct($url = '')
+    public function __construct($url = null)
     {
-        if(class_exists('HApplication', false))
+        if (class_exists('HApplication', false)) {
             $this->url = HHttp::getBase() . HApplication::systemUrl($url);
-        else
+        } else {
             $this->url = HHttp::getBase() . $url;
+        }
     }
 
     /**
@@ -242,6 +247,7 @@ class HForm extends HObject implements ArrayAccess
             $data[$id] = trim($val);
         }
 
+        $dataWS = $data;
         foreach ($this->data as $el)
         {
             if ($el->isSubmited($data))
@@ -250,10 +256,12 @@ class HForm extends HObject implements ArrayAccess
                 {
                     if( $element->getTag() === 'submit') {
                         $data[$element->getId()] = (bool) $data[$element->getId()];
+                        unset($dataWS[$element->getId()]);
                     }
                 }
 
                 $this->submitedData = $data;
+                $this->submitedDataWS = $dataWS;
                 return true;
             }
         }
@@ -266,9 +274,13 @@ class HForm extends HObject implements ArrayAccess
      * @param void
      * @return array
      */
-    public function getSubmited()
+    public function getSubmited($submitButton = false)
     {
-        return $this->submitedData;
+        if ($submitButton) {
+            return $this->submitedData;
+        } else {
+            return $this->submitedDataWS;
+        }
     }
 
     /**
@@ -279,9 +291,11 @@ class HForm extends HObject implements ArrayAccess
      */
     public function setDefaults($defaults)
     {
-        foreach($defaults as $id => $val)
-            if(is_object($this->data[$id]))
+        foreach ($defaults as $id => $val) {
+            if (is_object($this->data[$id]) && $this->data[$id]->getTag() !== 'submit') {
                 $this->data[$id]->setDefault($val);
+            }
+        }
     }
 
     /**

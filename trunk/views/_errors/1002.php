@@ -4,9 +4,9 @@
 <p>Zkontrolujte, zda-li jste zadali správnou URL adresu.</p>
 <p>Pokud ano, ale zatím jste nevytvořili příslušnou metodu, využijte následující kostru:</p>
 
-<div>soubor: <em>/controllers/<?= HBasics::underscore($arg[2]) ?>_controller.php</em></div>
+<div>soubor: <em>/controllers/<?= HBasics::underscore(HRouter::$controller) ?>_controller.php</em></div>
 <pre>
-public function <?= $arg[1] ?>() {
+public function <?=HRouter::$action?>() {
 	// váš kód
 }
 </pre>

@@ -44,24 +44,32 @@ class HFormCondition extends HObject
      * can validate
      *
      * @param array $data
-     * @param object $from
+     * @param object $form
+     * @param string $emptyValue
      * @return boolean
      */
-    public function validate($value, $form)
+    public function validate($value, $form, $emptyValue)
     {
-        if ( !$this->validateField( $this->rule, $value, $this->arg ) ) {
-            return true;
+        if (!empty($this->rule))
+        {
+            if ( is_object($this->arg) ) {
+                $this->arg = $form->submitedData[ $this->arg->getId() ];
+            }
+
+            if ( !$this->validateField( $this->rule, $value, $this->arg, $emptyValue ) ) {
+                return true;
+            }
         }
 
         foreach ($this->rules as $rule)
-        {              
+        {
             if ( is_object($rule['arg']) ) {
                 $arg = $form->submitedData[ $rule['arg']->getId() ];
             } else {
                 $arg = $rule['arg'];
             }
 
-            if( !$this->validateField( $rule['rule'], $value, $arg ) ) {
+            if( !$this->validateField( $rule['rule'], $value, $arg, $emptyValue ) ) {
                 $form->addError( $rule['message'] );
                 return false;
             }
@@ -75,34 +83,27 @@ class HFormCondition extends HObject
      *
      * @param integer $rule
      * @param string $value
-     * @param string $arg = null
+     * @param string $arg
+     * @param string $emptyValue
      * @return boolean
      */
-    private function validateField($rule, $value, $arg = null)
+    private function validateField($rule, $value, $arg, $emptyValue)
     {
+        if ($value == $emptyValue) {
+            $value = null;
+        }
+
         switch($rule)
         {
-            case HForm::EQUAL:
-                if ($value != $arg) {
-                    return false;
-                }
-            break;
-            case HForm::FILLED:
-                HDebug::dump($value);
-                if (empty($value)) { //$value !== $arg && 
-                    return false;
-                }
-            break;
-            case HForm::EMAIL:
-                if ( !preg_match('/^[^@]+@[^@]+\.[a-z]{2,6}$/i', $value) ) {
-                    return false;
-                }
-            break;
-            case HForm::URL:
-                if ( !preg_match('/^.+\.[a-z]{2,6}(\\/.*)?$/i', $value) ) {
-                    return false;
-                }
-            break;
+            case HForm::EQUAL:  return $value == $arg; break;
+            case HForm::FILLED: return !empty($value); break;
+            case HForm::EMAIL:  return preg_match('/^[^@]+@[^@]+\.[a-z]{2,6}$/i', $value); break;
+            case HForm::URL:    return preg_match('/^.+\.[a-z]{2,6}(\\/.*)?$/i', $value); break;
+
+            case HForm::NUMERIC:    return is_numeric($value); break;
+            case HForm::MINLENGTH:  return strlen($value) >= $arg; break;
+            case HForm::MAXLENGTH:  return strlen($value) <= $arg; break;
+            case HForm::LENGTH:     return strlen($value) == $arg; break;
         }
 
         return true;
