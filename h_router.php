@@ -11,11 +11,12 @@
  * @package    Hlen-Core
  */
 
+require_once dirname(__FILE__).'/h_http.php';
 
 class HRouter {
 
     /** @var string */
-    private static $url;
+    public static $url;
     /** @var boolean */
     private static $routing = false;
 
@@ -47,30 +48,30 @@ class HRouter {
      * @param void
      * @return void
      */
-    public static function start($router, $isFunction = false)
+    public static function start($url, $router, $isFunction = false)
     {
-        HRouter::$url = HHttp::urlToArray( HHttp::sanitizeUrl( HHttp::getGet('url') ));
+        self::$url = HHttp::urlToArray( HHttp::sanitizeUrl( $url ));
 
         if ($isFunction)
-            call_user_method($router);
+            call_user_func($router);
         else
             HBasics::load($router);
 
-        if (HRouter::$allowDefault) {
-            HRouter::connect('/:controller/:action', array('args' => true));
-            HRouter::connect('/:controller');
+        if (self::$allowDefault) {
+            self::connect('/:controller/:action', array('args' => true));
+            self::connect('/:controller');
         }
     }
 
     /**
      * reserver services names in url
      *
-     * @param array $services
+     * @param mixed $services
      * @return void
      */
     public static function mapService($services)
     {
-        HRouter::$services = array_merge(HRouter::$services, (array)$services);
+        self::$services = array_merge(self::$services, (array)$services);
     }
 
     /**
@@ -85,9 +86,9 @@ class HRouter {
         $url = HHttp::sanitizeUrl( HHttp::getGet('url') );
         $rule = HHttp::sanitizeUrl($rule);
         $newUrl = HHttp::sanitizeUrl($newUrl);
-        if ($url === $rule)
-        {
-            HRouter::$url = HHttp::urlToArray($newUrl);
+
+        if ($url === $rule) {
+            self::$url = HHttp::urlToArray($newUrl);
             return true;
         }
         return false;
@@ -102,33 +103,33 @@ class HRouter {
      */
     public static function connect($rule, $options = array())
     {
-        if (HRouter::$routing) {
+        if (self::$routing) {
             return false;
         }
 
         $router['action'] = 'index';
         $rule = HHttp::urlToArray(HHttp::sanitizeUrl($rule));
-        HRouter::checkServices();
+        self::checkServices();
 
-        if (count($rule) < count(HRouter::$url) && $options['args'] !== true) {
+        if (count($rule) < count(self::$url) && $options['args'] !== true) {
             return false;
         }
 
         foreach ($rule as $x => $text)
         {
-            if (HRouter::getFragment($x) === false) {
+            if (self::getFragment($x) === false) {
                 return false;
             }
 
-            if (in_array($text, HRouter::$reserved))
+            if (in_array($text, self::$reserved))
             {
                 if ($text === ':arg') {
-                    $router['args'][] = HRouter::getFragment($x);
+                    $router['args'][] = self::getFragment($x);
                 } else {
-                    $router[substr($text, 1)] = HRouter::getFragment($x);
+                    $router[substr($text, 1)] = self::getFragment($x);
                 }
             }
-            elseif ($text !== HRouter::getFragment($x)) {
+            elseif ($text !== self::getFragment($x)) {
                 return false;
             }
         }
@@ -140,22 +141,19 @@ class HRouter {
             }
         }
 
-        if ($options['args'] === true)
+        if ($options['args'])
         {
-            $x++;
-
-            while (HRouter::getFragment($x) !== false)
+            while (self::getFragment(++$x) !== false)
             {
-                $router['args'][] = HRouter::getFragment($x);
-                $x++;
+                $router['args'][] = self::getFragment($x);
             }
         }
 
-        HRouter::$controller   = $router['controller'];
-        HRouter::$action       = $router['action'];
-        HRouter::$args         = $router['args'];
+        self::$controller   = $router['controller'];
+        self::$action       = $router['action'];
+        self::$args         = $router['args'];
 
-        HRouter::$routing = true;
+        self::$routing = true;
         return true;
     }
 
@@ -167,8 +165,8 @@ class HRouter {
      */
     private static function getFragment($x)
     {
-        if (isset(HRouter::$url[$x])) {
-            return HRouter::$url[$x];
+        if (isset(self::$url[$x])) {
+            return self::$url[$x];
         }
         return false;
     }
@@ -181,20 +179,17 @@ class HRouter {
      */
     private static function checkServices()
     {
-        if (empty(HRouter::$services)) {
+        if (empty(self::$services)) {
             return false;
         }
 
-        foreach (HRouter::$services as $service)
+        foreach (self::$services as $service)
         {
-            if (HRouter::$url[0] === $service)
+            if (self::$url[0] === $service)
             {
-                HRouter::$service = $service;
-                unset(HRouter::$url[0]);
-                foreach (HRouter::$url as $part) {
-                    $newUrl[] = $part;
-                }
-                HRouter::$url = $newUrl;
+                self::$service = $service;
+                array_shift(self::$url);
+
                 return true;
             }
         }

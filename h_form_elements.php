@@ -333,7 +333,7 @@ class HFormElement
 
         foreach ($this->conds as $cond)
         {
-            if( !$cond->validate($value, $form) )
+            if( !$cond->validate($value, $form, $this->getEmptyValue()) )
                 return false;
         }
         
@@ -348,12 +348,13 @@ class HFormElement
      */
     public function __get($name)
     {
-        if($name === '')
+        if ($name === '') {
             throw new LogicException("Cannot read an property without name");
-        elseif($name === 'element')
+        } elseif ($name === 'element') {
             return $this->element->get();
-        elseif($name === 'label')
+        } elseif ($name === 'label') {
             return $this->label->get();
+        }
     }
 
 }
