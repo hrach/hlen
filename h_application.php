@@ -26,13 +26,9 @@ function __autoload($class)
 
     $underScoreClassName = HBasics::underscore($class);
 
-    if (in_array($class, array_keys($app_classes)))
-    {
-        $file = $app_classes[$class];
-        require_once $file;
-    }
-    elseif ( substr($underScoreClassName, 0, 2) === 'h_' )
-    {
+    if (in_array($class, array_keys($app_classes))) {
+        require_once $app_classes[$class];
+    } elseif (substr($underScoreClassName, 0, 2) === 'h_') {
         require_once CORE . $underScoreClassName . ".php";
     }
 }
@@ -73,7 +69,7 @@ class HApplication {
     /**
      * run the application
      *
-     * @param void
+     * @param  void
      * @return void
      */
     public static function run()
@@ -117,7 +113,7 @@ class HApplication {
     /**
      * create controller's object
      *
-     * @param string $controllerName
+     * @param  string $controllerName
      * @return void
      */
     private static function createController($controllerName)
@@ -139,8 +135,8 @@ class HApplication {
     /**
      * method caller
      *
-     * @param string $action
-     * @param array $args
+     * @param  string  $action  Method of controller
+     * @param  array   $args    Arguments for method
      * @return void
      */
     private static function callMethod($action, $args)
@@ -156,7 +152,7 @@ class HApplication {
     /**
      * make system url
      *
-     * @param string $url
+     * @param  string $url
      * @return string
      */
     public static function systemUrl($url)

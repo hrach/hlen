@@ -46,16 +46,15 @@ class HDibi extends HObject
     {
         self::$debug = $debug;
 
-        if (is_array($config))
-        {
+        if (is_array($config)) {
+
             $serverName = $_SERVER['SERVER_NAME'];
-            if(substr($serverName, 0, 4) === 'www.')
-                $serverName = substr($serverName, 5);
+            if (substr($serverName, 0, 4) === 'www.') {
+                $serverName = substr($serverName, 4);
+            }
 
             dibi::connect( $config[$serverName] );
-        }
-        else
-        {
+        } else {
             dibi::connect( $config );
         }
 
