@@ -45,17 +45,19 @@ class HRouter {
     /**
      * start routing
      *
-     * @param void
+     * @param string $url
+     * @param string $router - function name / file name
      * @return void
      */
-    public static function start($url, $router, $isFunction = false)
+    public static function start($url, $router)
     {
         self::$url = HHttp::urlToArray( HHttp::sanitizeUrl( $url ));
 
-        if ($isFunction)
+        if (is_callable($router)) {
             call_user_func($router);
-        else
+        } else {
             HBasics::load($router);
+        }
 
         if (self::$allowDefault) {
             self::connect('/:controller/:action', array('args' => true));

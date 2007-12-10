@@ -17,26 +17,26 @@ class HLoader
 
 
 
-    static public function getClasses($cacheFile, $scanDir)
+    static public function getClasses($cacheFile, $scanDir, $recursive = true)
     {
         if (!file_exists($scanDir)) {
             return array();
         }
 
-        if (file_exists($cacheFile)) {
+        if ($cacheFile !== false && file_exists($cacheFile)) {
             $cache = file_get_contents($cacheFile);
             $cache = unserialize($cache);
         } else {
-            $cache = self::makeCache($cacheFile, $scanDir);
+            $cache = self::makeCache($cacheFile, $scanDir, $recursive);
         }
 
         return $cache;
     }
 
-    static private function makeCache($cacheFile, $scanDir)
+    static private function makeCache($cacheFile, $scanDir, $recursive)
     {
         $classes = array();
-        $files = self::getFiles($scanDir);
+        $files = self::getFiles($scanDir, $recursive);
         foreach ($files as $file)
         {
             $content = file_get_contents($file);
@@ -54,7 +54,7 @@ class HLoader
         return $classes;
     }
 
-    static private function getFiles($dir)
+    static private function getFiles($dir, $recursive)
     {
         $dir = trim($dir, '/');
 
@@ -65,8 +65,8 @@ class HLoader
         {
             if ($file->isDot()) continue;
 
-            if ($file->isDir()) {
-                $files = array_merge($files, self::getFiles($dir.'/'.$file->getFilename()));
+            if ($file->isDir() && $recursive) {
+                $files = array_merge($files, self::getFiles($dir.'/'.$file->getFilename(), $recursive));
             } elseif(preg_match("/.php$/",$file->getFilename())) {
                 $files[] = $dir.'/'.$file->getFilename();
             }
