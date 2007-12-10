@@ -19,24 +19,21 @@ define('COMPONENTS',    CORE.'components/');
 define('APP',           dirname($_SERVER['SCRIPT_FILENAME']).'/application/');
 
 $app_classes = HLoader::getClasses( APP.'app_classes.cache', APP );
-$core_classes = HLoader::getClasses( APP.'core_classes.cache', CORE );
-
 
 function __autoload($class)
 {
     global $app_classes, $core_classes;
+
+    $underScoreClassName = HBasics::underscore($class);
 
     if (in_array($class, array_keys($app_classes)))
     {
         $file = $app_classes[$class];
         require_once $file;
     }
-    elseif ( in_array($class, array_keys($core_classes))
-             && (HApplication::$system
-                 || substr(HBasics::underscore($class), 0, 2) === 'h_'))
+    elseif ( substr($underScoreClassName, 0, 2) === 'h_' )
     {
-        $file = $core_classes[$class];
-        require_once $file;
+        require_once CORE . $underScoreClassName . ".php";
     }
 }
 
@@ -101,7 +98,7 @@ class HApplication {
                 self::$error = true;
                 self::$system = true;
 
-                self::createController("system");
+                self::createController("HApplication");
                 self::callMethod("error", array($e));
 
                 self::$controller->renderView();
@@ -130,7 +127,9 @@ class HApplication {
         }
 
         $controllerClass = HBasics::camelize($controllerName)."Controller";
-        if ($controllerClass === 'Controller' || !class_exists($controllerClass)) {
+        if ($controllerClass === 'Controller') {
+            throw new Exception("You didn't router application.", 1000);
+        } elseif (!class_exists($controllerClass)) {
             throw new Exception("The controller doesn't exists.", 1001);
         }
 
