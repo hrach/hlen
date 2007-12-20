@@ -94,7 +94,7 @@ class HDibi extends HObject
     {
         $ret = "<table id=\"hlenSqlDebug\">\n";
         $ret .= "<tr><th>SQL Dotaz</th><th>Řádků</th><th>Čas</th></tr>\n";
-        foreach ($this->debugSql as $query)
+        foreach (HDibi::$debugSql as $query)
         {
             $ret .= "<tr><td>".$query['query']."</td>";
             $ret .= "<td>".$query['affRows']."</td>";

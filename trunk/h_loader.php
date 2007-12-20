@@ -15,9 +15,15 @@
 class HLoader
 {
 
-
-
-    static public function getClasses($cacheFile, $scanDir, $recursive = true)
+    /**
+     * make list of classes in files in $scanDir
+     *
+     * @param string   $scanDir
+     * @param mixed    $cacheFile - false means no chache it
+     * @param boolean  $recursive = true
+     * @return array
+     */
+    static public function getClasses($scanDir, $cacheFile, $recursive = true)
     {
         if (!file_exists($scanDir)) {
             return array();
@@ -27,20 +33,28 @@ class HLoader
             $cache = file_get_contents($cacheFile);
             $cache = unserialize($cache);
         } else {
-            $cache = self::makeCache($cacheFile, $scanDir, $recursive);
+            $cache = self::makeCache($scanDir, $cacheFile, $recursive);
         }
 
         return $cache;
     }
 
-    static private function makeCache($cacheFile, $scanDir, $recursive)
-    {
+    /**
+     * function loads all files and finds all classes in them
+     *
+     * @param string   $scanDir
+     * @param mixed    $cacheFile
+     * @param boolean  $recursive
+     * @return array
+     */
+     static private function makeCache($scanDir, $cacheFile, $recursive)
+     {
         $classes = array();
         $files = self::getFiles($scanDir, $recursive);
         foreach ($files as $file)
         {
             $content = file_get_contents($file);
-            if(preg_match_all('/class(\s)+([a-zA-Z]+)(\s)*(extends(\s)+[a-zA-Z]+(\s)*)?(implements(\s)+[a-zA-Z]+(\s)*)?{[^}]/s', $content, $matches, PREG_SET_ORDER))
+            if (preg_match_all('/class(\s)+([a-zA-Z]+)(\s)*(extends(\s)+[a-zA-Z]+(\s)*)?(implements(\s)+[a-zA-Z]+(\s)*)?{[^}]/s', $content, $matches, PREG_SET_ORDER))
             {
                 foreach ($matches as $match) {
                     $classes[$match[2]] = $file;
