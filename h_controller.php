@@ -187,4 +187,39 @@ class HController extends HObject
         return ob_get_clean();
     }
 
+    /**
+     * make a - link
+     *
+     * @param string $url
+     * @param string $title
+     * @return string
+     */
+    public function a($url, $title = null, $options = array())
+    {
+        $el = new HHtml('a');
+
+        foreach($options as $key => $val)
+            $el[$key] = $val;
+
+        $el['href'] = $this->url($url);
+        $el->setContent(HBasics::getVal($title, $options['href']));
+
+        return $el->get();
+    }
+
+    /**
+     * make url
+     *
+     * @param string $url
+     * @param boolean $absolute
+     * @return string
+     */
+    public function url($url, $absolute = false)
+    {
+        if($absolute || strpos($url, 'http://') === false)
+            $url = HHttp::getUrl() . HApplication::systemUrl($url);
+
+        return $url;
+    }
+
 }

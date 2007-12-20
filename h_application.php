@@ -18,7 +18,7 @@ define('CORE',          dirname(__FILE__).'/');
 define('COMPONENTS',    CORE.'components/');
 define('APP',           dirname($_SERVER['SCRIPT_FILENAME']).'/application/');
 
-$app_classes = HLoader::getClasses( APP.'app_classes.cache', APP );
+$app_classes = HLoader::getClasses( APP, APP.'classes.cache' );
 
 function __autoload($class)
 {
@@ -94,7 +94,7 @@ class HApplication {
                 self::$error = true;
                 self::$system = true;
 
-                self::createController("HApplication");
+                self::createController("HApplicationSystem");
                 self::callMethod("error", array($e));
 
                 self::$controller->renderView();
@@ -106,8 +106,12 @@ class HApplication {
             }
         }
 
-        if(HConfigure::read('Core.debug') > 1)
+        if (HConfigure::read('Core.debug') > 1) {
+            if (class_exists('HDibi', false)) {
+                echo HDibi::getDebug();
+            }
             echo "<!-- time: ".round((microtime(true)- self::$startTime)*1000, 2)." ms -->";
+        }
     }
 
     /**

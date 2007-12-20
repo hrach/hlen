@@ -1,6 +1,6 @@
 <?php
 
-class HApplicationController extends Controller
+class HApplicationSystemController extends Controller
 {
 
     public function error($exception)
