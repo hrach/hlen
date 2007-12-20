@@ -13,7 +13,7 @@
  * @author     David Grudl
  * @copyright  Copyright (c) 2005, 2007 David Grudl
  * @license    http://dibiphp.com/license  dibi license
- * @version    0.9 (Revision: 101, Date: 2007/12/07 17:51:17)
+ * @version    0.9 (Revision: 102, Date: 2007/12/11 08:28:55)
  * @link       http://dibiphp.com/
  * @package    dibi
  */
@@ -61,14 +61,7 @@ LogicException("Cannot unset an property $class::\$$name");}private
 static
 function
 hasAccessor($c,$m){static$cache;if(!isset($cache[$c])){$cache[$c]=array_flip(get_class_methods($c));}$m[3]=$m[3]&"\xDF";return
-isset($cache[$c][$m]);}}}if(!class_exists('NClass',FALSE)){abstract
-class
-NClass{final
-public
-function
-__construct(){throw
-new
-LogicException("Cannot instantiate static class ".get_class($this));}}}if(!class_exists('NException',FALSE)){class
+isset($cache[$c][$m]);}}}if(!class_exists('NException',FALSE)){class
 NException
 extends
 Exception{private$cause;private
@@ -364,10 +357,8 @@ function
 __construct($value,$type){$this->value=$value;$this->type=$type;}public
 function
 toSql(DibiDriverInterface$driver,$modifier){return$driver->format($this->value,$this->type);}}class
-dibi
-extends
-NClass{const
-FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='I',VERSION='0.9 (Revision: 101, Date: 2007/12/07 17:51:17)';private
+dibi{const
+FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='I',VERSION='0.9 (Revision: 102, Date: 2007/12/11 08:28:55)';private
 static$registry=array();private
 static$connection;private
 static$substs=array();private
@@ -376,7 +367,12 @@ static$sql;public
 static$elapsedTime;public
 static$totalTime;public
 static$numOfQueries=0;public
-static$defaultDriver='mysql';public
+static$defaultDriver='mysql';final
+public
+function
+__construct(){throw
+new
+LogicException("Cannot instantiate static class ".get_class($this));}public
 static
 function
 connect($config=array(),$name=0){if(is_array($config)){$config['name']=$name;}else{$config.='&name='.urlencode($name);}return
