@@ -40,7 +40,7 @@ class HForm extends HObject implements ArrayAccess
     public $submitedData = array();
 
     /** @var array */
-    public $submitedDataWS = array();
+    public $submitedDataComplete = array();
 
     /** @var HElement */
     private $formElement;
@@ -245,7 +245,7 @@ class HForm extends HObject implements ArrayAccess
             $data[$id] = trim($val);
         }
 
-        $dataWS = $data;
+        $dataComplete = $data;
         foreach ($this->data as $el)
         {
             if ($el->isSubmited($data))
@@ -253,16 +253,24 @@ class HForm extends HObject implements ArrayAccess
                 foreach($this->data as $element)
                 {
                     if ( $element->getTag() === 'submit') {
-                        $data[$element->getId()] = (bool) $data[$element->getId()];
-                        unset($dataWS[$element->getId()]);
+
+                        $dataComplete[$element->getId()] = (bool) $dataComplete[$element->getId()];
+                        unset($data[$element->getId()]);
+
                     } elseif( $element->getTag() === 'select' ) {
+
                         //if( !$element->has($data[$element->getId()]) )
                         //TODO
+
+                    }
+
+                    if ($data[$element->getId()] == $element->getEmptyValue()) {
+                        $data[$element->getId()] = null;
                     }
                 }
 
                 $this->submitedData = $data;
-                $this->submitedDataWS = $dataWS;
+                $this->submitedDataComplete = $dataComplete;
                 return true;
             }
         }
@@ -272,15 +280,15 @@ class HForm extends HObject implements ArrayAccess
     /**
      * get submited
      *
-     * @param void
-     * @return array
+     * @param   boolean  $complete = false
+     * @return  array
      */
-    public function getSubmited($submitButton = false)
+    public function getSubmited($complete = false)
     {
-        if ($submitButton) {
-            return $this->submitedData;
+        if ($complete) {
+            return $this->submitedDataComplete;
         } else {
-            return $this->submitedDataWS;
+            return $this->submitedData;
         }
     }
 
@@ -293,6 +301,21 @@ class HForm extends HObject implements ArrayAccess
     public function setDefaults($defaults)
     {
         foreach ($defaults as $id => $val) {
+            if (is_object($this->data[$id]) && $this->data[$id]->getTag() !== 'submit') {
+                $this->data[$id]->setDefault($val);
+            }
+        }
+    }
+
+    /**
+     * reset defaults values
+     *
+     * @param string
+     * @return void
+     */
+    public function reSetDefaults()
+    {
+        foreach ($this->submitedDataComplete as $id => $val) {
             if (is_object($this->data[$id]) && $this->data[$id]->getTag() !== 'submit') {
                 $this->data[$id]->setDefault($val);
             }
@@ -440,11 +463,10 @@ class HFormCondition extends HObject
 
         switch($rule)
         {
-            case HForm::EQUAL:  return $value == $arg; break;
-            case HForm::FILLED: return !empty($value); break;
-            case HForm::EMAIL:  return preg_match('/^[^@]+@[^@]+\.[a-z]{2,6}$/i', $value); break;
-            case HForm::URL:    return preg_match('/^.+\.[a-z]{2,6}(\\/.*)?$/i', $value); break;
-
+            case HForm::EQUAL:      return $value == $arg; break;
+            case HForm::FILLED:     return !empty($value); break;
+            case HForm::EMAIL:      return preg_match('/^[^@]+@[^@]+\.[a-z]{2,6}$/i', $value); break;
+            case HForm::URL:        return preg_match('/^.+\.[a-z]{2,6}(\\/.*)?$/i', $value); break;
             case HForm::NUMERIC:    return is_numeric($value); break;
             case HForm::MINLENGTH:  return strlen($value) >= $arg; break;
             case HForm::MAXLENGTH:  return strlen($value) <= $arg; break;

@@ -70,8 +70,6 @@ class HLoader
 
     static private function getFiles($dir, $recursive)
     {
-        $dir = trim($dir, '/');
-
         $folder = new DirectoryIterator($dir);
 
         $files = array();

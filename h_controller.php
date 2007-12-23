@@ -33,14 +33,29 @@ class HController extends HObject
     /** @var string */
     protected $layoutPath;
 
+    /** @var object */
+    private $db = null;
+
     /**
      * constructor
+     *
      * @param void
      * @return void
      */
     function __construct()
     {
         $this->data = $_POST['data'];
+    }
+
+    /**
+     * get db
+     *
+     * @param void
+     * @return object
+     */
+    public function getDb()
+    {
+        return $this->db;
     }
 
     /**
@@ -63,10 +78,11 @@ class HController extends HObject
      */
     public function read($name)
     {
-        if(isset($this->vars[$name]))
+        if (isset($this->vars[$name])) {
             return $this->vars[$name];
-        else
+        } else {
             return false;
+        }
     }
 
     /**
@@ -82,6 +98,23 @@ class HController extends HObject
     }
 
     /**
+     * call "beforeMethod" methods
+     *
+     * @param viod
+     * @return void
+     */
+    public function __callBeforeMethod()
+    {
+        if (method_exists(HApplication::$controller, 'beforeMethod')) {
+            HApplication::$controller->beforeMethod();
+        }
+
+        if (class_exists('HDb', false) && !empty(HDb::$db)) {
+            $this->db = new HDb::$db;
+        }
+    }
+
+    /**
      * call "beforeRender" methods
      *
      * @param viod
@@ -89,29 +122,33 @@ class HController extends HObject
      */
     private function __callBeforeRender()
     {
-        if(method_exists(HApplication::$controller, 'beforeRender'))
+        if (method_exists(HApplication::$controller, 'beforeRender')) {
             HApplication::$controller->beforeRender();
+        }
     }
 
     /**
      * call "afterRender" methods
-     * @param viod
-     * @return void
+     *
+     * @param   void
+     * @return  void
      */
     private function __callAfterRender()
     {
-        if(method_exists(HApplication::$controller, 'afterRender'))
+        if (method_exists(HApplication::$controller, 'afterRender')) {
             HApplication::$controller->afterRender();
+        }
     }
 
     /**
      * prepare path for View
-     * @param viod
-     * @return void
+     *
+     * @param   viod
+     * @return  void
      */
     private function __makeViewPaths()
     {
-        if(HApplication::$error) {
+        if (HApplication::$error) {
             $view = "views/_errors/";
         } else {
             $view = "views/".HRouter::$controller."/";
@@ -133,6 +170,7 @@ class HController extends HObject
 
     /**
      * prepare path for Layout
+     *
      * @param viod
      * @return void
      */
@@ -153,6 +191,7 @@ class HController extends HObject
 
     /**
      * render view
+     *
      * @param viod
      * @return void
      */
@@ -175,6 +214,7 @@ class HController extends HObject
 
     /**
      * parser - parse View file
+     *
      * @param string
      * @param array
      * @return string
@@ -202,7 +242,7 @@ class HController extends HObject
             $el[$key] = $val;
 
         $el['href'] = $this->url($url);
-        $el->setContent(HBasics::getVal($title, $options['href']));
+        $el->setContent( HBasics::getVal($title, $options['href']) );
 
         return $el->get();
     }
@@ -216,8 +256,9 @@ class HController extends HObject
      */
     public function url($url, $absolute = false)
     {
-        if($absolute || strpos($url, 'http://') === false)
+        if ($absolute || strpos($url, 'http://') === false) {
             $url = HHttp::getUrl() . HApplication::systemUrl($url);
+        }
 
         return $url;
     }
