@@ -74,10 +74,11 @@ class HHttp
     public static function getBase()
     {
         $base = HHttp::sanitizeUrl( dirname( $_SERVER['PHP_SELF'] ));
-        if(empty($base))
+        if (empty($base)) {
             return '/';
-        else
+        } else {
             return  '/'. $base .'/';
+        }
     }
 
     /**
@@ -114,14 +115,17 @@ class HHttp
      */
     public static function getPost($var = null)
     {
-        if(HHttp::$sanitize === false) HHttp::sanitizeData();
+        if (!self::$sanitize) {
+            self::sanitizeData();
+        }
 
         $post = $_POST;
 
-        if($var)
+        if ($var) {
             return $post[$var];
-        else
+        } else {
             return $post;
+        }
     }
 
     /**
@@ -132,12 +136,15 @@ class HHttp
      */
     public static function getGet($var = null)
     {
-        if(HHttp::$sanitize === false) HHttp::sanitizeData();
+        if (!self::$sanitize) {
+            self::sanitizeData();
+        }
 
-        if($var)
+        if ($var) {
             return $_GET[$var];
-        else
+        } else {
             return $_GET;
+        }
     }
 
 
@@ -161,9 +168,10 @@ class HHttp
      */
     public static function urlToArray($url)
     {
-        if(!empty($url))
+        if (!empty($url)) {
             return explode('/', $url);
-        else
+        } else {
             return array();
+        }
     }
 }
