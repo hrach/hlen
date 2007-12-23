@@ -252,20 +252,22 @@ class HForm extends HObject implements ArrayAccess
             {
                 foreach($this->data as $element)
                 {
+                    if ($data[$element->getId()] == $element->getEmptyValue()) {
+                        $data[$element->getId()] = null;
+                    }
+
                     if ( $element->getTag() === 'submit') {
 
                         $dataComplete[$element->getId()] = (bool) $dataComplete[$element->getId()];
-                        unset($data[$element->getId()]);
+                        unset( $data[$element->getId()] );
 
                     } elseif( $element->getTag() === 'select' ) {
 
-                        //if( !$element->has($data[$element->getId()]) )
-                        //TODO
+                        if (!$element->has( $data[$element->getId()] )) {
+                            $data[$element->getId()] = null;
+                            $dataComplete[$element->getId()] = null;
+                        }
 
-                    }
-
-                    if ($data[$element->getId()] == $element->getEmptyValue()) {
-                        $data[$element->getId()] = null;
                     }
                 }
 
@@ -316,10 +318,34 @@ class HForm extends HObject implements ArrayAccess
     public function reSetDefaults()
     {
         foreach ($this->submitedDataComplete as $id => $val) {
-            if (is_object($this->data[$id]) && $this->data[$id]->getTag() !== 'submit') {
+            if ( is_object($this->data[$id])
+                 && ( $this->data[$id]->getTag() !== 'submit'
+                      || $this->data[$id]->getTag() !== 'password')
+                ) {
                 $this->data[$id]->setDefault($val);
             }
         }
+    }
+
+    /**
+     * render
+     *
+     * @param void
+     * @return void
+     */
+    public function render()
+    {
+        $render = $this->start();
+        $render .= "<table>\n";
+        foreach ($this->data as $row) {
+            $render .= "<tr>\n";
+            $render .= "<td>". $row->label ."</td>\n";
+            $render .= "<td>". $row->element ."</td>\n";
+            $render .= "</tr>\n";
+        }
+        $render .= "</table>\n";
+        $render .= $this->end();
+        return $render;
     }
 
     /**
@@ -506,6 +532,7 @@ class HFormElementInput extends HFormElement
     {
         parent::__construct('input', $id, $label);
         $this->element['type'] = $type;
+        $this->element['class'] = $type;
     }
 
     /**
@@ -615,6 +642,17 @@ class HFormElementSelect extends HFormElement
     }
 
     /**
+     * has string?
+     *
+     * @param  string  $value
+     * @return boolean
+     */
+    public function has($value)
+    {
+        return in_array($value, $this->options);
+    }
+
+    /**
      * new set default method
      *
      * @param string $value
@@ -672,6 +710,7 @@ class HFormElement
     function __construct($tag, $id, $label, $options = null)
     {
         $this->tag = $tag;
+        $id = HBasics::camelize($id);
 
         if($label)
         {
@@ -682,7 +721,7 @@ class HFormElement
 
         $this->element = new HHtml($tag);
         $this->element['class'] = $tag;
-        $this->element['id'] = "Form".$id;
+        $this->element['id'] = "Form". $id;
         $this->element['name'] = $id;
     }
 
@@ -831,9 +870,31 @@ class HFormElement
             throw new LogicException("Cannot read an property without name");
         } elseif ($name === 'element') {
             return $this->element->get();
-        } elseif ($name === 'label') {
+        } elseif ($name === 'label' && is_object($this->label)) {
             return $this->label->get();
         }
     }
 
+    /**
+     * caller
+     *
+     * @param string
+     * @return void
+     */
+    public function __call($name, $args)
+    {
+        if ($name === '') {
+            throw new LogicException("Cannot call a method without name");
+        } elseif ($name === 'element') {
+            foreach ($args[0] as $key => $arg) {
+                $this->element[$key] = $arg;
+            }
+            return $this->element->get();
+        } elseif ($name === 'label' && is_object($this->label)) {
+            foreach ($args[0] as $key => $arg) {
+                $this->label[$key] = $arg;
+            }
+            return $this->label->get();
+        }
+    }
 }
