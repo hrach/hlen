@@ -44,7 +44,7 @@ abstract class HObject
         $class = $this->getClass();
         if (self::hasAccessor($class, 'get'.$var)) {
             if (self::hasAccessor($class, 'set'.$var)) {
-                $class->{'set'.$var}();
+                $class->{'set'.$var}($val);
             } else {
                 throw new LogicException("Nelze zapisovat do read-only propetry $class::\$$var. ");
             }
@@ -55,12 +55,12 @@ abstract class HObject
 
     protected function __isset($var)
     {
-        return $name !== '' && self::hasAccessor($this->getClass(), 'get' . $name);
+        return $var !== '' && self::hasAccessor($this->class, 'get' . $var);
     }
 
     protected function __unset($var)
     {
-        $class = $this->getClass();
+        $class = $this->class;
         throw new LogicException("Nelze číst neexistující propetry $class::\$$var. ");
     }
 
