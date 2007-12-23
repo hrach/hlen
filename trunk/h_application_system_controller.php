@@ -22,6 +22,7 @@ class HApplicationSystemController extends Controller
             }
         }
 
+        $this->set('message', $exception->getMessage());
         $this->view = $code;
 
         $arg = func_get_args();

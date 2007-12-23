@@ -27,4 +27,20 @@ class HDebug
         echo '</pre>';
     }
 
+    /**
+     * print debugging marks
+     *
+     * @param void
+     * @return void
+     */
+    public function mark($var)
+    {
+        if ( (class_exists('HApplication', false) && HConfigure::read('Core.debug')) || !class_exists('HApplication', false))
+        {
+            echo '<span style="color: black;background: white;" class="debigging-marks">';
+            echo 'Debug mark: <strong style="color: red;">'. $var .'</strong>';
+            echo '</span><br/>';
+        }
+    }
+
 }

@@ -22,7 +22,7 @@ $app_classes = HLoader::getClasses( APP, APP.'classes.cache' );
 
 function __autoload($class)
 {
-    global $app_classes, $core_classes;
+    global $app_classes;
 
     $underScoreClassName = HBasics::underscore($class);
 
@@ -150,6 +150,7 @@ class HApplication {
             throw new Exception("The method od controller doesn't exists.", 1002);
         }
 
+        self::$controller->__callBeforeMethod();
         call_user_func_array(array(self::$controller, $action), $args);
     }
 
