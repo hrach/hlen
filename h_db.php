@@ -48,8 +48,10 @@ class HDb extends HObject
                 $serverName = substr($serverName, 4);
             }
 
+            //$config[$serverName]['lazy'] = true;
             dibi::connect( $config[$serverName] );
         } else {
+            //$config['lazy'] = true;
             dibi::connect( $config );
         }
 
