@@ -44,7 +44,7 @@ Metoda `connect` očekává dva argumenty. Prvním je `$rule` ve tvaru řetězce
 `$rule` udává, kdy se daný routing provede. Může obsahovat speciální výrazy a to:
 
  * `:controller`
- * `:method`
+ * `:action`
  * `:arg`
 
 Při routingu se postupně porovnává fragment po fragmentu. Pokud HRouter narazí na jeden z těchto výrazů, pak mu vyhoví jakkýkoli řetězec, a zároveň se nastaví přílušná proměnná.
@@ -86,3 +86,71 @@ A přepisy URL:
 }}}
 
 Tímto jednoduchým voláním můžete velmi jednoduše prohodit zíkladní logiku routingu.
+
+== Pokročilé možnostni ==
+
+Velmi užitečnou možností je rozšířená konfiurace pomocí `$options`. Jak už jste si všimli, jedním z možných indexů pole je `args`, zde je kopletní výčet:
+
+ * string `$controller`
+ * string `$action`
+ * boolean `$args`
+
+Nyní je snad již jasné, že když nepoužijeme v `$rule` speciální výraz pro určení kontroleru apod., tak musíme onen kontroler (repspektive metodu) definovat zde.
+
+=== Argumenty ===
+Pokud `args` se rovná `true`, pak se všechny přebývající fragmenty předají jako argumenty. Jinak se vždy porovnávána přesná délka řetězce.
+
+Jestliže víme přesný počet argumentú, je vhodnější použít výraz `:arg` v `$rule`.
+
+== Ukázky ==
+
+{{{
+// vyhovi pri:       /
+// stejne jako:      /clanky/zobraz
+
+HRouter::connect('/', array(
+    'controller' => 'clanky',
+    'action'     => 'zobraz',
+));
+
+
+
+
+// vyhovi pri:       /clanky
+// stejne jako:      /clanky/zobraz
+
+HRouter::connect('/clanky', array(
+    'action'     => 'zobraz',
+));
+
+
+
+
+// vyhovi pri:       /clanek
+// stejne jako:      /clanky/zobraz
+
+HRouter::connect('/clanek', array(
+    'controller' => 'clanky'
+    'action'     => 'zobraz',
+));
+
+
+
+
+// vyhovi pri:       /**cokoli**
+// stejne jako:      /clanky/**cokoli**
+
+HRouter::connect('/:action', array(
+    'controller' => 'clanky'
+));
+
+
+
+
+// vyhovi pri:       /**cokoli**
+// stejne jako:      /**cokoli**/zobraz
+
+HRouter::connect('/:controller', array(
+    'action' => 'zobraz'
+));
+}}}
