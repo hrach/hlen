@@ -20,7 +20,7 @@ Třídu lze samozřejmě používat samostatně. Jak tedy na to.
 Nejdříve klaisicky "naincludujte" soubro h_router.php. Celou akci pak spustíte pomocí příkazu:
 
 {{{
-HRouter::start( $url, $fileName );
+HRouter::start($url, $fileName);
 }}}
 
 První parametr obsahuje samostatné URL, jako druhý parametr se předává název souboru, nebo volatelná funkce, respektive metoda objektu.
@@ -36,7 +36,7 @@ HRouter::$args
 == Možnosti volání metody `connect` ==
 
 {{{
-HRouter::connect( $rule, $options );
+HRouter::connect($rule, $options);
 }}}
 
 Metoda `connect` očekává dva argumenty. Prvním je `$rule` ve tvaru řetězce, jako druhý parametr se předává pole `$options` s pokročilou konfigurací.
@@ -49,20 +49,17 @@ Metoda `connect` očekává dva argumenty. Prvním je `$rule` ve tvaru řetězce
 
 Při routingu se postupně porovnává fragment po fragmentu. Pokud HRouter narazí na jeden z těchto výrazů, pak mu vyhoví jakkýkoli řetězec, a zároveň se nastaví přílušná proměnná.
 
-Příklady jak se "přepíše URL" `/test/edit/5`:
+Příklady kdy `$rule` bude vyhovovat url `/test/edit/5`:
 
 {{{
-// prepis url:            ne
-// pokracovani routingu:  ano
+// vyhovuje:      ne
 HRouter::connect('/test/edit');
 
 
-// prepis url:            ne
-// pokracovani routingu:  ne
+// vyhovuje:      ano
 HRouter::connect('/test/edit', array('args' => true));
 
-// prepis url:            ne
-// pokracovani routingu:  ne
+// vyhovuje:      ano
 HRouter::connect('/test/edit/5');
 }}}
 
