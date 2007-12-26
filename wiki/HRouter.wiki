@@ -47,7 +47,7 @@ Metoda `connect` očekává dva argumenty. Prvním je `$rule` ve tvaru řetězce
  * `:action`
  * `:arg`
 
-Při routingu se postupně porovnává fragment po fragmentu. Pokud HRouter narazí na jeden z těchto výrazů, pak mu vyhoví jakýkoli řetězec, a zároveň se nastaví přílušná proměnná.
+Při routingu se postupně porovnává fragment po fragmentu. Pokud HRouter narazí na jeden z těchto výrazů, pak mu vyhoví jakýkoliv řetězec, a zároveň se nastaví přílušná proměnná.
 
 Příklady kdy `$rule` bude vyhovovat url `/test/edit/5`:
 
