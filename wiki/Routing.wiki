@@ -1,15 +1,15 @@
-#Help for HRouter
-= Úvod =
+#labels Phase-Implementation
+= HRouter =
 
 HRouter je téměř nejmocnější třída ve frameworku. Díky ní můžete jednoduše parsovat předané URL, vytvářet podmínky, odchytávat požadavky na alternativní zdroj (RSS, XML, apod.).
 
-= Základní nastavení, ukázka =
+== Základní nastavení, ukázka ==
 
 Třída HRouter ve výchozím nastavení parsuje URL pomocí následujícího volání:
 
-/--
-HRouter::connect(':controller/:action', array('args' => true) );
-\--
+{{{
+HRouter::connect(':controller/:action', array('args' => true));
+}}}
 
 První fragment bude použit jako kontroler, druhý bude název metody třídy, a zbytek fragmentů se použije jako argumenty metody.
 Tomuto pravidlu vyhoví URL s počtem argumentů >= 2.
