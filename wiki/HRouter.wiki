@@ -11,7 +11,7 @@ Třída HRouter ve výchozím nastavení parsuje URL pomocí následujícího vo
 HRouter::connect(':controller/:action', array('args' => true));
 }}}
 
-První fragment bude použit jako kontroler, druhý bude název metody třídy, a zbytek fragmentů se použije jako argumenty metody.
+První fragment bude použit jako kontroler, druhý bude název metody dané třídy, a zbytek fragmentů se použije jako argumenty dané metody.
 Tomuto pravidlu vyhoví URL s počtem argumentů >= 2.
 
 == V praxi ==
