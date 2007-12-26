@@ -649,7 +649,7 @@ class HFormElementSelect extends HFormElement
      */
     public function has($value)
     {
-        return in_array($value, $this->options);
+        return in_array($value, array_keys($this->options));
     }
 
     /**
@@ -710,18 +710,17 @@ class HFormElement
     function __construct($tag, $id, $label, $options = null)
     {
         $this->tag = $tag;
-        $id = HBasics::camelize($id);
 
         if($label)
         {
             $this->label = new HHtml('label');
-            $this->label['for'] = "Form".$id;
+            $this->label['for'] = "Form". HBasics::camelize($id);
             $this->label->setContent($label);
         }
 
         $this->element = new HHtml($tag);
         $this->element['class'] = $tag;
-        $this->element['id'] = "Form". $id;
+        $this->element['id'] = "Form". HBasics::camelize($id);
         $this->element['name'] = $id;
     }
 
@@ -802,7 +801,7 @@ class HFormElement
     /**
      * set default value
      *
-     * @param string $value
+     * @param  string  $value
      * @return void
      */
     public function setDefault($value)
@@ -813,8 +812,8 @@ class HFormElement
     /**
      * add condition
      *
-     * @param string $rule
-     * @param mixed $arg
+     * @param  string  $rule
+     * @param  mixed   $arg
      * @return void
      */
     public function addCondition($rule, $arg)
@@ -825,9 +824,9 @@ class HFormElement
     /**
      * add Rule
      *
-     * @param integer $rule
-     * @param string $message
-     * @param mixed $arg
+     * @param  integer  $rule
+     * @param  string   $message
+     * @param  mixed    $arg
      * @return void
      */
     public function addRule($rule, $message, $arg)
@@ -841,8 +840,8 @@ class HFormElement
     /**
      * validate element
      *
-     * @param string $data
-     * @param object $form
+     * @param  string  $data
+     * @param  object  $form
      * @return boolean
      */
     public function validate($data, $form)
@@ -861,7 +860,7 @@ class HFormElement
     /**
      * return html for element and label
      *
-     * @param string $name
+     * @param  string  $name
      * @return string
      */
     public function __get($name)
@@ -876,9 +875,10 @@ class HFormElement
     }
 
     /**
-     * caller
+     * return html for element and label
      *
-     * @param string
+     * @param  string  $name
+     * @param  string  $args
      * @return void
      */
     public function __call($name, $args)

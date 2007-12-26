@@ -75,42 +75,60 @@ class HApplication {
     public static function run()
     {
         self::$startTime = microtime(true);
+        set_exception_handler( array('HApplication', 'exception') );
 
         HBasics::load(APP.'config/bootstrap.php');
         HBasics::load(APP.'config/core.php');
 
         HRouter::start( HHttp::getGet('url'), APP.'config/router.php' );
 
-        try
-        {
-            self::createController(HRouter::$controller);
-            self::callMethod(HRouter::$action, HRouter::$args);
-            self::$controller->renderView();
-        }
-        catch (Exception $e)
-        {
-            try
-            {
-                self::$error = true;
-                self::$system = true;
+        self::createController(HRouter::$controller);
+        self::callMethod(HRouter::$action, HRouter::$args);
+        self::$controller->renderView();
 
-                self::createController("HApplicationSystem");
-                self::callMethod("error", array($e));
-
-                self::$controller->renderView();
-                exit;
-
-            } catch (Exception $ex) {
-                HDebug::dump($ex);
-                // TODO
-            }
-        }
-
-        if (HConfigure::read('Core.debug') > 1) {
+        if (class_exists('HConfigure', false) && HConfigure::read('Core.debug') > 1) {
             if (class_exists('HDibi', false)) {
                 echo HDibi::getDebug();
             }
             echo "<!-- time: ".round((microtime(true)- self::$startTime)*1000, 2)." ms -->";
+        }
+    }
+
+    /**
+     * catcher exceptions
+     *
+     * @param $exception
+     * @return void
+     */
+    public function exception($exception)
+    {
+        
+        if (substr(get_class($exception), 0, 4) === 'Dibi')
+        {
+            echo "Dibi: ". $exception->getMessage();
+        }
+        else
+        {
+            echo $exception->getMessage();
+        }
+
+    }
+
+    /**
+     * error
+     *
+     * @param  string  $view
+     * @return void
+     */
+    public function error($view)
+    {
+        self::$error = true;
+        self::$system = true;
+
+        if (HConfigure::read('Core.debug') > 1) {
+            self::$controller->view = $view;
+        } else {
+            self::$controller->view = '404';
         }
     }
 
@@ -127,13 +145,22 @@ class HApplication {
         }
 
         $controllerClass = HBasics::camelize($controllerName)."Controller";
-        if ($controllerClass === 'Controller') {
-            throw new Exception("You didn't router application.", 1000);
-        } elseif (!class_exists($controllerClass)) {
-            throw new Exception("The controller doesn't exists.", 1001);
+        if ($controllerClass === 'Controller')
+        {
+            $controllerClass = "Controller";
+            self::$controller = new $controllerClass;
+            self::error('routing');
         }
-
-        self::$controller = new $controllerClass;
+        elseif (!class_exists($controllerClass))
+        {
+            $controllerClass = "Controller";
+            self::$controller = new $controllerClass;
+            self::error('controller');
+        }
+        else
+        {
+            self::$controller = new $controllerClass;
+        }
     }
 
     /**
@@ -145,10 +172,15 @@ class HApplication {
      */
     private static function callMethod($action, $args)
     {
-        self::$controller->view = $action;
-        if (!is_callable( array(self::$controller, $action) )) {
-            throw new Exception("The method od controller doesn't exists.", 1002);
+        $methodExists = is_callable( array(self::$controller, $action) );
+        if (!$methodExists) {
+            if(!self::$error) {
+                self::error("method");
+            }
+            return;
         }
+
+        self::$controller->view = $action;
 
         self::$controller->__callBeforeMethod();
         call_user_func_array(array(self::$controller, $action), $args);
