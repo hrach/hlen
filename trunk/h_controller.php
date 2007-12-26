@@ -159,19 +159,24 @@ class HController extends HObject
 
         $view .= HBasics::underscore($this->view).".php";
 
-        if (HApplication::$system && file_exists(CORE.$view)) {
-            $this->viewPath = CORE.$view;
-        } elseif (file_exists(APP.$view)) {
+        if (file_exists(APP.$view)) {
             $this->viewPath = APP.$view;
+        } elseif (HApplication::$system && file_exists(CORE.$view)) {
+            $this->viewPath = CORE.$view;
         } else {
-            throw new RuntimeException($view, 1003);
+            if (HApplication::$error) {
+                die('Nastalo zacyklení. Chybí soubor: '. $view); //TODO check it
+            } else {
+                HApplication::error('view');
+                $this->__makeViewPaths();
+            }
         }
     }
 
     /**
      * prepare path for Layout
      *
-     * @param viod
+     * @param  viod
      * @return void
      */
     private function __makeLayoutPaths()
