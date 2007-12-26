@@ -13,3 +13,22 @@ HRouter::connect(':controller/:action', array('args' => true));
 
 První fragment bude použit jako kontroler, druhý bude název metody třídy, a zbytek fragmentů se použije jako argumenty metody.
 Tomuto pravidlu vyhoví URL s počtem argumentů >= 2.
+
+== V praxi ==
+
+Třídu lze samozřejmě používat samostatně. Jak tedy na to.
+Nejdříve klaisicky "naincludujte" soubro h_router.php. Celou akci pak spustíte pomocí příkazu:
+
+{{{
+HRouter::start( $url, $fileName );
+}}}
+
+První parametr obsahuje samostatné URL, jako druhý parametr se předává název souboru, nebo volatelná funkce, respektive metoda objektu.
+
+Soubor nebo funkce pak obsahují volání routetu, které upravují jeho chování. Výsledek "růtování" potom přebíráme z jeho členských proměnných:
+
+{{{
+HRouter::$controlelr
+HRouter::$method
+HRouter::$args
+}}}
