@@ -1,0 +1,22 @@
+#labels Phase-Implementation
+= HForm =
+
+HForm je třída poskytující komplexní nástroje pro vytváření formulářu. Vstup můžete také jednoduše zvalidovat.
+
+HForm metody (jejich názvy a parametry) jsou inspirované z NForm Davida Grudla. Přístup je tedy vcelku stejný.
+
+== Vytvoření formuláře ==
+
+{{{
+$form = new HForm($url);
+
+$form->addText('name', 'Jméno');
+$form->addText('last_name', 'Přijmení');
+}}}
+
+a vypsání
+
+{{{
+echo $form['name']->label;
+echo $form['name']->element;
+}}}
