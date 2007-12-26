@@ -94,7 +94,7 @@ Velmi užitečnou možností je rozšířená konfiurace pomocí `$options`. Jak
 Nyní je snad již jasné, že když nepoužijeme v `$rule` speciální výraz pro určení kontroleru apod., tak musíme onen kontroler (repspektive metodu) definovat zde.
 
 === Argumenty ===
-Pokud `args` se rovná `true`, pak se všechny přebývající fragmenty předají jako argumenty. Jinak se vždy porovnávána přesná délka řetězce.
+Pokud `args` se rovná `true`, pak se všechny přebývající fragmenty předají jako argumenty. Jinak se vždy porovnává přesná délka řetězce.
 
 Jestliže víme přesný počet argumentú, je vhodnější použít výraz `:arg` v `$rule`.
 
