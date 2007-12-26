@@ -28,7 +28,54 @@ První parametr obsahuje samostatné URL, jako druhý parametr se předává ná
 Soubor nebo funkce pak obsahují volání routetu, které upravují jeho chování. Výsledek "růtování" potom přebíráme z jeho členských proměnných:
 
 {{{
-HRouter::$controlelr
+HRouter::$controller
 HRouter::$method
 HRouter::$args
 }}}
+
+== Možnosti volání metody `connect` ==
+
+{{{
+HRouter::connect( $rule, $options );
+}}}
+
+Metoda `connect` očekává dva argumenty. Prvním je `$rule` ve tvaru řetězce, jako druhý parametr se předává pole `$options` s pokročilou konfigurací.
+
+`$rule` udává, kdy se daný routing provede. Může obsahovat speciální výrazy a to:
+
+ * `:controller`
+ * `:method`
+ * `:arg`
+
+Při routingu se postupně porovnává fragment po fragmentu. Pokud HRouter narazí na jeden z těchto výrazů, pak mu vyhoví jakkýkoli řetězec, a zároveň se nastaví přílušná proměnná.
+
+Příklady jak se "přepíše URL" `/test/edit/5`:
+
+{{{
+// prepis url:            ne
+// pokracovani routingu:  ano
+HRouter::connect('/test/edit');
+
+
+// prepis url:            ne
+// pokracovani routingu:  ne
+HRouter::connect('/test/edit', array('args' => true));
+
+// prepis url:            ne
+// pokracovani routingu:  ne
+HRouter::connect('/test/edit/5');
+}}}
+
+Další sada příkladů pro routing:
+
+{{{
+HRouter::connect('/:action/:controller', array('args' => true));
+}}}
+
+A přepisy URL:
+
+`/test/edit/5` na `/edit/test/5`
+
+`/akce/zpet` na `/zpet/akce`
+
+`/clanky/smaz/5/4/3` na `/smaz/clanky/5/4/3`
