@@ -55,7 +55,6 @@ Příklady kdy `$rule` bude vyhovovat url `/test/edit/5`:
 // vyhovuje:      ne
 HRouter::connect('/test/edit');
 
-
 // vyhovuje:      ano
 HRouter::connect('/test/edit', array('args' => true));
 
@@ -63,7 +62,7 @@ HRouter::connect('/test/edit', array('args' => true));
 HRouter::connect('/test/edit/5');
 }}}
 
-Další sada příkladů pro routing:
+Možnost jednoduchého "přepisu" url bez modifikátorů:
 
 {{{
 HRouter::connect('/:action/:controller', array('args' => true));
@@ -72,14 +71,14 @@ HRouter::connect('/:action/:controller', array('args' => true));
 A přepisy URL:
 
 {{{
-//     /test/edit/5
-//     /edit/test/5
+// z     /test/edit/5
+// na    /edit/test/5
 
-//     /akce/zpet
-//     /zpet/akce
+// z     /akce/zpet
+// na    /zpet/akce
 
-//     /clanky/smaz/5/4/3
-//     /smaz/clanky/5/4/3
+// z     /clanky/smaz/5/4/3
+// na    /smaz/clanky/5/4/3
 }}}
 
 Tímto jednoduchým voláním můžete velmi jednoduše prohodit zíkladní logiku routingu.
