@@ -74,8 +74,15 @@ HRouter::connect('/:action/:controller', array('args' => true));
 
 A přepisy URL:
 
-`/test/edit/5` na `/edit/test/5`
+{{{
+//     /test/edit/5
+//     /edit/test/5
 
-`/akce/zpet` na `/zpet/akce`
+//     /akce/zpet
+//     /zpet/akce
 
-`/clanky/smaz/5/4/3` na `/smaz/clanky/5/4/3`
+//     /clanky/smaz/5/4/3
+//     /smaz/clanky/5/4/3
+}}}
+
+Tímto jednoduchým voláním můžete velmi jednoduše prohodit zíkladní logiku routingu.
