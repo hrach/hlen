@@ -3,36 +3,31 @@
 /**
  * Hlen Framework
  *
- * Copyright (c) 2007 Jan -Hrach- Skrasek (http://hrach.netuje.cz)
- *
- * @author     Jan Skrasek
- * @copyright  Copyright (c) 2007 Jan Skrasek
- * @category   Hlen
- * @package    Hlen-Core
+ * @author     Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @package    Hlen
  */
 
-require_once dirname(__FILE__).'/h_http.php';
+require_once dirname(__FILE__) . '/HHttp.php';
 
-class HRouter {
+
+/**
+ * Parser URL
+ *
+ * Trida parsuje url pro MVC vrstvenou aplikaci
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
+class HRouter
+{
 
     /** @var string */
     public static $url;
-    /** @var boolean */
-    private static $routing = false;
-
-    /** @var array */
-    private static $parseUrl = array();
-    /** @var array */
-    private static $reserved = array(':controller', ':action', ':arg');
-
-    /** @var array */
-    private static $services = array();
     /** @var string */
     public static $service;
-
     /** @var boolean */
     public static $allowDefault = true;
-
     /** @var string */
     public static $action;
     /** @var string */
@@ -42,16 +37,26 @@ class HRouter {
     /** @var boolean */
     public static $system = false;
 
+
+    /** @var boolean */
+    private static $routing = false;
+    /** @var array */
+    private static $parseUrl = array();
+    /** @var array */
+    private static $reserved = array(':controller', ':action', ':arg');
+    /** @var array */
+    private static $services = array();
+
+
     /**
-     * start routing
+     * Spusti routing
      *
      * @param string $url
      * @param string $router - function name / file name
-     * @return void
      */
     public static function start($url, $router)
     {
-        self::$url = HHttp::urlToArray( HHttp::sanitizeUrl( $url ));
+        self::$url = HHttp::urlToArray($url);
 
         if (is_callable($router)) {
             call_user_func($router);
@@ -66,28 +71,28 @@ class HRouter {
     }
 
     /**
-     * reserver services names in url
+     * Rezervuje prefix servisu
      *
      * @param mixed $services
-     * @return void
      */
     public static function mapService($services)
     {
-        self::$services = array_merge(self::$services, (array)$services);
+        self::$services = array_merge(self::$services, (array) $services);
     }
 
     /**
-     * rewrite url
+     * Prepise dane url jinym
      *
+     * Vhodne pro zajisteni zpetne kompatibiity
+     * @deprecated vyuzijte self::connect
      * @param string $rule
      * @param string $newUrl
      * @return boolean
      */
     public static function rewrite($rule, $newUrl)
     {
-        $url = HHttp::sanitizeUrl( HHttp::getGet('url') );
+        $url = HHttp::sanitizeUrl(HHttp::getGet('url'));
         $rule = HHttp::sanitizeUrl($rule);
-        $newUrl = HHttp::sanitizeUrl($newUrl);
 
         if ($url === $rule) {
             self::$url = HHttp::urlToArray($newUrl);
@@ -97,10 +102,10 @@ class HRouter {
     }
 
     /**
-     * route the rule
+     * Routovani pravidla
      *
-     * @param string $rule
-     * @param array $options
+     * @param string  $rule
+     * @param array   $options = array()
      * @return boolean
      */
     public static function connect($rule, $options = array())
@@ -110,57 +115,52 @@ class HRouter {
         }
 
         $router['action'] = 'index';
-        $rule = HHttp::urlToArray(HHttp::sanitizeUrl($rule));
+        $rule = HHttp::urlToArray($rule);
         self::checkServices();
 
         if (count($rule) < count(self::$url) && $options['args'] !== true) {
             return false;
         }
 
-        foreach ($rule as $x => $text)
-        {
+        foreach ($rule as $x => $text) {
+
             if (self::getFragment($x) === false) {
                 return false;
             }
 
-            if (in_array($text, self::$reserved))
-            {
+            if (in_array($text, self::$reserved)) {
                 if ($text === ':arg') {
                     $router['args'][] = self::getFragment($x);
                 } else {
                     $router[substr($text, 1)] = self::getFragment($x);
                 }
-            }
-            elseif ($text !== self::getFragment($x)) {
+            } elseif ($text !== self::getFragment($x)) {
                 return false;
             }
         }
 
-        foreach ($options as $key => $option)
-        {
+        foreach ($options as $key => $option) {
             if (in_array($key, array('controller', 'action'))) {
                 $router[$key] = $option;
             }
         }
 
-        if ($options['args'])
-        {
-            while (self::getFragment(++$x) !== false)
-            {
+        if ($options['args']) {
+            while (self::getFragment(++$x) !== false) {
                 $router['args'][] = self::getFragment($x);
             }
         }
 
-        self::$controller   = $router['controller'];
-        self::$action       = $router['action'];
-        self::$args         = $router['args'];
+        self::$controller = $router['controller'];
+        self::$action = $router['action'];
+        self::$args = $router['args'];
 
         self::$routing = true;
         return true;
     }
 
     /**
-     * get fragment of url
+     * Vrati fragment url
      *
      * @param integer $x
      * @return mixed
@@ -174,9 +174,8 @@ class HRouter {
     }
 
     /**
-     * make the url equal for service url
+     * Odstrani fragment servisu
      *
-     * @param void
      * @return boolean
      */
     private static function checkServices()
@@ -185,13 +184,10 @@ class HRouter {
             return false;
         }
 
-        foreach (self::$services as $service)
-        {
-            if (self::$url[0] === $service)
-            {
+        foreach (self::$services as $service) {
+            if (self::$url[0] === $service) {
                 self::$service = $service;
                 array_shift(self::$url);
-
                 return true;
             }
         }

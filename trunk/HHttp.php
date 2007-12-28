@@ -3,28 +3,30 @@
 /**
  * Hlen Framework
  *
- * Copyright (c) 2007 Jan -Hrach- Skrasek (http://hrach.netuje.cz)
- *
- * @author     Jan Skrasek
- * @copyright  Copyright (c) 2007 Jan Skrasek
- * @category   Hlen
- * @package    Hlen-Core
+ * @author     Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @package    Hlen
  */
 
+HHttp::sanitizeData();
 
+
+/**
+ * Trida pro praci s hlavickou
+ *
+ * Trida poskytuje efektivni metody pro praci se zaslanymi daty
+ * Data automaticky osetri
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
 class HHttp
 {
 
-    /** @var boolean */
-    private static $sanitize = false;
-
     /**
-     * sanitize data
-     *
-     * @param void
-     * @return void
+     * Osetreni vsech vstupnich data od prebytecnych apostrofu
      */
-    private static function sanitizeData()
+    public static function sanitizeData()
     {
         if (get_magic_quotes_gpc()) {
             $process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST, &$_FILES);
@@ -44,9 +46,8 @@ class HHttp
     }
 
     /**
-     * get ip
+     * Vrati IP adresu
      *
-     * @param void
      * @return string
      */
     public static function getIp()
@@ -55,91 +56,80 @@ class HHttp
     }
 
     /**
-     * get request method
+     * Vrati metodu pozadavku
      *
-     * @param void
      * @return string
      */
     public static function getRequestMethod()
     {
-        return strtolower( $_SERVER['REQUEST_METHOD'] );
+        return strtolower($_SERVER['REQUEST_METHOD']);
     }
 
     /**
-     * return application url
+     * Vrati zakladni url aplikace
      *
-     * @param void
      * @return string
      */
     public static function getBase()
     {
-        $base = HHttp::sanitizeUrl( dirname( $_SERVER['PHP_SELF'] ));
+        $base = HHttp::sanitizeUrl(dirname($_SERVER['PHP_SELF']));
+
         if (empty($base)) {
             return '/';
         } else {
-            return  '/'. $base .'/';
+            return '/' . $base . '/';
         }
     }
 
     /**
-     * return application url
+     * Vrati kompletni url aplikace
      *
-     * @param void
      * @return string
      */
     public static function getUrl()
     {
-        $url = 'http:' . ($_SERVER['HTTPS'] ? 's' : '' ) .'//';
-        $url .= $_SERVER['SERVER_NAME'];
-        $url .= HHttp::getBase();
+        $url  = 'http:' . ($_SERVER['HTTPS'] ? 's' : '') . '//'
+              . $_SERVER['SERVER_NAME']
+              . HHttp::getBase();
 
         return $url;
     }
 
     /**
-     * redirect to new url
+     * Presmeruje na danou url
      *
+     * @todo dodelat kontrolu headers_sent()
      * @param string $absoluteUrl
      * @return void
      */
     public static function redirect($absoluteUrl)
     {
-        Header('Location: '.$absoluteUrl);
+        Header('Location: '. $absoluteUrl);
     }
 
     /**
-     * return post data
+     * Vrati _POST data
      *
-     * @param string $var
-     * @return string
+     * @param string $var = null
+     * @return mixed|array
      */
     public static function getPost($var = null)
     {
-        if (!self::$sanitize) {
-            self::sanitizeData();
-        }
-
-        $post = $_POST;
-
         if ($var) {
-            return $post[$var];
+            return $_POST[$var];
         } else {
-            return $post;
+            return $_POST;
         }
     }
 
     /**
-     * return get data
+     * Vrati _GET data
      *
-     * @param string $var
-     * @return string
+     * @param string $var = null
+     * @return mixed|array
      */
     public static function getGet($var = null)
     {
-        if (!self::$sanitize) {
-            self::sanitizeData();
-        }
-
         if ($var) {
             return $_GET[$var];
         } else {
@@ -147,27 +137,27 @@ class HHttp
         }
     }
 
-
     /**
-     * trim '/' from string
+     * Odstrani ze zacatku a konce url prebytecna lomitka
      *
      * @param string $url
      * @return string
      */
     public static function sanitizeUrl($url)
     {
-        $url = trim($url, '/');
-        return $url;
+        return trim($url, '/');
     }
 
     /**
-     * convert url string to array
+     * Prevede url na pole
      *
      * @param string $url
      * @return array
      */
     public static function urlToArray($url)
     {
+        $url = self::sanitizeUrl($url);
+
         if (!empty($url)) {
             return explode('/', $url);
         } else {

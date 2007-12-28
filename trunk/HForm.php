@@ -3,17 +3,21 @@
 /**
  * Hlen Framework
  *
- * Copyright (c) 2007 Jan -Hrach- Skrasek (http://hrach.netuje.cz)
- *
- * @author     Jan Skrasek
- * @copyright  Copyright (c) 2007 Jan Skrasek
- * @category   Hlen
- * @package    Hlen-Core
+ * @author     Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @package    Hlen
  */
 
-require_once dirname(__FILE__).'/h_object.php';
 
-class HForm extends HObject implements ArrayAccess
+/**
+ * Poskytuje komplexni sluzby kolem formularu
+ *
+ * Vytvari formularove obejkty 
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
+class HForm implements ArrayAccess
 {
 
     /** @var consts */
@@ -52,10 +56,7 @@ class HForm extends HObject implements ArrayAccess
     private $errors = array();
 
     /**
-     * construcotr
-     *
-     * @param void
-     * @return void
+     * Konstruktor
      */
     public function __construct($url = null)
     {
@@ -67,77 +68,70 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * add input text
+     * Prida input text
      *
      * @param string $id
-     * @param mixed $label
      * @return HFormElement
      */
-    public function addText($id, $label = false)
+    public function addText($id)
     {
-        $this->data[$id] = new HFormElementInput('text', $id, $label);
+        $this->data[$id] = new HFormElementInput('text', $id);
         return $this->data[$id];
     }
 
     /**
-     * add hidden input
+     * Prida hidden input
      *
      * @param string $id
      * @return HFormElement
      */
     public function addHidden($id)
     {
-        $this->data[$id] = new HFormElementInput('hidden', $id, false);
+        $this->data[$id] = new HFormElementInput('hidden', $id);
         return $this->data[$id];
     }
 
     /**
-     * add textarea
+     * Prida textarea
      *
      * @param string $id
-     * @param mixed $label
      * @return HFormElement
      */
-    public function addTextArea($id, $label = false)
+    public function addTextArea($id)
     {
-        $this->data[$id] = new HFormElementTextArea($id, $label);
+        $this->data[$id] = new HFormElementTextArea($id);
         return $this->data[$id];
     }
 
     /**
-     * add select
+     * Prida select
      *
-     * @param string $id
-     * @param mixed $label
-     * @param array $options
+     * @param string  $id
+     * @param array   $options
      * @return HFormElement
      */
-    public function addSelect($id, $label, $options)
+    public function addSelect($id, $options)
     {
-        $this->data[$id] = new HFormElementSelect($id, $label, $options);
+        $this->data[$id] = new HFormElementSelect($id, $options);
         return $this->data[$id];
     }
 
     /**
-     * add submit button
+     * Prida submit button
      *
-     * @param string $id
-     * @param mixed $value
+     * @param string  $id
+     * @param mixed   $value
      * @return HFormElement
      */
-    public function addSubmit($id, $label = false)
+    public function addSubmit($id)
     {
-        $this->data[$id] = new HFormElementInput('submit', $id, false);
-        if($label)
-            $this->data[$id]->set('value', $label);
+        $this->data[$id] = new HFormElementInput('submit', $id);
         return $this->data[$id];
     }
 
     /**
-     * form's start tad
+     * Vrati oteviraci tag formulare
      *
-     * @param string $action
-     * @param array $options
      * @return string
      */
     public function start()
@@ -150,9 +144,8 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * form's end tag
+     * Vrati ukoncovaci tag formulare
      * 
-     * @param void
      * @return string
      */
     public function end()
@@ -161,13 +154,12 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * add rule
+     * Prida pravidlo
      *
-     * @param string $id
-     * @param string $rule
-     * @param string $message
-     * @param string $params
-     * @return void
+     * @param string  $id
+     * @param int     $rule
+     * @param string  $message
+     * @param mixed   $arg = null
      */
     public function addRule($id, $rule, $message, $arg = null)
     {
@@ -175,11 +167,12 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * add condition
+     * Prida podminku
      *
-     * @param string $id
-     * @param int $rule
-     * @return void
+     * @param string  $id
+     * @param int     $rule
+     * @param mixed   $arg = null
+     * @return HFormCondition
      */
     public function addCondition($id, $rule, $arg = null)
     {
@@ -187,17 +180,15 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * validating
+     * Zvaliduje formular
      *
-     * @param void
      * @return boolean
      */
     public function validate()
     {
         $return = true;
-        foreach ($this->data as $element)
-        {
-            if ( !$element->validate( $this->submitedData, $this ) ) {
+        foreach ($this->data as $element) {
+            if (!$element->validate($this->submitedData, $this)) {
                 $return = false;
             }
         }
@@ -206,10 +197,9 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * add validate error
+     * Prida chybu validace
      *
      * @param string $message
-     * @return void
      */
     public function addError($message)
     {
@@ -217,9 +207,8 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * get list of errors
+     * Vrati seznam chyb
      *
-     * @param void
      * @return string
      */
     public function getErrors()
@@ -228,9 +217,8 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * was form submited?
+     * Zkontroluje, zda byl formualr odeslan
      *
-     * @param void
      * @return boolean
      */
     public function isSubmited()
@@ -246,28 +234,21 @@ class HForm extends HObject implements ArrayAccess
         }
 
         $dataComplete = $data;
-        foreach ($this->data as $el)
-        {
-            if ($el->isSubmited($data))
-            {
-                foreach($this->data as $element)
-                {
+        foreach ($this->data as $el) {
+            if ($el->isSubmited($data)) {
+                foreach($this->data as $element) {
                     if ($data[$element->getId()] == $element->getEmptyValue()) {
                         $data[$element->getId()] = null;
                     }
 
-                    if ( $element->getTag() === 'submit') {
-
+                    if ($element->getTag() === 'submit') {
                         $dataComplete[$element->getId()] = (bool) $dataComplete[$element->getId()];
                         unset( $data[$element->getId()] );
-
                     } elseif( $element->getTag() === 'select' ) {
-
                         if (!$element->has( $data[$element->getId()] )) {
                             $data[$element->getId()] = null;
                             $dataComplete[$element->getId()] = null;
                         }
-
                     }
                 }
 
@@ -280,10 +261,10 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * get submited
+     * Vrati data odeslaneho formulare
      *
-     * @param   boolean  $complete = false
-     * @return  array
+     * @param boolean $complete = false
+     * @return array
      */
     public function getSubmited($complete = false)
     {
@@ -295,10 +276,9 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * set the default values
+     * Nastavi vychozi hodnoty
      *
      * @param mixed $defaults
-     * @return void
      */
     public function setDefaults($defaults)
     {
@@ -310,46 +290,38 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * reset defaults values
+     * Nastavi hodnoty, ktere byly odeslany formularem
      *
      * @param string
-     * @return void
      */
     public function reSetDefaults()
     {
         foreach ($this->submitedDataComplete as $id => $val) {
-            if ( is_object($this->data[$id])
-                 && ( $this->data[$id]->getTag() !== 'submit'
-                      || $this->data[$id]->getTag() !== 'password')
-                ) {
+            if (is_object($this->data[$id]) && ($this->data[$id]->getTag() !== 'submit' || $this->data[$id]->getTag() !== 'password')) {
                 $this->data[$id]->setDefault($val);
             }
         }
     }
 
     /**
-     * render
-     *
-     * @param void
-     * @return void
+     * Vyrenderuje jednoduse taulkove formatovany formular
      */
     public function render()
     {
-        $render = $this->start();
-        $render .= "<table>\n";
+        $render = $this->start() . "<table>\n";
         foreach ($this->data as $row) {
-            $render .= "<tr>\n";
-            $render .= "<td>". $row->label ."</td>\n";
-            $render .= "<td>". $row->element ."</td>\n";
-            $render .= "</tr>\n";
+            $render .= "<tr>\n"
+                     . '<td>' . $row->label . "</td>\n"
+                     . '<td>' . $row->element . "</td>\n"
+                     . "</tr>\n";
         }
-        $render .= "</table>\n";
-        $render .= $this->end();
+        $render .= "</table>\n" . $this->end();
         return $render;
     }
 
     /**
-     * save attribut
+     * Ulozi do pole formularovych prvku novy objekt
+     *
      * @param string $key
      * @param mixed $value
      */
@@ -359,29 +331,32 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * return attribut
+     * Brati zo pole formularovych prvku objekt
+     *
      * @param string $key
      * @return mixed
      */
     public function offsetGet($key)
     {
-        $this->check($key, true);
-        return $this->data[$key];
+        if ($this->check($key)) {
+            return $this->data[$key];
+        }
     }
 
     /**
-     * remove attribut
+     * Odstrani z pole formularovych prvku objekt
      *
      * @param string $key
      */
     public function offsetUnset($key)
     {
-        $this->check($key, true);
-        unset($this->data[$key]);
+        if ($this->check($key)) {
+            unset($this->data[$key]);
+        }
     }
 
     /**
-     * check attribut
+     * Zkontroluje v poli formularovych prvku existenci objektu
      *
      * @param string $key
      * @param boolean
@@ -392,39 +367,47 @@ class HForm extends HObject implements ArrayAccess
     }
 
     /**
-     * check key -> in list of attributs
+     * Zkontroluje v poli formularovych prvku existenci objektu
      *
      * @param string $key
      * @return boolean
      */
     private function check($key)
     {
-        if (!array_key_exists($key, $this->data))
+        if (!array_key_exists($key, $this->data)) {
             return false;
+        }
         return true;
     }
 
 }
 
-class HFormCondition extends HObject
+
+/**
+ * Podminkovy objekt
+ *
+ * Provede validaci jen za splneni podminky
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
+class HFormCondition
 {
 
     /** @var int */
     private $rule;
-
     /** @var $mixed*/
     private $arg;
-
     /** @var array */
     private $rules = array();
 
+
     /**
-     * constructor
+     * Konstruktor
      *
-     * @param int $rule
-     * @param mixed $element
-     * @param mixed $arg
-     * @return void
+     * @param int    $rule = null
+     * @param mixed  $arg = null
+     * @return HFormCondition
      */
     public function __construct($rule = null, $arg = null)
     {
@@ -435,35 +418,35 @@ class HFormCondition extends HObject
     }
 
     /**
-     * can validate
+     * Zvaliduje element
      *
-     * @param array $data
-     * @param object $form
-     * @param string $emptyValue
+     * Validace probehne jen pokud je podminka splnena
+     * @param mixed   $value
+     * @param HForm   $form
+     * @param string  $emptyValue
      * @return boolean
      */
     public function validate($value, $form, $emptyValue)
     {
         if (!empty($this->rule))
         {
-            if ( is_object($this->arg) ) {
-                $this->arg = $form->submitedData[ $this->arg->getId() ];
+            if (is_object($this->arg)) {
+                $this->arg = $form->submitedData[$this->arg->getId()];
             }
 
-            if ( !$this->validateField( $this->rule, $value, $this->arg, $emptyValue ) ) {
+            if (!$this->isValid($this->rule, $value, $this->arg, $emptyValue)) {
                 return true;
             }
         }
 
-        foreach ($this->rules as $rule)
-        {
-            if ( is_object($rule['arg']) ) {
-                $arg = $form->submitedData[ $rule['arg']->getId() ];
+        foreach ($this->rules as $rule) {
+            if (is_object($rule['arg'])) {
+                $arg = $form->submitedData[$rule['arg']->getId()];
             } else {
                 $arg = $rule['arg'];
             }
 
-            if( !$this->validateField( $rule['rule'], $value, $arg, $emptyValue ) ) {
+            if (!$this->isValid($rule['rule'], $value, $arg, $emptyValue)) {
                 $form->addError( $rule['message'] );
                 return false;
             }
@@ -473,22 +456,37 @@ class HFormCondition extends HObject
     }
 
     /**
-     * validate text value
+     * Prida pravidlo
      *
-     * @param integer $rule
-     * @param string $value
-     * @param string $arg
-     * @param string $emptyValue
+     * @param int     $rule
+     * @param string  $message
+     * @param mixed   $arg = null
+     */
+    public function addRule($rule, $message, $arg = null)
+    {
+        $this->rules[] = array(
+            'rule' => $rule,
+            'message' => $message,
+            'arg' => $arg,
+        );
+    }
+
+    /**
+     * Provede konkretni validaci
+     *
+     * @param integer  $rule
+     * @param string   $value
+     * @param string   $arg
+     * @param string   $emptyValue
      * @return boolean
      */
-    private function validateField($rule, $value, $arg, $emptyValue)
+    private function isValid($rule, $value, $arg, $emptyValue)
     {
         if ($value == $emptyValue) {
             $value = null;
         }
 
-        switch($rule)
-        {
+        switch ($rule) {
             case HForm::EQUAL:      return $value == $arg; break;
             case HForm::FILLED:     return !empty($value); break;
             case HForm::EMAIL:      return preg_match('/^[^@]+@[^@]+\.[a-z]{2,6}$/i', $value); break;
@@ -502,43 +500,36 @@ class HFormCondition extends HObject
         return true;
     }
 
-    /**
-     * add Rule
-     *
-     * @param int $rule
-     * @param string $message
-     * @param mixed $arg
-     * @return void
-     */
-    public function addRule($rule, $message, $arg = null)
-    {
-        $this->rules[] = array('rule' => $rule, 'message' => $message, 'arg' => $arg);
-    }
-
 }
 
+
+/**
+ * Objekt pro <input type="text" />
+ *
+ * Upravuje zakladni chovani HFormElementu, aby odpovidalo potrebam inputu
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
 class HFormElementInput extends HFormElement
 {
 
     /**
-     * constrctor
+     * Konstruktor
      *
-     * @param string $type
-     * @param string $id
-     * @param mixed $label
-     * @return void
+     * @param string  $type
+     * @param string  $id
      */
-    public function __construct($type, $id, $label)
+    public function __construct($type, $id)
     {
-        parent::__construct('input', $id, $label);
+        parent::__construct('input', $id);
         $this->element['type'] = $type;
         $this->element['class'] = $type;
     }
 
     /**
-     * get tag - return type
+     * Vrati typ tagu
      *
-     * @param void
      * @return string
      */
     public function getTag()
@@ -548,27 +539,33 @@ class HFormElementInput extends HFormElement
 
 }
 
+
+/**
+ * Objekt pro <textarea></textarea>
+ *
+ * Upravuje zakladni chovani HFormElementu, aby odpovidalo potrebam textarea
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
 class HFormElementTextArea extends HFormElement
 {
 
     /**
-     * constrctor
+     * Konstruktor
      *
-     * @param string $type
      * @param string $id
      * @param mixed $label
-     * @return void
      */
-    public function __construct($id, $label)
+    public function __construct($id)
     {
-        parent::__construct('textarea', $id, $label);
+        parent::__construct('textarea', $id);
     }
 
     /**
-     * new set default method
+     * Vlozeni obsahu elementu
      *
      * @param string $value
-     * @return void
      */
     public function setDefault($value)
     {
@@ -576,10 +573,9 @@ class HFormElementTextArea extends HFormElement
     }
 
     /**
-     * new set the empty method
+     * Nastaveni prazdne hodnoty
      *
      * @param string $value
-     * @return void
      */
     public function setEmptyValue($value)
     {
@@ -589,36 +585,86 @@ class HFormElementTextArea extends HFormElement
 
 }
 
+
+/**
+ * Objekt pro <select></select>
+ *
+ * Upravuje zakladni chovani HFormElementu, aby odpovidalo potrebam select
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
 class HFormElementSelect extends HFormElement
 {
 
     /** @var array */
-    private $options;
+    private $options = array();
+
 
     /**
-     * constrctor
+     * Konstruktor
      *
-     * @param string $type
-     * @param string $id
-     * @param mixed $label
-     * @return void
+     * @param string  $id
+     * @param array   $options
      */
-    public function __construct($id, $label, $options)
+    public function __construct($id, $options)
     {
-        parent::__construct('select', $id, $label);
+        parent::__construct('select', $id);
         $this->createOptionTags($options);
     }
 
     /**
-     * create option tags
+     * Je hodnota mezi nabizenymi
+     *
+     * @param string $value
+     * @return boolean
+     */
+    public function has($value)
+    {
+        return in_array($value, array_keys($this->options));
+    }
+
+    /**
+     * Nastavi vyhozi hodnotu
+     *
+     * @param string $value
+     */
+    public function setDefault($value)
+    {
+        foreach ($this->options as $option) {
+            if ($option['value'] == $value) {
+                $option['selected'] = 'selected';
+            }
+        }
+    }
+
+    /**
+     * Vrati html elementu
+     *
+     * @param string $name
+     * @return string
+     */
+    public function __get($name)
+    {
+        if (empty($name)) {
+            throw new LogicException('Cannot read an property without name');
+        }
+
+        if ($name === 'element') {
+            $this->element->setContent($this->getOptionTags());
+        }
+
+        return parent::__get($name);
+    }
+
+    /**
+     * Vytvori option tagy
      *
      * @param array $options
-     * @return void
      */
     private function createOptionTags($options)
     {
-        foreach($options as $key => $val)
-        {
+        foreach ($options as $key => $val) {
             $option = new HHtml('option');
             $option['value'] = $key;
             $option->setContent($val);
@@ -628,108 +674,67 @@ class HFormElementSelect extends HFormElement
     }
 
     /**
-     * return html of options
+     * Vrati HTML option tagu
      *
-     * @param void
      * @return string
      */
     private function getOptionTags()
     {
         $ret = '';
-        foreach($this->options as $option)
+        foreach ($this->options as $option) {
             $ret .= $option->get();
-        return $ret;
-    }
-
-    /**
-     * has string?
-     *
-     * @param  string  $value
-     * @return boolean
-     */
-    public function has($value)
-    {
-        return in_array($value, array_keys($this->options));
-    }
-
-    /**
-     * new set default method
-     *
-     * @param string $value
-     * @return void
-     */
-    public function setDefault($value)
-    {
-        foreach($this->options as $option)
-        {
-            if($option['value'] == $value)
-                $option['selected'] = 'selected';
         }
-    }
-
-    /**
-     * new __get method
-     *
-     * @param string $name
-     * @return void
-     */
-    public function __get($name)
-    {
-        if(empty($name))
-            throw new LogicException("Cannot read an property without name");
-
-        if($name === 'element')
-            $this->element->setContent( $this->getOptionTags() );
-
-        return parent::__get($name);
+        return $ret;
     }
 
 }
 
+
+/**
+ * Zakladni trida formularovych elementu
+ *
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
 class HFormElement
 {
 
     /** @var HHtml */
     protected $label;
-
     /** @var HHtml */
     protected $element;
-
     /** @var string */
     protected $emptyValue;
-
     /** @var array */
     protected $conds = array();
 
+
     /**
-     * constructor
+     * Konstruktor
      *
-     * @param string
-     * @return void
+     * @param string  $tag
+     * @param string  $id
+     * @param array   $options = null
      */
-    function __construct($tag, $id, $label, $options = null)
+    function __construct($tag, $id, $options = null)
     {
         $this->tag = $tag;
 
-        if($label)
-        {
-            $this->label = new HHtml('label');
-            $this->label['for'] = "Form". HBasics::camelize($id);
-            $this->label->setContent($label);
-        }
+        $this->label = new HHtml('label');
+        $this->label['for'] = 'Form' . HBasics::camelize($id);
 
         $this->element = new HHtml($tag);
         $this->element['class'] = $tag;
-        $this->element['id'] = "Form". HBasics::camelize($id);
+        $this->element['id'] = 'Form' . HBasics::camelize($id);
         $this->element['name'] = $id;
     }
 
     /**
-     * set attribut
+     * Nastavi atribut
      *
-     * @param string $var
-     * @param string $val
-     * @return void
+     * @param string  $var
+     * @param string  $val
      */
     public function set($var, $val)
     {
@@ -737,10 +742,9 @@ class HFormElement
     }
 
     /**
-     * set the empty value
+     * Nastavi prazdnou hodnotu
      *
      * @param string $value
-     * @return void
      */
     public function setEmptyValue($value)
     {
@@ -749,9 +753,8 @@ class HFormElement
     }
 
     /**
-     * get value which is equal state "empty"
+     * Vrati prazdnou hodnotu
      *
-     * @param void
      * @return string
      */
     public function getEmptyValue()
@@ -760,7 +763,7 @@ class HFormElement
     }
 
     /**
-     * is the value submited
+     * Je element odeslan
      *
      * @param array $data
      * @return boolean
@@ -769,7 +772,7 @@ class HFormElement
     {
         $value = $data[$this->getId()];
 
-        if ( $value !== $this->getEmptyValue() && !empty($value) ) {
+        if ($value !== $this->getEmptyValue() && !empty($value)) {
             return true;
         }
 
@@ -777,9 +780,8 @@ class HFormElement
     }
 
     /**
-     * get Id
+     * Vrati id
      *
-     * @param void
      * @return string
      */
     public function getId()
@@ -788,9 +790,8 @@ class HFormElement
     }
 
     /**
-     * get tag
+     * Vrati typ tagu
      *
-     * @param void
      * @return string
      */
     public function getTag()
@@ -799,10 +800,9 @@ class HFormElement
     }
 
     /**
-     * set default value
+     * Nastavi vychozi hodnotu
      *
-     * @param  string  $value
-     * @return void
+     * @param string $value
      */
     public function setDefault($value)
     {
@@ -810,11 +810,11 @@ class HFormElement
     }
 
     /**
-     * add condition
+     * Prida podminku
      *
-     * @param  string  $rule
-     * @param  mixed   $arg
-     * @return void
+     * @param string  $rule
+     * @param mixed   $arg
+     * @return HFormCondition
      */
     public function addCondition($rule, $arg)
     {
@@ -822,12 +822,11 @@ class HFormElement
     }
 
     /**
-     * add Rule
+     * Prida pravidlo
      *
-     * @param  integer  $rule
-     * @param  string   $message
-     * @param  mixed    $arg
-     * @return void
+     * @param integer  $rule
+     * @param string   $message
+     * @param mixed    $arg
      */
     public function addRule($rule, $message, $arg)
     {
@@ -838,63 +837,84 @@ class HFormElement
     }
 
     /**
-     * validate element
+     * Zvaliduje element
      *
-     * @param  string  $data
-     * @param  object  $form
+     * @param array   $data
+     * @param HForm   $form
      * @return boolean
      */
     public function validate($data, $form)
     {
-        $value = $data[ $this->getId() ];
+        $value = $data[$this->getId()];
 
-        foreach ($this->conds as $cond)
-        {
-            if( !$cond->validate($value, $form, $this->getEmptyValue()) )
+        foreach ($this->conds as $cond) {
+            if (!$cond->validate($value, $form, $this->getEmptyValue())) {
                 return false;
+            }
         }
-
         return true;
     }
 
     /**
-     * return html for element and label
+     * Vrati html pro element a label
      *
-     * @param  string  $name
+     * @param string $name
      * @return string
      */
     public function __get($name)
     {
         if ($name === '') {
-            throw new LogicException("Cannot read an property without name");
+            throw new LogicException('Cannot read an property without name');
         } elseif ($name === 'element') {
             return $this->element->get();
-        } elseif ($name === 'label' && is_object($this->label)) {
-            return $this->label->get();
         }
     }
 
     /**
-     * return html for element and label
+     * Vrati html label
      *
-     * @param  string  $name
-     * @param  string  $args
-     * @return void
+     * @param string  $label
+     * @param array   $attributs
+     * @return string
+     */
+    public function label($label, $attributs = array())
+    {
+        $this->label->setContent($label);
+        foreach ($attributs as $key => $val) {
+            $this->label[$key] = $val;
+        }
+
+        return $this->label->get();
+    }
+
+    /**
+     * Vrati html pro element a label
+     *
+     * @param string  $name
+     * @param string  $args
+     * @return string
      */
     public function __call($name, $args)
     {
         if ($name === '') {
-            throw new LogicException("Cannot call a method without name");
+
+            throw new LogicException('Cannot call a method without name');
+
         } elseif ($name === 'element') {
+
             foreach ($args[0] as $key => $arg) {
                 $this->element[$key] = $arg;
             }
             return $this->element->get();
-        } elseif ($name === 'label' && is_object($this->label)) {
-            foreach ($args[0] as $key => $arg) {
+
+        } elseif ($name === 'label') {
+
+            $this->label->setContent($args[0]);
+            foreach ($args[1] as $key => $arg) {
                 $this->label[$key] = $arg;
             }
             return $this->label->get();
+
         }
     }
 }
