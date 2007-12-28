@@ -28,11 +28,10 @@ class HController
     public $view;
     /** @var string */
     public $layout = "default";
-
     /** @var string */
-    protected $viewPath;
+    public $viewPath;
     /** @var string */
-    protected $layoutPath;
+    public $layoutPath;
 
     /** @var object */
     private $db = null;

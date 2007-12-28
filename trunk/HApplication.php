@@ -94,12 +94,10 @@ class HApplication
      */
     public static function exception($exception)
     {
-        if (substr(get_class($exception), 0, 4) === 'Dibi') {
-            echo "Dibi: ". $exception->getMessage();
-        } else {
-            echo $exception->getMessage();
-        }
-
+        self::$controller = new Controller;
+        self::error('sql');
+        self::$controller->set('exception', $exception);
+        self::$controller->renderView();
     }
 
     /**
@@ -110,6 +108,8 @@ class HApplication
      */
     public static function error($view)
     {
+        self::$controller->set('__missingView__', self::$controller->view);
+
         self::$error = true;
         self::$system = true;
 
