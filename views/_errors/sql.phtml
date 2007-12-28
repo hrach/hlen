@@ -1,13 +1,11 @@
 <div id="err_message">
 
-<h1>SQL chyba</h1>
-<p>Hlášení serveru:</p>
-<ul>
-	<li><?= $arg[0]->getMessage() ?></li>
-</ul>
+<h1>CHYBA: SQL dotaz není korektní</h1>
 
-<p>Trasování chyby:</p>
-<pre>
-<?= $arg[0]->getTraceAsString() ?>
-</pre>
+<p>MySQL hlásí:</p>
+
+<pre><?=$exception->getMessage()?></pre>
+
+<p>Po vypnutí ladícího režimu se při chybě zobrazí klasická E404.</p>
+
 </div>
