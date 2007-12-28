@@ -61,7 +61,7 @@ class HRouter
         if (is_callable($router)) {
             call_user_func($router);
         } else {
-            HBasics::load($router);
+            @include $router;
         }
 
         if (self::$allowDefault) {
