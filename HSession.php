@@ -3,15 +3,20 @@
 /**
  * Hlen Framework
  *
- * Copyright (c) 2007 Jan -Hrach- Skrasek (http://hrach.netuje.cz)
- *
- * @author     Jan Skrasek
- * @copyright  Copyright (c) 2007 Jan Skrasek
- * @category   Hlen
- * @package    Hlen-Core
+ * @author     Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @package    Hlen
  */
 
 
+/**
+ * Trida pro praci se Session
+ *
+ * Efektne uklada a cte session promenne
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
 class HSession
 {
 
