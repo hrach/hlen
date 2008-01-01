@@ -168,9 +168,12 @@ class HApplication
      */
     private static function callMethod($action, $args)
     {
+        if (method_exists(self::$controller, 'init')) {
+            call_user_func(array(self::$controller, 'init'));
+        }
 
         $actionName = $action . 'Action';
-        $methodExists = is_callable(array(self::$controller, $actionName));
+        $methodExists = method_exists(self::$controller, $actionName);
 
         if (!$methodExists) {
             if (!self::$error) {

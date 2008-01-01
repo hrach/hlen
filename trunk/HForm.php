@@ -246,8 +246,8 @@ class HForm implements ArrayAccess
                         unset( $data[$element->getId()] );
                     } elseif( $element->getTag() === 'select' ) {
                         if (!$element->has( $data[$element->getId()] )) {
-                            $data[$element->getId()] = null;
-                            $dataComplete[$element->getId()] = null;
+                            unset($data[$element->getId()]);
+                            unset($dataComplete[$element->getId()]);
                         }
                     }
                 }
@@ -311,7 +311,7 @@ class HForm implements ArrayAccess
         $render = $this->start() . "<table>\n";
         foreach ($this->data as $row) {
             $render .= "<tr>\n"
-                     . '<td>' . $row->label . "</td>\n"
+                     . '<td>' . $row->label($row->getId()) . "</td>\n"
                      . '<td>' . $row->element . "</td>\n"
                      . "</tr>\n";
         }
@@ -863,9 +863,7 @@ class HFormElement
      */
     public function __get($name)
     {
-        if ($name === '') {
-            throw new LogicException('Cannot read an property without name');
-        } elseif ($name === 'element') {
+        if ($name === 'element') {
             return $this->element->get();
         }
     }
@@ -888,33 +886,18 @@ class HFormElement
     }
 
     /**
-     * Vrati html pro element a label
+     * Vrati html element
      *
-     * @param string  $name
-     * @param string  $args
+     * @param array $attributs
      * @return string
      */
-    public function __call($name, $args)
+    public function element($attributs = array())
     {
-        if ($name === '') {
-
-            throw new LogicException('Cannot call a method without name');
-
-        } elseif ($name === 'element') {
-
-            foreach ($args[0] as $key => $arg) {
-                $this->element[$key] = $arg;
-            }
-            return $this->element->get();
-
-        } elseif ($name === 'label') {
-
-            $this->label->setContent($args[0]);
-            foreach ($args[1] as $key => $arg) {
-                $this->label[$key] = $arg;
-            }
-            return $this->label->get();
-
+        foreach ($attributs as $key => $val) {
+            $this->element[$key] = $val;
         }
+
+        return $this->element->get();
     }
+
 }
