@@ -77,11 +77,15 @@ class HController
      * Presmerovani aplikace na novou url + jeji ukonceni
      *
      * @param string $url
+     * @param boolean $exit = true
      */
-    public function redirect($url)
+    public function redirect($url, $exit = true)
     {
         HHttp::redirect(HHttp::getUrl() . HApplication::systemUrl($url));
-        exit;
+
+        if ($exit) {
+            exit;
+        }
     }
 
     /**

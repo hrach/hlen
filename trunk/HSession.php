@@ -8,6 +8,8 @@
  * @package    Hlen
  */
 
+HSession::start();
+
 
 /**
  * Trida pro praci se Session
@@ -20,46 +22,48 @@
 class HSession
 {
 
-	function __construct()
-	{
-		$this->init();
-		$this->start();
-	}
 
-	private function init()
+	public static function start()
 	{
-		if (function_exists('ini_set')) {
-			ini_set('session.use_cookies', 1);
-			ini_set('session.name', Configure::read('Session.cookie'));
-			ini_set('session.cookie_lifetime', Configure::read('Session.lifeTime'));
-			if(Configure::read('Session.ownTempDir') === true)
-				ini_set('session.save_path', Configure::read('Session.tempDir'));
-		}
-	}
-
-	private function start()
-	{
+        self::init();
 		session_start();
 	}
 
-	function read($var)
+	public static function read($var)
 	{
-		return $_SESSION[$var];
+        return $_SESSION[$var];
 	}
 
-	public function write($var, $val)
+	public static function exists($var)
+	{
+        return isset($_SESSION[$var]);
+	}
+
+	public static function write($var, $val)
 	{
 		$_SESSION[$var] = $val;
 	}
 
-	public function delete($var)
+	public static function delete($var)
 	{
 		unset($_SESSION[$var]);
 	}
 
-	public function destroy()
+	public static function destroy()
 	{
 		session_destroy();
+	}
+
+	private static function init()
+	{
+		if (function_exists('ini_set')) {
+			ini_set('session.use_cookies', 1);
+			ini_set('session.name', HBasics::getVal(HConfigure::read('Session.cookie'), 'hlen-session'));
+			ini_set('session.cookie_lifetime', HBasics::getVal(HConfigure::read('Session.lifeTime'), 60*60*6)); //6 hodin
+			if (HConfigure::read('Session.ownTempDir') === true) {
+				ini_set('session.save_path', HConfigure::read('Session.tempDir'));
+            }
+		}
 	}
 
 }
