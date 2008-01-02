@@ -61,7 +61,13 @@ class HForm implements ArrayAccess
     public function __construct($url = null)
     {
         if (class_exists('HApplication', false)) {
-            $this->url = HHttp::getBase() . HApplication::systemUrl($url);
+            $this->url = HHttp::getBase();
+
+            if ($url === null) {
+                $this->url .= implode('/', HRouter::$url);
+            } else {
+                $this->url .= HApplication::systemUrl($url);
+            }
         } else {
             $this->url = HHttp::getBase() . $url;
         }
@@ -76,6 +82,18 @@ class HForm implements ArrayAccess
     public function addText($id)
     {
         $this->data[$id] = new HFormElementInput('text', $id);
+        return $this->data[$id];
+    }
+
+    /**
+     * Prida input password
+     *
+     * @param string $id
+     * @return HFormElement
+     */
+    public function addPassword($id)
+    {
+        $this->data[$id] = new HFormElementInput('password', $id);
         return $this->data[$id];
     }
 
@@ -123,7 +141,7 @@ class HForm implements ArrayAccess
      * @param mixed   $value
      * @return HFormElement
      */
-    public function addSubmit($id)
+    public function addSubmit($id = 'submit')
     {
         $this->data[$id] = new HFormElementInput('submit', $id);
         return $this->data[$id];
@@ -209,7 +227,7 @@ class HForm implements ArrayAccess
     /**
      * Vrati seznam chyb
      *
-     * @return string
+     * @return array
      */
     public function getErrors()
     {
@@ -291,13 +309,11 @@ class HForm implements ArrayAccess
 
     /**
      * Nastavi hodnoty, ktere byly odeslany formularem
-     *
-     * @param string
      */
     public function reSetDefaults()
     {
         foreach ($this->submitedDataComplete as $id => $val) {
-            if (is_object($this->data[$id]) && ($this->data[$id]->getTag() !== 'submit' || $this->data[$id]->getTag() !== 'password')) {
+            if (is_object($this->data[$id]) && !in_array($this->data[$id]->getTag(), array('submit', 'password'))) {
                 $this->data[$id]->setDefault($val);
             }
         }
@@ -308,15 +324,39 @@ class HForm implements ArrayAccess
      */
     public function render()
     {
-        $render = $this->start() . "<table>\n";
+        $render = "";
+
+        if (!empty($this->errors)) {
+            $render .= "<h3>Chyby</h3><ul>";
+            foreach ($this->errors as $err) {
+                $render .= "<li>" . $err . "</li>";
+            }
+            $render .= "</ul>";
+        }
+
+        $render .= $this->start() . "<table>\n";
         foreach ($this->data as $row) {
-            $render .= "<tr>\n"
-                     . '<td>' . $row->label($row->getId()) . "</td>\n"
-                     . '<td>' . $row->element . "</td>\n"
-                     . "</tr>\n";
+            if ($row->getTag() !== 'submit') {
+                $render .= "<tr>\n"
+                         . '<td>' . $row->label($row->getId()) . "</td>\n"
+                         . '<td>' . $row->element . "</td>\n"
+                         . "</tr>\n";
+            } else {
+                $render .= "<tr>\n<td></td>\n"
+                         . '<td>' . $row->element(array('value' => $row->getId())) . "</td>\n"
+                         . "</tr>\n";
+            }
         }
         $render .= "</table>\n" . $this->end();
         return $render;
+    }
+
+    /**
+     * Pri vypsani obejktu se vyrenderuje formular
+     */
+    public function __toString()
+    {
+        return $this->render();
     }
 
     /**
@@ -331,7 +371,7 @@ class HForm implements ArrayAccess
     }
 
     /**
-     * Brati zo pole formularovych prvku objekt
+     * Vrati z pole formularovych prvku objekt
      *
      * @param string $key
      * @return mixed
