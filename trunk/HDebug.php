@@ -23,12 +23,17 @@ class HDebug
     /**
      * Vypise strukturu a obsah promenne
      *
-     * @param mixed
+     * @param mixed   $var
+     * @param boolean $escapeHtml = true
      */
-    public static function dump($var)
+    public static function dump($var, $excapeHtml = true)
     {
         echo '<pre style="text-align: left;">';
-        print_r($var);
+        if ($escapeHtml) {
+            echo htmlspecialchars(print_r($var, true));
+        } else {
+            print_r($var);
+        }
         echo '</pre>';
     }
 
