@@ -3,7 +3,7 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2007 David Grudl aka -dgx- (http://www.dgx.cz)
+ * Copyright (c) 2005, 2008 David Grudl aka -dgx- (http://www.dgx.cz)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
@@ -11,9 +11,9 @@
  * For more information please see http://dibiphp.com/
  *
  * @author     David Grudl
- * @copyright  Copyright (c) 2005, 2007 David Grudl
+ * @copyright  Copyright (c) 2005, 2008 David Grudl
  * @license    http://dibiphp.com/license  dibi license
- * @version    0.9 (Revision: 102, Date: 2007/12/11 08:28:55)
+ * @version    0.9 (Revision: 103, Date: 2008/01/02 06:25:21)
  * @link       http://dibiphp.com/
  * @package    dibi
  */
@@ -204,7 +204,7 @@ extends
 NObject
 implements
 IteratorAggregate,Countable{private$driver;private$xlat;private$metaCache;private$fetched=FALSE;private$withTables=FALSE;private
-static$types=array(dibi::FIELD_TEXT=>'string',dibi::FIELD_BINARY=>'string',dibi::FIELD_BOOL=>'bool',dibi::FIELD_INTEGER=>'int',dibi::FIELD_FLOAT=>'float',dibi::FIELD_COUNTER=>'int',);public
+static$types=array(dibi::FIELD_TEXT=>'string',dibi::FIELD_BINARY=>'string',dibi::FIELD_INTEGER=>'int',dibi::FIELD_FLOAT=>'float',dibi::FIELD_COUNTER=>'int',);public
 function
 __construct($driver){$this->driver=$driver;}public
 function
@@ -268,7 +268,7 @@ isset($this->xlat[$col])?$this->xlat[$col]:NULL;}final
 public
 function
 convert($value,$type){if($value===NULL||$value===FALSE){return$value;}if(isset(self::$types[$type])){settype($value,self::$types[$type]);return$value;}if($type===dibi::FIELD_DATE||$type===dibi::FIELD_DATETIME){return
-strtotime($value);}return$value;}final
+strtotime($value);}if($type===dibi::FIELD_BOOL){return((bool)$value)&&$value!=='f'&&$value!=='F';}return$value;}final
 public
 function
 getColumnsMeta(){if($this->metaCache===NULL){$this->metaCache=$this->getDriver()->getColumnsMeta();}$cols=array();foreach($this->metaCache
@@ -358,7 +358,7 @@ __construct($value,$type){$this->value=$value;$this->type=$type;}public
 function
 toSql(DibiDriverInterface$driver,$modifier){return$driver->format($this->value,$this->type);}}class
 dibi{const
-FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='I',VERSION='0.9 (Revision: 102, Date: 2007/12/11 08:28:55)';private
+FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='I',VERSION='0.9 (Revision: 103, Date: 2008/01/02 06:25:21)';private
 static$registry=array();private
 static$connection;private
 static$substs=array();private
