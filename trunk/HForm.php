@@ -8,6 +8,10 @@
  * @package    Hlen
  */
 
+require_once dirname(__FILE__) . '/HHttp.php';
+require_once dirname(__FILE__) . '/HHtml.php';
+require_once dirname(__FILE__) . '/HBasics.php';
+
 
 /**
  * Poskytuje komplexni sluzby kolem formularu
@@ -912,7 +916,7 @@ class HFormElement
      * Vrati html label
      *
      * @param string  $label
-     * @param array   $attributs
+     * @param array   $attributs = array()
      * @return string
      */
     public function label($label, $attributs = array())
@@ -928,13 +932,18 @@ class HFormElement
     /**
      * Vrati html element
      *
-     * @param array $attributs
+     * @param array   $attributs = array()
+     * @param string  $label = null
      * @return string
      */
-    public function element($attributs = array())
+    public function element($attributs = array(), $label = null)
     {
         foreach ($attributs as $key => $val) {
             $this->element[$key] = $val;
+        }
+
+        if ($label) {
+            $this->element['value'] = $label;
         }
 
         return $this->element->get();

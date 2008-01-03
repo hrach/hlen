@@ -148,6 +148,16 @@ class HController
         ob_end_clean();
     }
 
+    /**
+     * Alias pro link
+     *
+     * @deprecated
+     **/
+    public function a()
+    {
+        $args = func_get_args();
+        return call_user_func_array(array($this, 'link'), $args);
+    }
 
     /**
      * Vrati odkaz
@@ -157,7 +167,7 @@ class HController
      * @param array   $options = array()
      * @return string
      */
-    public function a($url, $title = null, $options = array())
+    public function link($url, $title = null, $options = array())
     {
         $el = new HHtml('a');
         foreach ($options as $key => $val) {
