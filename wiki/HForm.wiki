@@ -17,6 +17,8 @@ $form->addText('surname');
 $form->addSubmit('submit');
 }}}
 
+== Vypsání formuláře ==
+
 Zatím je ale uložen v proměnné $form. Pokud ho chcete automaticky vyrednderovat, můžete to udělat například takto
 
 {{{
@@ -41,3 +43,17 @@ echo $form['surname']->element;
 
 echo $form['submit']->element(null, 'Odeslat');
 }}}
+
+== Další prvky tvoření ==
+
+Ukázky napoví myslím více:
+
+{{{
+$form->addTextArea('obsah');
+
+$form->addSelect('rok', array(2000, 2001, 2002));
+
+$form->addPassword('heslo');
+}}}
+
+Na dalších prvcích se pracuje.
