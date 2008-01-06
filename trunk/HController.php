@@ -15,7 +15,7 @@
  * Zakladni Controller poskytuje mnoho metod pro usnadneni prace
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.1.5
  */
 class HController
 {
@@ -33,6 +33,8 @@ class HController
     /** @var string */
     public $layoutPath;
 
+    /** @var array */    
+    private $catchedArg = array();
     /** @var object */
     private $db = null;
     /** @var array */
@@ -81,20 +83,10 @@ class HController
      */
     public function redirect($url, $exit = true)
     {
-        HHttp::redirect(HHttp::getUrl() . HApplication::systemUrl($url));
+        HHttp::redirect(HHttp::getUrl() . $url);
 
         if ($exit) {
             exit;
-        }
-    }
-
-    /**
-     * Zajisti pripraveni HDb pred volanim metody
-     */
-    public function callBeforeMethod()
-    {
-        if (method_exists(HApplication::$controller, 'beforeMethod')) {
-            HApplication::$controller->beforeMethod();
         }
     }
 
@@ -147,55 +139,137 @@ class HController
 
         ob_end_clean();
     }
+    
+    /**
+     * Zafixuje predavane promenne
+     *
+     * @param integer $name Jmeno fixovaneho argumentu
+     */
+    public function catchArg($name)
+    {
+        if (!empty(HRouter::$args[$name])) {
+            $this->catchedArg[$name] = $name . HRouter::$naSeparator . HRouter::$args[$name];
+        }
+    }
 
     /**
      * Alias pro link
      *
      * @deprecated
      **/
-    public function a()
+    public function a($title, $url)
     {
-        $args = func_get_args();
-        return call_user_func_array(array($this, 'link'), $args);
-    }
+        $url = HHttp::getBase() . $url;
+        $el = new HHtml('a');
+        $el['href'] = $url;
+        $el->setContent($title);
 
+        return $el->get();
+    }
+          
     /**
      * Vrati odkaz
      *
+     * @param string  $title
      * @param string  $url
      * @param string  $title = null
      * @param array   $options = array()
      * @return string
      */
-    public function link($url, $title = null, $options = array())
+    private function link($title, $url = array(), $inherited = true)
     {
+        $url = HHttp::getBase() . $this->url($url, $inherited);
         $el = new HHtml('a');
-        foreach ($options as $key => $val) {
-            $el[$key] = $val;
-        }
-
-        $el['href'] = $this->url($url);
-        $el->setContent(HBasics::getVal($title, $url));
+        $el['href'] = $url;
+        $el->setContent($title);
 
         return $el->get();
     }
 
     /**
-     * Vrati url
+     * Vrati odpovidajici URL
      *
-     * @param string $url
-     * @param boolean $absolute = false
+     * @param $url = array()
+     * @param $inherited = true
      * @return string
      */
-    public function url($url, $absolute = false)
+    public function url($url = array(), $inherited = true)
     {
-        if ($absolute || strpos($url, 'http://') === false) {
-            $url = HHttp::getUrl() . HApplication::systemUrl($url);
+        $newUrl = array();
+        $rule = HRouter::$rule;
+        $url[2] = (array) $url[2];
+
+        foreach ($rule as $index => $val) {
+            switch ($val) {
+                case ':controller':
+                    if (isset($url[0])) {
+                        $newUrl[$index] = $url[0];
+                    } elseif($inherited) {
+                        $newUrl[$index] = HRouter::$controller;
+                    } else {
+                        $newUrl[$index] = HRouter::$defaultController;
+                    }
+                    break;
+                case ':action':
+                    if (isset($url[1])) {
+                        $newUrl[$index] = $url[1];
+                    } elseif($inherited) {
+                        $newUrl[$index] = HRouter::$action;
+                    } else {
+                        $newUrl[$index] = HRouter::$defaultAction;
+                    }                   
+                    break;
+                default:
+                    if ($inherited) {
+                        $newUrl[$index] = HRouter::getSegment($index);
+                    } else {
+                        $base = HHttp::urlToArray(HRouter::$base);
+                        $newUrl[$index] = $base[$index];
+                    }
+                    break;    
+            }
         }
 
-        return $url;
+        foreach ($url[2] as $i => $arg) {
+            if (!is_integer($i)) {
+                $url[2][$i] = $i . HRouter::$naSeparator . $arg;
+            }
+        }
+        
+        if ($inherited) {
+            $args = array_merge($this->catchedArg, $url[2]);
+            foreach ($rule as $index => $val) {                            
+                if ($val === ':arg') {
+                    $newUrl[$index] = array_shift($args);
+                    break;
+                }
+            }
+            while (!empty($args)) {
+                $newUrl[] = array_shift($args);
+            }
+        } else {
+            foreach ($url[2] as $arg) {
+                $newUrl[] = $arg;
+            }
+        }
+
+        return implode('/', $newUrl);
     }
 
+    protected function getArgs()
+    {
+        return HRouter::$args;
+    }
+    
+    protected function getArg($name)
+    {
+        if (isset(HRouter::$args[$name])) {
+            return HRouter::$args[$name];
+        } else {
+            return false;
+        }
+    }
+    
     /**
      * Parsuje sablonu
      *
@@ -214,6 +288,8 @@ class HController
 
     /**
      * Vytvori spravnou cestu pro view
+     * 
+     * @todo Vypis pri zacykleni
      */
     private function makeViewPaths()
     {
@@ -258,6 +334,6 @@ class HController
         }
 
         $this->layoutPath = $layouts[$x];
-    }
-
+    }    
+    
 }
