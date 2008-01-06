@@ -38,7 +38,7 @@ function __autoload($class)
 /**
  * Ridici trida MVC aplikace
  *
- * Zkombinuje dohoromady vsechny potrebné tridy Hlenu
+ * Zkombinuje dohoromady vsechny potrebne tridy Hlenu
  * @package   Hlen
  * @author    Jan Skrasek
  * @version   0.1.0
@@ -62,7 +62,7 @@ class HApplication
 
 
     /**
-     * Spustí celou MVC aplikaci
+     * Spust? celou MVC aplikaci
      */
     public static function run()
     {
@@ -79,8 +79,8 @@ class HApplication
         self::$controller->renderView();
 
         if (class_exists('HConfigure', false) && HConfigure::read('Core.debug') > 1) {
-            if (class_exists('HDibi', false)) {
-                echo HDibi::getDebug();
+            if (class_exists('HDb', false)) {
+                echo HDb::getDebug();
             }
             echo '<!-- time: ' . round((microtime(true)- self::$startTime)*1000, 2) . ' ms -->';
         }
@@ -101,7 +101,7 @@ class HApplication
     }
 
     /**
-     * Nastaví prislusnou chybovou sablonu
+     * Nastav? prislusnou chybovou sablonu
      * Mimo ladici rezim nastavuje automaticky E404
      *
      * @param string $view
@@ -121,7 +121,7 @@ class HApplication
     }
 
     /**
-     * Vytvorí systemove url
+     * Vytvor? systemove url
      *
      * Pokud je treba, prida jmeno controlleru
      * @param string $url
@@ -184,7 +184,6 @@ class HApplication
             self::$controller->view = $action;
         }
 
-        self::$controller->callBeforeMethod();
         call_user_func_array(array(self::$controller, $actionName), $args);
     }
 
