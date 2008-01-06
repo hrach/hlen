@@ -38,7 +38,7 @@ class HDb
     {
         if (empty($config) && class_exists('HApplication', false)) {
             $config = HConfigure::read('Db.connections');
-            $debug = (bool) HConfigure::read('Core.debug') > 1;
+            $debug = HConfigure::read('Core.debug') > 1;
         }
 
         self::$debug = $debug;
@@ -55,7 +55,7 @@ class HDb
         }
 
         if (self::$debug) {
-            dibi::addHandler('HDb::sqlHandler');
+            dibi::addHandler(array('HDb', 'sqlHandler'));
         }
     }
 

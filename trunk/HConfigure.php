@@ -27,7 +27,6 @@ class HConfigure
      * Ulozi hodnotu
      *
      * @param string
-     * @param mixed
      */
     public static function write($var, $val)
     {

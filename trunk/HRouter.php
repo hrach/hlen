@@ -17,33 +17,50 @@ require_once dirname(__FILE__) . '/HHttp.php';
  * Trida parsuje url pro MVC vrstvenou aplikaci
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.2.0
  */
 class HRouter
 {
 
+    /** @var boolean */
+    public static $routing = false;
     /** @var string */
     public static $url;
+    /** @var array */
+    public static $segment = array();
+    /** @var array */
+    public static $prefix = array();
+
+
     /** @var string */
-    public static $service;
-    /** @var boolean */
-    public static $allowDefault = true;
+    public static $base = ':controller/:action';
+    /** @var array */
+    public static $rule = array();
     /** @var string */
-    public static $action;
+    public static $defaultController = '';
+    /** @var string */
+    public static $defaultAction = 'index';
+    
+
+
     /** @var string */
     public static $controller;
+    /** @var string */
+    public static $action;
     /** @var array */
     public static $args = array();
+
+
+    /** @var boolean */
+    public static $multiArgs = true;
+    /** @var string */
+    public static $naSeparator = ':';
+
+
     /** @var boolean */
     public static $system = false;
-
-
-    /** @var boolean */
-    private static $routing = false;
-    /** @var array */
-    private static $parseUrl = array();
-    /** @var array */
-    private static $reserved = array(':controller', ':action', ':arg');
+    /** @var string */
+    public static $service;
     /** @var array */
     private static $services = array();
 
@@ -56,26 +73,34 @@ class HRouter
      */
     public static function start($url, $router)
     {
-        self::$url = HHttp::urlToArray($url);
-
+        self::$segment = HHttp::urlToArray($url);
+        self::removeServicSegment();
+        
         if (is_callable($router)) {
             call_user_func($router);
         } else {
-            @include $router;
+            if (file_exists($router)) {
+                include $router;
+            }
+        }
+        
+        if (!self::$routing) {
+            self::connect(self::$base, array('multiArgs' => true));
         }
 
-        if (self::$allowDefault) {
-            self::connect('/:controller/:action', array('args' => true));
-            self::connect('/:controller');
+        if (!self::$routing) {
+            self::$controller = self::$defaultController;
+            self::$action = self::$defaultAction;
+            self::$rule = HHttp::urlToArray(self::$base);
         }
     }
 
     /**
-     * Rezervuje prefix servisu
+     * Rezervuje posledni segment pro servis
      *
      * @param mixed $services
      */
-    public static function mapService($services)
+    public static function addService($services)
     {
         self::$services = array_merge(self::$services, (array) $services);
     }
@@ -84,7 +109,6 @@ class HRouter
      * Prepise dane url jinym
      *
      * Vhodne pro zajisteni zpetne kompatibiity
-     * @deprecated vyuzijte self::connect
      * @param string $rule
      * @param string $newUrl
      * @return boolean
@@ -95,9 +119,10 @@ class HRouter
         $rule = HHttp::sanitizeUrl($rule);
 
         if ($url === $rule) {
-            self::$url = HHttp::urlToArray($newUrl);
+            self::$segment = HHttp::urlToArray($newUrl);
             return true;
         }
+
         return false;
     }
 
@@ -113,49 +138,73 @@ class HRouter
         if (self::$routing) {
             return false;
         }
+        
+        if (!isset($options['multiArgs'])) {
+            $options['multiArgs'] = false;
+        }
 
-        $router['action'] = 'index';
+        $router['controller'] = self::$defaultController;
+        $router['action'] = self::$defaultAction;
+        $router['args'] = array();
+        
         $rule = HHttp::urlToArray($rule);
-        self::checkServices();
-
-        if (count($rule) < count(self::$url) && $options['args'] !== true) {
+        $key = -1;
+        
+        // pokud se nerovna pocet segmentu
+        // a neni povoleno neomezen mnozstvi argumentu,
+        // routing se neprovadi
+        if ((count($rule) === 0 && (count($rule) < count(self::$segment) && $options['multiArgs'] === false)) || (count($rule) > count(self::$segment))) {
             return false;
         }
 
-        foreach ($rule as $x => $text) {
-
-            if (self::getFragment($x) === false) {
-                return false;
-            }
-
-            if (in_array($text, self::$reserved)) {
-                if ($text === ':arg') {
-                    $router['args'][] = self::getFragment($x);
+        foreach ($rule as $key => $val) {
+            if (in_array($val, array(':controller', ':action', ':arg'))) {
+                if ($val === ':arg') {
+                    $nArg = self::removePrefix(self::getSegment($key));
+                    $router['args'][$nArg[0]] = $nArg[1];
                 } else {
-                    $router[substr($text, 1)] = self::getFragment($x);
+                    $router[substr($val, 1)] = self::getSegment($key);
                 }
-            } elseif ($text !== self::getFragment($x)) {
+            } elseif ($val !== self::getSegment($key)) {
                 return false;
             }
         }
 
-        foreach ($options as $key => $option) {
-            if (in_array($key, array('controller', 'action'))) {
-                $router[$key] = $option;
+        foreach ($options as $att => $option) {
+            if (in_array($att, array('controller', 'action'))) {
+                $router[$att] = $option;
+            }
+        }
+        
+        if ($options['multiArgs']) {
+            while (self::getSegment(++$key) !== false) {
+                $nArg = self::removePrefix(self::getSegment($key));
+                $router['args'][$nArg[0]] = $nArg[1];
+            }
+        }
+        
+        if (isset($options['args'])) {
+            foreach ((array) $options['args'] as $arg) {
+                if (is_array($arg)) {
+                    $arg = implode(HRouter::$naSeparator, $arg);
+                }   
+                $nArg = self::removePrefix($arg);
+                if (!isset($router['args'][$nArg[0]])) {
+                    $router['args'][$nArg[0]] = $nArg[1];
+                }
             }
         }
 
-        if ($options['args']) {
-            while (self::getFragment(++$x) !== false) {
-                $router['args'][] = self::getFragment($x);
-            }
-        }
-
+        //HDebug::dump($router);
+        
         self::$controller = $router['controller'];
-        self::$action = $router['action'];
-        self::$args = $router['args'];
+        self::$action     = $router['action'];
+        self::$args       = $router['args'];
+        
+        self::$routing    = true;
+        self::$rule       = $rule;
+        self::$multiArgs  = $options['multiArgs'];
 
-        self::$routing = true;
         return true;
     }
 
@@ -165,12 +214,32 @@ class HRouter
      * @param integer $x
      * @return mixed
      */
-    private static function getFragment($x)
+    public static function getSegment($x)
     {
-        if (isset(self::$url[$x])) {
-            return self::$url[$x];
+        if (isset(self::$segment[$x])) {
+            return self::$segment[$x];
         }
+
         return false;
+    }
+
+    /**
+     * Odstrani prefix promenne
+     *
+     * @param string $arg
+     */
+    private static function removePrefix($arg)
+    {
+        static $index = 0;
+
+        foreach (self::$prefix as $prefix) {
+            $part = substr($arg, 0, strlen($prefix) + 1);
+            if ($prefix . self::$naSeparator === $part) {
+                return array($prefix, substr($arg, strlen($prefix) + 1));
+            }
+        }
+
+        return array($index++, $arg);
     }
 
     /**
@@ -178,19 +247,20 @@ class HRouter
      *
      * @return boolean
      */
-    private static function checkServices()
+    private static function removeServicSegment()
     {
         if (empty(self::$services)) {
             return false;
         }
 
         foreach (self::$services as $service) {
-            if (self::$url[0] === $service) {
+            if (self::$segment[count(self::$segment)-1] === $service) {
                 self::$service = $service;
-                array_shift(self::$url);
+                array_pop(self::$segment);
                 return true;
             }
         }
+
         return false;
     }
 

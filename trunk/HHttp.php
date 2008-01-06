@@ -98,14 +98,14 @@ class HHttp
     /**
      * Presmeruje na danou url
      *
-     * @todo dodelat grafický vystup - headers_sent()
+     * @todo dodelat graficky vystup - headers_sent()
      * @param string $absoluteUrl
      * @return void
      */
     public static function redirect($absoluteUrl)
     {
         if (headers_sent()) {
-            Die("Pøesmìrování nelze provést, hlavièky byly již odeslány.");
+            Die("Presmerovani nelze provest, hlavicky byly jiz odeslany.");
         }
 
         Header('Location: '. $absoluteUrl);
