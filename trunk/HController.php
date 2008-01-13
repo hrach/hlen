@@ -45,7 +45,7 @@ class HController
      */
     public function __construct()
     {
-        $this->data = $_POST['data'];
+
     }
 
     /**
@@ -136,8 +136,6 @@ class HController
         echo $this->parse($this->layoutPath, $vars);
 
         $this->callAfterRender();
-
-        ob_end_clean();
     }
     
     /**
@@ -197,7 +195,14 @@ class HController
     {
         $newUrl = array();
         $rule = HRouter::$rule;
-        $url[2] = (array) $url[2];
+
+        if (empty($url[2])) {
+            $url[2] = array();
+        }
+        
+        if (!is_array($url[2])) {
+            $url[2] = (array) $url[2];
+        }
 
         foreach ($rule as $index => $val) {
             switch ($val) {

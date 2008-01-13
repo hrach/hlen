@@ -26,7 +26,7 @@ class HDebug
      * @param mixed   $var
      * @param boolean $escapeHtml = true
      */
-    public static function dump($var, $excapeHtml = true)
+    public static function dump($var, $escapeHtml = true)
     {
         echo '<pre style="text-align: left;">';
         if ($escapeHtml) {

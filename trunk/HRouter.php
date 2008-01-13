@@ -74,8 +74,7 @@ class HRouter
     public static function start($url, $router)
     {
         self::$segment = HHttp::urlToArray($url);
-        self::removeServicSegment();
-        
+       
         if (is_callable($router)) {
             call_user_func($router);
         } else {
@@ -83,7 +82,7 @@ class HRouter
                 include $router;
             }
         }
-        
+
         if (!self::$routing) {
             self::connect(self::$base, array('multiArgs' => true));
         }
@@ -139,6 +138,8 @@ class HRouter
             return false;
         }
         
+        self::removeServicSegment();
+        
         if (!isset($options['multiArgs'])) {
             $options['multiArgs'] = false;
         }
@@ -149,14 +150,14 @@ class HRouter
         
         $rule = HHttp::urlToArray($rule);
         $key = -1;
-        
+
         // pokud se nerovna pocet segmentu
         // a neni povoleno neomezen mnozstvi argumentu,
         // routing se neprovadi
         if ((count($rule) === 0 && (count($rule) < count(self::$segment) && $options['multiArgs'] === false)) || (count($rule) > count(self::$segment))) {
             return false;
         }
-
+        
         foreach ($rule as $key => $val) {
             if (in_array($val, array(':controller', ':action', ':arg'))) {
                 if ($val === ':arg') {
@@ -195,8 +196,6 @@ class HRouter
             }
         }
 
-        //HDebug::dump($router);
-        
         self::$controller = $router['controller'];
         self::$action     = $router['action'];
         self::$args       = $router['args'];
