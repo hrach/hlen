@@ -41,7 +41,7 @@ function __autoload($class)
  * Zkombinuje dohoromady vsechny potrebne tridy Hlenu
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.2.0
  */
 class HApplication
 {
