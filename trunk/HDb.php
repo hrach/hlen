@@ -17,7 +17,7 @@ require_once dirname(__FILE__) . '/components/dibi.compact.php';
  * Trida napojuje Dibi na Hlen, sama dabuguje dotazy, a nasledne je i vypise
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.1.4
  */
 class HDb
 {

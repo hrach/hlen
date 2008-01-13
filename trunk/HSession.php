@@ -17,7 +17,7 @@ HSession::start();
  * Efektne uklada a cte session promenne
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.1.2
  */
 class HSession
 {

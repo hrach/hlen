@@ -19,7 +19,7 @@ require_once dirname(__FILE__) . '/HBasics.php';
  * Vytvari formularove obejkty 
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.1.6
  */
 class HForm implements ArrayAccess
 {
@@ -58,6 +58,9 @@ class HForm implements ArrayAccess
 
     /** @var array */
     private $errors = array();
+    
+    /** @var boolean */
+    private $enctypeData = false;
 
     /**
      * Konstruktor
@@ -93,6 +96,8 @@ class HForm implements ArrayAccess
      */
     public function addFile($id)
     {
+        $this->enctypeFile = true;
+
         $this->data[$id] = new HFormElementFormInput($id);
         return $this->data[$id];
     }
@@ -169,6 +174,10 @@ class HForm implements ArrayAccess
         $this->formElement = new HHtml('form');
         $this->formElement['action'] = $this->url;
         $this->formElement['method'] = $this->method;
+        
+        if ($this->enctypeData) {
+            $this->formElementy['enctype'] = 'multipart/form-data';
+        }
 
         return $this->formElement->startTag();
     }

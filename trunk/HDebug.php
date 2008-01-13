@@ -15,7 +15,7 @@
  * Jednoduchy debugger
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.1.4
  */
 class HDebug
 {
@@ -30,9 +30,9 @@ class HDebug
     {
         echo '<pre style="text-align: left;">';
         if ($escapeHtml) {
-            echo htmlspecialchars(print_r($var, true));
+            echo htmlspecialchars(var_dump($var, true));
         } else {
-            print_r($var);
+            var_dump($var);
         }
         echo '</pre>';
     }

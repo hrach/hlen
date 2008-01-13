@@ -17,7 +17,7 @@ require_once dirname(__FILE__) . '/HHttp.php';
  * Trida parsuje url pro MVC vrstvenou aplikaci
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.2.0
+ * @version   0.2.2
  */
 class HRouter
 {

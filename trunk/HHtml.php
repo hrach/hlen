@@ -15,7 +15,7 @@
  * Vrstva pro objektovou praci s HTML
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.1.2
  */
 class HHtml implements ArrayAccess
 {

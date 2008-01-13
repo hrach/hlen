@@ -15,7 +15,7 @@
  * Funkce pro praci s textem, soubory, promennymi
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.0
+ * @version   0.1.1
  */
 class HBasics
 {
