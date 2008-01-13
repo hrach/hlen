@@ -15,7 +15,7 @@
  * Zakladni Controller poskytuje mnoho metod pro usnadneni prace
  * @package   Hlen
  * @author    Jan Skrasek
- * @version   0.1.5
+ * @version   0.2.0
  */
 class HController
 {
