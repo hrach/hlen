@@ -86,6 +86,18 @@ class HForm implements ArrayAccess
     }
 
     /**
+     * Prida input file
+     *
+     * @param string $id
+     * @return HFormElement
+     */
+    public function addFile($id)
+    {
+        $this->data[$id] = new HFormElementFormInput($id);
+        return $this->data[$id];
+    }
+
+    /**
      * Prida input password
      *
      * @param string $id
@@ -348,6 +360,52 @@ class HForm implements ArrayAccess
             }
         }
         $render .= "</table>\n" . $this->end();
+        return $render;
+    }
+    
+    /**
+     * Vyrenderuje vhodny php kod formulare
+     * 
+     * @var string $formName
+     * @return string
+     */
+    public function renderCode($formName = 'form')
+    {
+        $render = '
+        <pre>
+        &lt;?php
+            if (!empty($' . $formName . '->errors)) {
+                foreach ($' . $formName . '->errors as $error) {
+                     echo $error, \'&lt;br />\';
+                }            
+            }
+        ?>
+        &lt;br />
+        &lt;?=$' . $formName . '->start()?>
+        ';
+
+        foreach ($this->data as $row) {
+            if ($row->getTag() !== 'submit') {
+                $render .= '
+                &lt;?=$' . $formName . '[\'' . $row->getId() . '\']->label(\'' . $row->getId() . '\')?>
+                &lt;?=$' . $formName . '[\'' . $row->getId() . '\']->element?>
+                
+                &lt;br />
+                ';
+            } else {
+                $render .= '
+                &lt;?=$' . $formName . '[\'' . $row->getId() . '\']->element(null, \'' . $row->getId() . '\')?>
+                
+                &lt;br />
+                ';
+            }
+        }
+        
+        $render .= '
+        &lt;?=$' . $formName . '->end()?>
+        </pre>
+        ';
+
         return $render;
     }
 
@@ -625,6 +683,23 @@ class HFormElementTextArea extends HFormElement
 
 }
 
+/**
+ * Objekt pro <input type="file" />
+ *
+ * Upravuje zakladni chovani HFormElementuInput, aby odpovidalo potrebam input file
+ * @package   Hlen
+ * @author    Jan Skrasek
+ * @version   0.1.0
+ */
+class HFormElementFormInput extends HFormElementInput
+{
+
+    public function __construct($id)
+    {
+        parent::__construct('file', $id);
+    }
+
+}
 
 /**
  * Objekt pro <select></select>
@@ -810,6 +885,10 @@ class HFormElement
      */
     public function isSubmited($data)
     {
+        if (!isset($data[$this->getId()])) {
+            return false;
+        }
+
         $value = $data[$this->getId()];
 
         if ($value !== $this->getEmptyValue() && !empty($value)) {
@@ -885,7 +964,7 @@ class HFormElement
      */
     public function validate($data, $form)
     {
-        $value = $data[$this->getId()];
+        $value = @$data[$this->getId()];
 
         foreach ($this->conds as $cond) {
             if (!$cond->validate($value, $form, $this->getEmptyValue())) {
@@ -929,17 +1008,17 @@ class HFormElement
      * Vrati html element
      *
      * @param array   $attributs = array()
-     * @param string  $label = null
+     * @param string  $value = null
      * @return string
      */
-    public function element($attributs = array(), $label = null)
+    public function element($attributs = array(), $value = null)
     {
-        foreach ($attributs as $key => $val) {
+        foreach ((array) $attributs as $key => $val) {
             $this->element[$key] = $val;
         }
 
-        if ($label) {
-            $this->element['value'] = $label;
+        if ($value) {
+            $this->element['value'] = $value;
         }
 
         return $this->element->get();

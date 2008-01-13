@@ -134,10 +134,12 @@ class HHttp
      */
     public static function getGet($var = null)
     {
-        if ($var) {
+        if (isset($_GET[$var])) {
             return $_GET[$var];
-        } else {
+        } elseif(!isset($var)) {
             return $_GET;
+        } else {
+            return null;
         }
     }
 
