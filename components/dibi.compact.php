@@ -13,7 +13,7 @@
  * @author     David Grudl
  * @copyright  Copyright (c) 2005, 2008 David Grudl
  * @license    http://dibiphp.com/license  dibi license
- * @version    0.9 (Revision: 103, Date: 2008/01/02 06:25:21)
+ * @version    0.9 (Revision: 104, Date: 2008/01/12 02:20:23)
  * @link       http://dibiphp.com/
  * @package    dibi
  */
@@ -169,17 +169,21 @@ delimite($value){return$this->driver->format($value,dibi::IDENTIFIER);}public
 function
 applyLimit(&$sql,$limit,$offset){$this->driver->applyLimit($sql,$limit,$offset);}public
 function
+loadFile($file){$this->connect();@set_time_limit(0);$handle=@fopen($file,'r');if(!$handle){throw
+new
+DibiException("Cannot open file '$file'");}$count=0;$sql='';while(!feof($handle)){$s=fgets($handle);$sql.=$s;if(substr(rtrim($s),-1)===';'){$this->driver->query($sql);$sql='';$count++;}}fclose($handle);return$count;}public
+function
 getDibiReflection(){throw
 new
 BadMethodCallException(__METHOD__.' is not implemented');}public
 function
 __wakeup(){throw
 new
-DibiException('You cannot serialize or unserialize '.__CLASS__.' instances');}public
+DibiException('You cannot serialize or unserialize '.$this->getClass().' instances');}public
 function
 __sleep(){throw
 new
-DibiException('You cannot serialize or unserialize '.__CLASS__.' instances');}}interface
+DibiException('You cannot serialize or unserialize '.$this->getClass().' instances');}}interface
 DibiDriverInterface{function
 connect(array&$config);function
 disconnect();function
@@ -358,7 +362,7 @@ __construct($value,$type){$this->value=$value;$this->type=$type;}public
 function
 toSql(DibiDriverInterface$driver,$modifier){return$driver->format($this->value,$this->type);}}class
 dibi{const
-FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='I',VERSION='0.9 (Revision: 103, Date: 2008/01/02 06:25:21)';private
+FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='I',VERSION='0.9 (Revision: 104, Date: 2008/01/12 02:20:23)';private
 static$registry=array();private
 static$connection;private
 static$substs=array();private
@@ -437,6 +441,10 @@ commit(){self::getConnection()->commit();}public
 static
 function
 rollback(){self::getConnection()->rollback();}public
+static
+function
+loadFile($file){return
+self::getConnection()->loadFile($file);}public
 static
 function
 __callStatic($name,$args){return
