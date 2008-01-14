@@ -263,12 +263,23 @@ class HController
 
         return implode('/', $newUrl);
     }
-
+    
+    /**
+     * Vrati argumenty - dulezite zvlaste pro ty jmenne
+     *
+     * @return array
+     */
     protected function getArgs()
     {
         return HRouter::$args;
     }
-    
+
+    /**
+     * Vrati jmenny argument
+     *
+     * @param string $name
+     * @return mixed
+     */    
     protected function getArg($name)
     {
         if (isset(HRouter::$args[$name])) {
