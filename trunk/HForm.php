@@ -69,8 +69,8 @@ class HForm implements ArrayAccess
     {
         $this->url = HHttp::getBase();
 
-        if (class_exists('HRouter', false) && $url === null) {
-            $this->url .= HApplication::$controller->url();
+        if (class_exists('HRouter', false)) {
+            $this->url .= HApplication::$controller->url((array) $url);
         } else {
             $this->url .= $url;
         }
