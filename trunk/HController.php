@@ -166,12 +166,11 @@ class HController
     }
           
     /**
-     * Vrati odkaz
+     * Vrati kompletni html odkaz
      *
      * @param string  $title
-     * @param string  $url
-     * @param string  $title = null
-     * @param array   $options = array()
+     * @param string  $url = array()
+     * @param boolean $inherited = true
      * @return string
      */
     private function link($title, $url = array(), $inherited = true)
@@ -229,12 +228,16 @@ class HController
                         $newUrl[$index] = HRouter::getSegment($index);
                     } else {
                         $base = HHttp::urlToArray(HRouter::$base);
-                        $newUrl[$index] = $base[$index];
+                        if (!empty($base[$index])) {
+                            $newUrl[$index] = $base[$index];
+                        } else {
+                            continue;
+                        }
                     }
-                    break;    
+                    break;
             }
         }
-
+       
         foreach ($url[2] as $i => $arg) {
             if (!is_integer($i)) {
                 $url[2][$i] = $i . HRouter::$naSeparator . $arg;
