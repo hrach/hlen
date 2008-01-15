@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hlen Framework
+ * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
@@ -11,66 +11,31 @@
 require_once dirname(__FILE__) . '/HHttp.php';
 
 
-/**
- * Parser URL
- *
- * Trida parsuje url pro MVC vrstvenou aplikaci
- * @package   Hlen
- * @author    Jan Skrasek
- * @version   0.2.2
- */
 class HRouter
 {
 
-    /** @var boolean */
     public static $routing = false;
-    /** @var string */
     public static $url;
-    /** @var array */
     public static $segment = array();
-    /** @var array */
     public static $prefix = array();
 
-
-    /** @var string */
     public static $base = ':controller/:action';
-    /** @var array */
     public static $rule = array();
-    /** @var string */
     public static $defaultController = '';
-    /** @var string */
     public static $defaultAction = 'index';
     
-
-
-    /** @var string */
     public static $controller;
-    /** @var string */
     public static $action;
-    /** @var array */
     public static $args = array();
-
-
-    /** @var boolean */
     public static $multiArgs = true;
-    /** @var string */
+
     public static $naSeparator = ':';
-
-
-    /** @var boolean */
     public static $system = false;
-    /** @var string */
     public static $service;
-    /** @var array */
+
     private static $services = array();
 
 
-    /**
-     * Spusti routing
-     *
-     * @param string $url
-     * @param string $router - function name / file name
-     */
     public static function start($url, $router)
     {
         self::$segment = HHttp::urlToArray($url);
@@ -94,24 +59,11 @@ class HRouter
         }
     }
 
-    /**
-     * Rezervuje posledni segment pro servis
-     *
-     * @param mixed $services
-     */
     public static function addService($services)
     {
         self::$services = array_merge(self::$services, (array) $services);
     }
 
-    /**
-     * Prepise dane url jinym
-     *
-     * Vhodne pro zajisteni zpetne kompatibiity
-     * @param string $rule
-     * @param string $newUrl
-     * @return boolean
-     */
     public static function rewrite($rule, $newUrl)
     {
         $url = HHttp::sanitizeUrl(HHttp::getGet('url'));
@@ -125,13 +77,6 @@ class HRouter
         return false;
     }
 
-    /**
-     * Routovani pravidla
-     *
-     * @param string  $rule
-     * @param array   $options = array()
-     * @return boolean
-     */
     public static function connect($rule, $options = array())
     {
         if (self::$routing) {
@@ -154,7 +99,8 @@ class HRouter
         // pokud se nerovna pocet segmentu
         // a neni povoleno neomezen mnozstvi argumentu,
         // routing se neprovadi
-        if ((count($rule) === 0 && (count($rule) < count(self::$segment) && $options['multiArgs'] === false)) || (count($rule) > count(self::$segment))) {
+        if ((count($rule) === 0 && (count($rule) < count(self::$segment) && $options['multiArgs'] === false))
+         || (count($rule) > count(self::$segment))) {
             return false;
         }
         
@@ -207,12 +153,6 @@ class HRouter
         return true;
     }
 
-    /**
-     * Vrati fragment url
-     *
-     * @param integer $x
-     * @return mixed
-     */
     public static function getSegment($x)
     {
         if (isset(self::$segment[$x])) {
@@ -222,11 +162,6 @@ class HRouter
         return false;
     }
 
-    /**
-     * Odstrani prefix promenne
-     *
-     * @param string $arg
-     */
     private static function removePrefix($arg)
     {
         static $index = 0;
@@ -241,11 +176,6 @@ class HRouter
         return array($index++, $arg);
     }
 
-    /**
-     * Odstrani fragment servisu
-     *
-     * @return boolean
-     */
     private static function removeServicSegment()
     {
         if (empty(self::$services)) {

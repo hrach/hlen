@@ -1,69 +1,52 @@
 <?php
 
 /**
- * Hlen Framework
+ * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
  * @package    Hlen
  */
 
-require_once dirname(__FILE__) . '/HLoader.php';
+
+require_once dirname(__FILE__) . '/hloader.php';
 
 define('CORE', dirname(__FILE__) . '/');
 define('APP', dirname($_SERVER['SCRIPT_FILENAME']) . '/app/');
 
 $appClasses = HLoader::getClasses(APP . 'controllers/', APP . 'cache/classes.cache');
+$coreFiles = array(
+    'hbasics', 'hconfigure', 'hdb',
+    'hdebug', 'hform', 'hhtml',
+    'hhttp', 'hloader', 'hrouter', 'hsession'
+);
 
-/**
- * Nacte soubor prislusny tride $class
- *
- * Soubor je nejprve hledan v cache aplikace
- * pokud neni soubro nalezen a zacina na pismeno "h", povazuje se za soubor frameworku
- * @global array $appClasses
- * @param string $className
- */
 function __autoload($class)
 {
-    global $appClasses;
+    global $appClasses, $coreFiles;
 
-    if (in_array($class, array_keys($appClasses))) {
+    if (array_key_exists($class, $appClasses)) {
         require_once $appClasses[$class];
-    } elseif($class[0] === 'H') {
-        require_once CORE . $class . ".php";
+    } elseif(in_array(strtolower($class), $coreFiles)) {
+        require_once CORE . strtolower($class) . '.php';
+    } else {
+        require_once $class . '.php';
     }
 }
 
 
-/**
- * Ridici trida MVC aplikace
- *
- * Zkombinuje dohoromady vsechny potrebne tridy Hlenu
- * @package   Hlen
- * @author    Jan Skrasek
- * @version   0.2.0
- */
 class HApplication
 {
 
-    /** @var HController */
     static public $controller;
-    /** @var HLoader */
     static public $loader;
-    /** @var boolean */
     static public $error = false;
-    /** @var boolean */
     static public $system = false;
 
-    /** @var array */
     static private $controllers = array();
-    /** @var integer */
     static private $startTime;
 
 
-    /**
-     * Spust? celou MVC aplikaci
-     */
     public static function run()
     {
         self::$startTime = microtime(true);
@@ -86,12 +69,6 @@ class HApplication
         }
     }
 
-    /**
-     * Odchyti vyjimky a vypise vystup
-     *
-     * @todo zpracovat graficky vystup
-     * @param $exception Exception
-     */
     public static function exception($exception)
     {
         self::$controller = new Controller;
@@ -100,12 +77,6 @@ class HApplication
         self::$controller->renderView();
     }
 
-    /**
-     * Nastav? prislusnou chybovou sablonu
-     * Mimo ladici rezim nastavuje automaticky E404
-     *
-     * @param string $view
-     */
     public static function error($view)
     {
         self::$controller->set('__missingView__', self::$controller->view);
@@ -120,13 +91,6 @@ class HApplication
         }
     }
 
-    /**
-     * Vytvor? systemove url
-     *
-     * Pokud je treba, prida jmeno controlleru
-     * @param string $url
-     * @return string
-     */
     public static function systemUrl($url)
     {
         if ($url[0] !== '/') {
@@ -136,11 +100,6 @@ class HApplication
         return HHttp::sanitizeUrl($url);
     }
 
-    /**
-     * Vytvori instanci objektu $controllerName
-     *
-     * @param string $controllerName
-     */
     private static function createController($controllerName)
     {
         if (!class_exists('Controller')) {
@@ -160,12 +119,6 @@ class HApplication
         }
     }
 
-    /**
-     * Zavola metodu $action s argumenty $args tridy self::$controller
-     *
-     * @param string  $action
-     * @param array   $args
-     */
     private static function callMethod($action, $args)
     {
         if (method_exists(self::$controller, 'init')) {

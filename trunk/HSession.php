@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hlen Framework
+ * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
@@ -11,14 +11,6 @@
 HSession::start();
 
 
-/**
- * Trida pro praci se Session
- *
- * Efektne uklada a cte session promenne
- * @package   Hlen
- * @author    Jan Skrasek
- * @version   0.1.2
- */
 class HSession
 {
 
@@ -59,7 +51,8 @@ class HSession
 		if (function_exists('ini_set')) {
 			ini_set('session.use_cookies', 1);
 			ini_set('session.name', HBasics::getVal(HConfigure::read('Session.cookie'), 'hlen-session'));
-			ini_set('session.cookie_lifetime', HBasics::getVal(HConfigure::read('Session.lifeTime'), 60*60*6)); //6 hodin
+			ini_set('session.cookie_lifetime', HBasics::getVal(HConfigure::read('Session.lifeTime'), 60*60*6));
+            //6 hodin
 			if (HConfigure::read('Session.ownTempDir') === true) {
 				ini_set('session.save_path', HConfigure::read('Session.tempDir'));
             }

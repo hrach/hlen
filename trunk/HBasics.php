@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hlen Framework
+ * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
@@ -9,24 +9,9 @@
  */
 
 
-/**
- * Obal pro zakladni funkce
- *
- * Funkce pro praci s textem, soubory, promennymi
- * @package   Hlen
- * @author    Jan Skrasek
- * @version   0.1.1
- */
 class HBasics
 {
 
-    /**
-     * Nacte (pouze existujici) soubor
-     *
-     * @param string   $fileName
-     * @param boolean  $once = true
-     * @return boolean
-     */
     public static function load($fileName, $once = true)
     {
         if (file_exists($fileName)) {
@@ -40,37 +25,18 @@ class HBasics
         return false;
     }
 
-    /**
-     * Zkamelizuje retezec
-     *
-     * @param string $word
-     * @return string
-     */
     public static function camelize($word)
     {
         $camelWord = str_replace(' ', '', ucwords(str_replace('_', ' ', $word)));
         return $camelWord;
     }
 
-    /**
-     * Velka pismena prevede na mala a prida pred ne podtrzitka
-     *
-     * @param string $word
-     * @return string
-     */
     public static function underscore($word)
     {
         $underscoreWord = strtolower(preg_replace('/(?<=\\w)([A-Z])/', '_\\1', $word));
         return $underscoreWord;
     }
 
-    /**
-     * Vytvori retezec vhodny pro url
-     *
-     * Odstrani diakritiku, mezery a spec. znaky nahradi pomlckami
-     * @param string $title
-     * @return string
-    */
     public static function coolUrl($title) {
         $url = $title;
         $url = preg_replace('~[^\\pL0-9_]+~u', '-', $url);
@@ -81,12 +47,6 @@ class HBasics
         return $url;
     }
 
-    /**
-     * Vrati prvni neprazdny argument
-     *
-     * @param mixed
-     * @return mixed
-     */
     public static function getVal()
     {
         foreach (func_get_args() as $var) {
