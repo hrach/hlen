@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hlen Framework
+ * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
@@ -11,29 +11,13 @@
 require_once dirname(__FILE__) . '/components/dibi.compact.php';
 
 
-/**
- * Model MVC aplikace 
- *
- * Trida napojuje Dibi na Hlen, sama dabuguje dotazy, a nasledne je i vypise
- * @package   Hlen
- * @author    Jan Skrasek
- * @version   0.1.4
- */
 class HDb
 {
 
-    /** @var array */
     private static $debugSql = array();
-    /** @var boolean */
     private static $debug = false;
 
 
-    /**
-     * Pripoji se k db
-     *
-     * @param array    $config
-     * @param boolean  $debug = false
-     */
     public static function connect($config = null, $debug = false)
     {
         if (empty($config) && class_exists('HApplication', false)) {
@@ -59,13 +43,6 @@ class HDb
         }
     }
 
-    /**
-     * Sql handler - loguje sql dotazy
-     *
-     * @param object  $connection
-     * @param string  $event
-     * @param array   $arg
-     */
     public static function sqlHandler($connection, $event, $arg)
     {
         if ($event === 'afterQuery') {
@@ -77,21 +54,14 @@ class HDb
         }
     }
 
-    /**
-     * Vypise sql log
-     */
-    static public function afterRender()
+    public static function afterRender()
     {
         if (self::$debug) {
             echo self::getDebug();
         }
     }
 
-
-    /**
-     * Vrati zformatovany sql log
-     */
-    public function getDebug()
+    public static function getDebug()
     {
         $ret = '<table id="sql-log">'
              . '<tr><th>SQL Dotaz</th><th>Řádků</th><th>Čas</th></tr>';
