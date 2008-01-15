@@ -125,19 +125,25 @@ class HForm implements ArrayAccess
 
         foreach ($this->elements as $el) {
             
-            $value = $data[$el->id];
             $class = get_class($this->elements[$el->id]);
             
-            if ($el->isSubmited($value) || $class == 'HFormFileItem') {
+            if ($class == 'HFormFileItem') {
+                $data[$el->id] = @$_FILES[$el->id];
+            }
+
+            if (!isset($data[$el->id])) {
+                continue;
+            }
+
+            $value = $data[$el->id];
+            
+            if ($el->isSubmited($value)) {
                 
                 if ($el->trim) {
-                    $data[$el->id] = trim($data[$el->id]);
+                    $data[$el->id] = trim($value);
                 }
                 
                 switch ($class) {
-                    case 'HFormFileItem':
-                        $data[$el->id] = $_FILES[$el->id];
-                    break;
                     case 'HFormSubmitItem':
                         unset($data[$el->id]);
                     break;

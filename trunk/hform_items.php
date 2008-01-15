@@ -194,6 +194,9 @@ class HFormTextHiddenItem extends HFormTextItem
 class HFormFileItem extends HFormTextItem
 {
 
+    public $trim = false;
+
+
     public function __construct($form, $id)
     {
         parent::__construct($form, $id);
@@ -221,11 +224,14 @@ class HFormSelectItem extends HFormItem
     
     public $trim = true;
     private $options = array();
+    private $optionsVals = array();
 
 
     public function __construct($form, $id, $options)
     {
         parent::__construct($form, 'select', $id);
+        
+        $this->optionsVals = $options;
         
         foreach ($options as $key => $val) {
             $option = new HHtml('option');
@@ -247,7 +253,7 @@ class HFormSelectItem extends HFormItem
     
     public function existsVal($value)
     {
-        return array_key_exists($value, $this->options);
+        return array_key_exists($value, $this->optionsVals);
     }
     
     public function element(array $attributs = array())
@@ -351,6 +357,7 @@ class HFormMultiCheckBox implements Iterator
 {
     
     public $id;
+    public $trim = false;
     private $form;
     private $boxes = array();
     private $boxesVals = array();
@@ -367,20 +374,9 @@ class HFormMultiCheckBox implements Iterator
         }
     }
 
-    public function setEmptyValue($value)
-    {
-        $this->element->setContent($value);
-        $this->emptyValue = $value;
-    }
-
-    public function getEmptyValue()
-    {
-        return $this->emptyValue;
-    }
-
     public function isSubmited($value)
     {
-        if ($value !== $this->getEmptyValue() && !empty($value)) {
+        if (!empty($value) && is_array($value)) {
             return true;
         }
 

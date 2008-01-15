@@ -8,7 +8,7 @@
  * @package    Hlen
  */
 
-require_once dirname(__FILE__) . '/HHttp.php';
+require_once dirname(__FILE__) . '/hhttp.php';
 
 
 class HRouter
