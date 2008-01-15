@@ -47,7 +47,7 @@ class HFormCondition
                 $arg = $rule['arg'];
             }
             
-            if (!$this->isValueValid($rule['rule'], $value, $arg, $emptyValue)) {
+            if (!$this->isValueValid($rule['rule'], $value, $arg, $this->el->getEmptyValue())) {
                 $this->form->addError($rule['message']);
                 return false;
             }
