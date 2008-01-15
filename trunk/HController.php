@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hlen Framework
+ * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
@@ -9,63 +9,31 @@
  */
 
 
-/**
- * Controller MVC aplikace
- *
- * Zakladni Controller poskytuje mnoho metod pro usnadneni prace
- * @package   Hlen
- * @author    Jan Skrasek
- * @version   0.2.0
- */
 class HController
 {
 
-    /** @var string */
     public $title;
-    /** @var array */
     public $data = array();
-    /** @var string */
     public $view;
-    /** @var string */
     public $layout = "default";
-    /** @var string */
     public $viewPath;
-    /** @var string */
     public $layoutPath;
 
-    /** @var array */    
     private $catchedArg = array();
-    /** @var object */
     private $db = null;
-    /** @var array */
     private $vars = array();
 
-    /**
-     * Konstruktor
-     */
+
     public function __construct()
     {
 
     }
 
-    /**
-     * Pridani promenne pro sablonu
-     *
-     * @param string $var
-     * @param mixed $val
-     * @return void
-     */
     public function set($var, $val)
     {
         $this->vars[$var] = $val;
     }
 
-    /**
-     * Precteni promenne pro sablonu
-     *
-     * @param string $var
-     * @return mixed
-     */
     public function get($var)
     {
         if (isset($this->vars[$var])) {
@@ -75,12 +43,6 @@ class HController
         }
     }
 
-    /**
-     * Presmerovani aplikace na novou url + jeji ukonceni
-     *
-     * @param string $url
-     * @param boolean $exit = true
-     */
     public function redirect($url, $exit = true)
     {
         HHttp::redirect(HHttp::getUrl() . $url);
@@ -90,9 +52,6 @@ class HController
         }
     }
 
-    /**
-     * Vola beforeRender kontroleru
-     */
     private function callBeforeRender()
     {
         if (method_exists(HApplication::$controller, 'beforeRender')) {
@@ -100,9 +59,6 @@ class HController
         }
     }
 
-    /**
-     * Vola afterRender kontroleru
-     */
     private function callAfterRender()
     {
         if (method_exists(HApplication::$controller, 'afterRender')) {
@@ -110,9 +66,6 @@ class HController
         }
     }
 
-    /**
-     * Vygeneruje view
-     */
     public function renderView()
     {
         ob_start();
@@ -138,11 +91,6 @@ class HController
         $this->callAfterRender();
     }
     
-    /**
-     * Zafixuje predavane promenne
-     *
-     * @param integer $name Jmeno fixovaneho argumentu
-     */
     public function catchArg($name)
     {
         if (!empty(HRouter::$args[$name])) {
@@ -150,11 +98,6 @@ class HController
         }
     }
 
-    /**
-     * Alias pro link
-     *
-     * @deprecated
-     **/
     public function a($title, $url)
     {
         $url = HHttp::getBase() . $url;
@@ -165,14 +108,6 @@ class HController
         return $el->get();
     }
           
-    /**
-     * Vrati kompletni html odkaz
-     *
-     * @param string  $title
-     * @param string  $url = array()
-     * @param boolean $inherited = true
-     * @return string
-     */
     private function link($title, $url = array(), $inherited = true)
     {
         $url = HHttp::getBase() . $this->url($url, $inherited);
@@ -183,13 +118,6 @@ class HController
         return $el->get();
     }
 
-    /**
-     * Vrati odpovidajici URL
-     *
-     * @param $url = array()
-     * @param $inherited = true
-     * @return string
-     */
     public function url($url = array(), $inherited = true)
     {
         $newUrl = array();
@@ -264,22 +192,11 @@ class HController
         return implode('/', $newUrl);
     }
     
-    /**
-     * Vrati argumenty - dulezite zvlaste pro ty jmenne
-     *
-     * @return array
-     */
     protected function getArgs()
     {
         return HRouter::$args;
     }
 
-    /**
-     * Vrati jmenny argument
-     *
-     * @param string $name
-     * @return mixed
-     */    
     protected function getArg($name)
     {
         if (isset(HRouter::$args[$name])) {
@@ -289,14 +206,6 @@ class HController
         }
     }
     
-    /**
-     * Parsuje sablonu
-     *
-     * Vrati zpracovany obsah sablony
-     * @param string $__File
-     * @param array $__Vars
-     * @return string
-     */
     private function parse($__File, $__Vars)
     {
         extract($__Vars);
@@ -305,11 +214,6 @@ class HController
         return ob_get_clean();
     }
 
-    /**
-     * Vytvori spravnou cestu pro view
-     * 
-     * @todo Vypis pri zacykleni
-     */
     private function makeViewPaths()
     {
         if (HApplication::$error) {
@@ -337,9 +241,6 @@ class HController
         }
     }
 
-    /**
-     * Vytvori spravnou cestu pro layout
-     */
     private function makeLayoutPaths()
     {
         $layouts[] = APP . "views/" . HBasics::underscore($this->layout) . ".phtml";

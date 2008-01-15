@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hlen Framework
+ * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
@@ -9,43 +9,24 @@
  */
 
 
-/**
- * Debugger
- *
- * Jednoduchy debugger
- * @package   Hlen
- * @author    Jan Skrasek
- * @version   0.1.4
- */
 class HDebug
 {
 
-    /**
-     * Vypise strukturu a obsah promenne
-     *
-     * @param mixed   $var
-     * @param boolean $escapeHtml = true
-     */
     public static function dump($var, $escapeHtml = true)
     {
         echo '<pre style="text-align: left;">';
         if ($escapeHtml) {
-            echo htmlspecialchars(var_dump($var, true));
+            echo htmlspecialchars(print_r($var, true));
         } else {
-            var_dump($var);
+            print_r($var);
         }
         echo '</pre>';
     }
 
-    /**
-     * Vypise debuguovaci znacku
-     *
-     * Pouze pri ladicim rezimu
-     * @param string $var
-     */
     public function mark($var)
     {
-        if ((class_exists('HApplication', false) && HConfigure::read('Core.debug')) || !class_exists('HApplication', false)) {
+        if ((class_exists('HApplication', false) && HConfigure::read('Core.debug') > 1)
+         || !class_exists('HApplication', false)) {
             echo '<span style="color: black;background: white;" class="debigging-marks">';
             echo 'Debug mark: <strong style="color: red;">' . $var . '</strong>';
             echo '</span><br/>';

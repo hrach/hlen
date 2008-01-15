@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hlen Framework
+ * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
@@ -9,26 +9,9 @@
  */
 
 
-/**
- * Nacte seznam trid adresare
- *
- * Projde rekurzivne adresare a jejich soubory *.php
- * V nich pak vyhleda vsechny tridy
- * @package   Hlen
- * @author    Jan Skrasek
- * @version   0.1.0
- */
 class HLoader
 {
 
-    /**
-     * Vrati seznam trid souboru v adresari
-     *
-     * @param string   $scanDir
-     * @param mixed    $cacheFile pokud nechcete cachovat vysledek, predejte false
-     * @param boolean  $recursive = true
-     * @return array
-     */
     public static function getClasses($scanDir, $cacheFile, $recursive = true)
     {
         if (!file_exists($scanDir)) {
@@ -45,14 +28,6 @@ class HLoader
         return $cache;
     }
 
-    /**
-     * Nacte vsechny soubory a najde v nich vsechny tridy
-     *
-     * @param string   $scanDir
-     * @param mixed    $cacheFile
-     * @param boolean  $recursive
-     * @return array
-     */
      private static function makeCache($scanDir, $cacheFile, $recursive)
      {
         $classes = array();
@@ -75,13 +50,6 @@ class HLoader
         return $classes;
     }
 
-    /**
-     * Vrati seznam vsech souboru v adresari
-     *
-     * @param string   $dir
-     * @param boolean  $recursive
-     * @return array
-     */
     private static function getFiles($dir, $recursive)
     {
         $folder = new DirectoryIterator($dir);
