@@ -49,7 +49,14 @@ class HRouter
         }
 
         if (!self::$routing) {
-            self::connect(self::$base, array('multiArgs' => true));
+            self::connect(self::$base, array(
+                'multiArgs' => true
+            ));
+            
+            if (self::$base == ':controller/:action') {
+                self::connect(':controller');
+                self::$rule = array(':controller', ':action');
+            }
         }
 
         if (!self::$routing) {
@@ -95,10 +102,7 @@ class HRouter
         
         $rule = HHttp::urlToArray($rule);
         $key = -1;
-
-        // pokud se nerovna pocet segmentu
-        // a neni povoleno neomezen mnozstvi argumentu,
-        // routing se neprovadi
+        
         if ((count($rule) === 0 && (count($rule) < count(self::$segment) && $options['multiArgs'] === false))
          || (count($rule) > count(self::$segment))) {
             return false;
@@ -149,7 +153,6 @@ class HRouter
         self::$routing    = true;
         self::$rule       = $rule;
         self::$multiArgs  = $options['multiArgs'];
-
         return true;
     }
 
