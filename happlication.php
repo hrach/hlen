@@ -29,8 +29,6 @@ function __autoload($class)
         require_once $appClasses[$class];
     } elseif(in_array(strtolower($class), $coreFiles)) {
         require_once CORE . strtolower($class) . '.php';
-    } else {
-        require_once $class . '.php';
     }
 }
 
@@ -121,10 +119,6 @@ class HApplication
 
     private static function callMethod($action, $args)
     {
-        if (method_exists(self::$controller, 'init')) {
-            call_user_func(array(self::$controller, 'init'));
-        }
-
         $actionName = $action . 'Action';
         $methodExists = method_exists(self::$controller, $actionName);
 
@@ -137,6 +131,10 @@ class HApplication
             self::$controller->view = $action;
         }
 
+        if (method_exists(self::$controller, 'init')) {
+            call_user_func(array(self::$controller, 'init'));
+        }
+        
         call_user_func_array(array(self::$controller, $actionName), $args);
     }
 

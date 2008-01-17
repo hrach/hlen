@@ -57,7 +57,7 @@ class HFormItem
 
     public function isSubmited($value)
     {
-        if ($value !== $this->getEmptyValue() && !empty($value)) {
+        if (!empty($value)) {
             return true;
         }
 
@@ -139,7 +139,7 @@ class HFormTextItem extends HFormItem
     {
         parent::__construct($form, 'input', $id);
         $this->element['type'] = 'text';
-        $this->element['class'] = 'input';
+        $this->element['class'] = 'text';
     }
     
     public function setEmptyValue($value)

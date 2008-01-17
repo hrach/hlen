@@ -35,14 +35,8 @@ class HForm implements ArrayAccess
 
     public function __construct($url = null, $method = 'post')
     {
-        $action = HHttp::getBase();
+        $action = HHttp::getBase() . $url;
 
-        if (class_exists('HRouter', false)) {
-            $action .= HApplication::$controller->url((array) $url);
-        } else {
-            $action .= $url;
-        }
-        
         $this->formElement = new HHtml('form');
         $this->formElement['action'] = $action;
         $this->formElement['method'] = $method;
@@ -136,6 +130,10 @@ class HForm implements ArrayAccess
             }
 
             $value = $data[$el->id];
+            
+            if ($el->getEmptyValue() == $value) {
+                $data[$el->id] = null;
+            }
             
             if ($el->isSubmited($value)) {
                 

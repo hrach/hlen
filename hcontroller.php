@@ -24,11 +24,6 @@ class HController
     private $vars = array();
 
 
-    public function __construct()
-    {
-
-    }
-
     public function set($var, $val)
     {
         $this->vars[$var] = $val;
@@ -98,10 +93,15 @@ class HController
         }
     }
 
-    public function a($title, $url)
+    public function a($title, $url, $attrs = array())
     {
         $url = HHttp::getBase() . $url;
         $el = new HHtml('a');
+        
+        foreach ($attrs as $atr => $val) {
+            $el[$atr] = $val;
+        }
+        
         $el['href'] = $url;
         $el->setContent($title);
 
@@ -110,7 +110,7 @@ class HController
           
     private function link($title, $url = array(), $inherited = true)
     {
-        $url = HHttp::getBase() . $this->url($url, $inherited);
+        $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], @$url[2], $inherited);
         $el = new HHtml('a');
         $el['href'] = $url;
         $el->setContent($title);
@@ -118,24 +118,20 @@ class HController
         return $el->get();
     }
 
-    public function url($url = array(), $inherited = true)
+    public function url($c = null, $a = null, $p = array(), $inherited = true)
     {
         $newUrl = array();
         $rule = HRouter::$rule;
 
-        if (empty($url[2])) {
-            $url[2] = array();
-        }
-        
-        if (!is_array($url[2])) {
-            $url[2] = (array) $url[2];
+        if (!is_array($p)) {
+            $p = (array) $p;
         }
 
         foreach ($rule as $index => $val) {
             switch ($val) {
                 case ':controller':
-                    if (isset($url[0])) {
-                        $newUrl[$index] = $url[0];
+                    if (isset($c)) {
+                        $newUrl[$index] = $c;
                     } elseif($inherited) {
                         $newUrl[$index] = HRouter::$controller;
                     } else {
@@ -143,8 +139,8 @@ class HController
                     }
                     break;
                 case ':action':
-                    if (isset($url[1])) {
-                        $newUrl[$index] = $url[1];
+                    if (isset($a)) {
+                        $newUrl[$index] = $a;
                     } elseif($inherited) {
                         $newUrl[$index] = HRouter::$action;
                     } else {
@@ -166,14 +162,14 @@ class HController
             }
         }
        
-        foreach ($url[2] as $i => $arg) {
+        foreach ($p as $i => $arg) {
             if (!is_integer($i)) {
-                $url[2][$i] = $i . HRouter::$naSeparator . $arg;
+                $p[$i] = $i . HRouter::$naSeparator . $arg;
             }
         }
         
         if ($inherited) {
-            $args = array_merge($this->catchedArg, $url[2]);
+            $args = array_merge($this->catchedArg, $p);
             foreach ($rule as $index => $val) {                            
                 if ($val === ':arg') {
                     $newUrl[$index] = array_shift($args);
@@ -184,7 +180,7 @@ class HController
                 $newUrl[] = array_shift($args);
             }
         } else {
-            foreach ($url[2] as $arg) {
+            foreach ($p as $arg) {
                 $newUrl[] = $arg;
             }
         }
@@ -219,9 +215,14 @@ class HController
         if (HApplication::$error) {
             $view = 'views/_errors/';
         } else {
-            $view = 'views/' . HRouter::$controller . '/';
-            if (!empty(HRouter::$service)) {
-                $view .= HRouter::$service . '/';
+            if ($this->view[0] !== '|') {
+                $view = 'views/' . HRouter::$controller . '/';
+                if (!empty(HRouter::$service)) {
+                    $view .= HRouter::$service . '/';
+                }
+            } else {
+                $view = 'views/';
+                $this->view = substr($this->view, 1);
             }
         }
 
