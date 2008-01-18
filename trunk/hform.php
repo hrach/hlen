@@ -129,11 +129,12 @@ class HForm implements ArrayAccess
                 continue;
             }
 
-            $value = $data[$el->id];
             
-            if ($el->getEmptyValue() == $value) {
+            if ($el->getEmptyValue() == $data[$el->id]) {
                 $data[$el->id] = null;
             }
+
+            $value = $data[$el->id];
             
             if ($el->isSubmited($value)) {
                 

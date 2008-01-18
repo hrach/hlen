@@ -47,45 +47,6 @@ class HController
         }
     }
 
-    private function callBeforeRender()
-    {
-        if (method_exists(HApplication::$controller, 'beforeRender')) {
-            HApplication::$controller->beforeRender();
-        }
-    }
-
-    private function callAfterRender()
-    {
-        if (method_exists(HApplication::$controller, 'afterRender')) {
-            HApplication::$controller->afterRender();
-        }
-    }
-
-    public function renderView()
-    {
-        ob_start();
-
-        $this->callBeforeRender();
-
-        $this->makeViewPaths();
-        $content = $this->parse($this->viewPath, $this->vars);
-        
-        $vars = array_merge(
-            array(
-                'layout' => array(
-                    'content' => $content,
-                    'title' => $this->title,
-                )
-            ),
-            $this->vars
-        );
-        $this->makeLayoutPaths();
-
-        echo $this->parse($this->layoutPath, $vars);
-
-        $this->callAfterRender();
-    }
-    
     public function catchArg($name)
     {
         if (!empty(HRouter::$args[$name])) {
@@ -188,7 +149,7 @@ class HController
         return implode('/', $newUrl);
     }
     
-    protected function getArgs()
+        protected function getArgs()
     {
         return HRouter::$args;
     }
@@ -200,6 +161,47 @@ class HController
         } else {
             return false;
         }
+    }
+    
+    public function render()
+    {
+        $actionName = HRouter::$action . 'Action';
+        $methodExists = method_exists(get_class($this), $actionName);        
+        
+        if (!$methodExists) {
+            if (!HApplication::$error) {
+                HApplication::error('method');
+                $actionName = false;
+            }
+        } else {
+            $this->view = HRouter::$action;
+        }
+
+        if (method_exists($this, 'init')) {
+            call_user_func(array($this, 'init'));
+        }
+        
+        if ($actionName !== false) {
+            call_user_func_array(array($this, $actionName), HRouter::$args);
+        }
+        
+        $this->renderPage();
+    }
+    
+    public function renderPage()
+    {
+        ob_start();
+        $this->makeViewPaths();
+        $content = $this->parse($this->viewPath, $this->vars);
+        $vars = array_merge(array(
+            'layout' => array(
+                'content' => $content,
+                'title' => $this->title,
+            )
+        ),$this->vars);
+        $this->makeLayoutPaths();
+
+        echo $this->parse($this->layoutPath, $vars);
     }
     
     private function parse($__File, $__Vars)
@@ -234,7 +236,7 @@ class HController
             $this->viewPath = CORE . $view;
         } else {
             if (HApplication::$error) {
-                die('Nastalo zacyklení. Chybí soubor: ' . $view);
+                die('Instalace frameworku je poškozena. Prosím, proveďte aktualizaci knihoven a souborů. Chybí soubor: ' . $view);
             } else {
                 HApplication::error('view');
                 $this->makeViewPaths();
