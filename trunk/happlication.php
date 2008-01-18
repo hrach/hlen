@@ -56,8 +56,7 @@ class HApplication
         HRouter::start(HHttp::getGet('url'), APP.'config/router.php');
 
         self::createController(HRouter::$controller);
-        self::callMethod(HRouter::$action, HRouter::$args);
-        self::$controller->renderView();
+        self::render();
 
         if (class_exists('HConfigure', false) && HConfigure::read('Core.debug') > 1) {
             if (class_exists('HDb', false)) {
@@ -71,14 +70,15 @@ class HApplication
     {
         self::$controller = new Controller;
         self::error('sql');
+        self::$error = true;
         self::$controller->set('exception', $exception);
-        self::$controller->renderView();
+        self::$controller->renderPage();
     }
 
     public static function error($view)
     {
         self::$controller->set('__missingView__', self::$controller->view);
-
+        
         self::$error = true;
         self::$system = true;
 
@@ -117,25 +117,9 @@ class HApplication
         }
     }
 
-    private static function callMethod($action, $args)
+    private static function render()
     {
-        $actionName = $action . 'Action';
-        $methodExists = method_exists(self::$controller, $actionName);
-
-        if (!$methodExists) {
-            if (!self::$error) {
-                self::error('method');
-            }
-            return;
-        } else {
-            self::$controller->view = $action;
-        }
-
-        if (method_exists(self::$controller, 'init')) {
-            call_user_func(array(self::$controller, 'init'));
-        }
-        
-        call_user_func_array(array(self::$controller, $actionName), $args);
+        self::$controller->render();
     }
 
 }
