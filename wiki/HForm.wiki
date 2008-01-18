@@ -1,9 +1,9 @@
 #labels Phase-Implementation
 = HForm =
 
-HForm je třída poskytující komplexní služby pro vytváření formulářu. Pomocí ní můžete také jednoduše zvalidovat vstup.
+HForm je třída poskytující komplexní služby pro vytváření formulářu. Pomocí ní také můžete jednoduše zvalidovat vstup.
 
-HForm metody (jejich názvy) jsou velmi blízké NForm Davida Grudla. Přístup je tedy podobný. V poslední revizích ale vymýšlím velmi užitečné věci. Této podobnosti si tedy později mpžná ani nevšimnete.
+HForm metody jsou velmi blízké NForm knihovně od Davida Grudla. Přístup je tedy podobný. V poslední revizích si ale začíná HForm hledat vlastní cestu a oné podobnosti si možná ani nevšimnete.
 
 == Vytvoření formuláře ==
 
@@ -12,27 +12,24 @@ Formluář vytvoříme jednoduše takto
 {{{
 $form = new HForm($url);
 
-$form->addText('name');
-$form->addText('surname');
-$form->addSubmit('submit');
+$form->addText('name')
+     ->addText('surname')
+     ->addSubmit();
 }}}
 
-== Vypsání formuláře ==
+== Vyrenderování formuláře ==
 
-Zatím je ale uložen v proměnné $form. Pokud ho chcete automaticky vyrednderovat, můžete to udělat například takto
-
-{{{
-echo $form
-}}}
-
-a nebo výstižněji
+Pro tuto chvíli máme formulář pouze nadefinovaný. Pokud ho chcete vypsat, můžete ho nechat automaticky vyrednderovat:
 
 {{{
+echo $form;
+
+// a nebo výstižněji
 echo $form->render();
 }}}
 
-HForm samozřejmě nabízí profesionální přístup pro přesnou specifikaci pozice apod.
-Více ukázka:
+HForm samozřejmě nabízí profesionální přístup pro přesnou specifikaci vystupu. Snažil jsem se oddělit definici 'struktury' od definice 'popisků apod.'.
+Ukázka:
 
 {{{
 echo $form['name']->label('Jméno');
@@ -41,19 +38,64 @@ echo $form['name']->element;
 echo $form['surname']->label('Přijmení');
 echo $form['surname']->element;
 
-echo $form['submit']->element(null, 'Odeslat');
+echo $form['submit']->element('Odeslat');
 }}}
+
+Můžete také jednoduše měnit atributy:
+
+{{{
+echo $form['name']->label('Jméno', array('class' => 'myform'));
+echo $form['name']->element(array('class' => 'myform'));
+
+echo $form['surname']->label('Přijmení', array('class' => 'myform'));
+echo $form['surname']->element(array('class' => 'myform'));
+
+echo $form['submit']->element('Odeslat', array('class' => 'myform'));
+}}}
+
+Nyní budou mít všechny elemnty třídu 'myform'.
+
 
 == Další prvky tvoření ==
 
-Ukázky napoví myslím více:
+Dále je lze samozřejmě přidat další html prvky:
 
 {{{
-$form->addTextArea('obsah');
+$form->addTextArea('obsah')
+     ->addSelect('rok', array(2000, 2001, 2002))
+     ->addFile('file')
+     ->addCheckBox('chcete___')
+     ->addPassword('heslo');
+}}}
 
-$form->addSelect('rok', array(2000, 2001, 2002));
+U všech těchto elementů je při jejich výpisu stejná analogie, jak již bylo dříve napsáno. Dále se v HForm objevuje trošku odlišný prvek:
 
-$form->addPassword('heslo');
+{{{
+$form->addMultiCheckBox('seznam_medii', array('
+         'cd' => 'CD',
+         'dvd' => 'DVD',
+         'br' => 'Blue-ray',
+         'vhs' => 'VHS',
+         'mc' => 'MC'
+     '));
+}}}
+
+A práve s multi-check-boxem se pracuje trochu jinak:
+
+{{{
+foreach($form['seznam_medii'] as $row) {
+    echo $row->label;
+    echo $row->element;
+}
+}}}
+
+Případně můžete při konstatním počtu checkboxů vypsat elementy ručně:
+
+{{{
+echo $form['seznam_medii']['cd']->label;
+echo $form['seznam_medii']['cd']->element;
+
+// atd.
 }}}
 
 Na dalších prvcích se pracuje.
