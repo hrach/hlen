@@ -1,10 +1,11 @@
+<?php $this->title = 'Nenalezen view | Hlen framework' ?>
 <div id="err_message">
 
 <h1>CHYBA: Nenalezen soubor view</h1>
 <p>Zkontrolujte, zda-li jste vytvořili soubor view:
-<em><?='/' . HHttp::sanitizeUrl(HRouter::$service . '/' . HRouter::$controller) . '/' . $__missingView__ . '.phtml'?></em>
+<em><?=$__missingView__?></em>
 </p>
 
-<p>Po vypnutí ladícího režimu se při chybě zobrazí klasická E404.</p>
+<p>Po vypnutí ladícího režimu bude tato chyba nahrazenou E404.</p>
 
 </div>

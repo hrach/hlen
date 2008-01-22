@@ -77,7 +77,7 @@ class HApplication
 
     public static function error($view)
     {
-        self::$controller->set('__missingView__', self::$controller->view);
+        self::$controller->set('__missingView__', self::$controller->viewPath);
         
         self::$error = true;
         self::$system = true;
