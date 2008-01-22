@@ -63,14 +63,14 @@ class HDb
 
     public static function getDebug()
     {
-        $ret = '<table id="sql-log">'
+        $ret = '<div id="sql-log"><table>'
              . '<tr><th>SQL Dotaz</th><th>Řádků</th><th>Čas</th></tr>';
         foreach (self::$debugSql as $query) {
             $ret .= '<tr><td>' . $query['query'] . '</td>'
-                  . '<td>' . $query['affRows'] . '</td>'
-                  . '<td>' . sprintf('%0.3f', $query['time'] * 1000) . '</td></tr>';
+                  . '<td style="width: 50px;">' . $query['affRows'] . '</td>'
+                  . '<td style="width: 50px;">' . sprintf('%0.3f', $query['time'] * 1000) . '</td></tr>';
         }
-        $ret .= '</table>';
+        $ret .= '</table></div></div>';
 
         return $ret;
     }

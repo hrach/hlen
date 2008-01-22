@@ -1,27 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=UTF-8" />
 	<style type="text/css" media="screen">
-		body {
-			font-family: sans-serif;
-		}
-		div#err_message h1 {
-			color: #e73800;
-			font-size: 20px;
-			margin: 0;
-			margin-bottom: 10px;
-		}
-		div#err_message p {
-			margin: 15px 0;
-		}
-		div#err_message {
-			border: 1px solid #aaa;
-			margin: 100px auto;
-			padding: 20px;
-			width: 75%;
-		}
+		body {font-family: sans-serif;margin: 0;padding: 5px;}
+		div#err_message h1{color: #a00227;font-size: 20px;margin: 0 0 10px 0;}
+		div#err_message p{margin: 15px 0;}
+		div#err_message{border: 1px solid #aaa;margin: 100px auto;padding: 20px;width: 75%;}
+		div#sql-log{position: fixed;bottom: 0;left: 0;}
+		div#sql-log table{border: 1px solid #444;border-collapse: collapse;font-size: 12px;}
+		div#sql-log table th{background: #777;border: 1px solid #444;color: white;}
+		div#sql-log table td{border: 1px solid #444;}
 	</style>
 	<title><?=$layout['title']?></title>
 </head>
