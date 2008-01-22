@@ -1,11 +1,12 @@
+<?php $this->title = 'Chyba databáze | Hlen framework' ?>
 <div id="err_message">
 
-<h1>CHYBA: SQL dotaz není korektní</h1>
+<h1>CHYBA databáze</h1>
 
-<p>MySQL hlásí:</p>
+<p>DIBI knihovna vyhodila následující výjimku:</p>
 
 <pre><?=$exception->getMessage()?></pre>
 
-<p>Po vypnutí ladícího režimu se při chybě zobrazí klasická E404.</p>
+<p>Po vypnutí ladícího režimu bude tato chyba nahrazenou E404.</p>
 
 </div>

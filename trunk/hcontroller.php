@@ -68,11 +68,16 @@ class HController
 
         return $el->get();
     }
-          
-    private function link($title, $url = array(), $inherited = true)
+
+    private function link($title, array $url = array(), array $options = array())
     {
-        $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], @$url[2], $inherited);
+        $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], @$url[2], @$url[3]);
         $el = new HHtml('a');
+
+        foreach ($options as $atName => $atVal) {
+            $el[$atName] = $atVal;
+        }
+
         $el['href'] = $url;
         $el->setContent($title);
 
@@ -122,13 +127,13 @@ class HController
                     break;
             }
         }
-       
+
         foreach ($p as $i => $arg) {
             if (!is_integer($i)) {
                 $p[$i] = $i . HRouter::$naSeparator . $arg;
             }
         }
-        
+
         if ($inherited) {
             $args = array_merge($this->catchedArg, $p);
             foreach ($rule as $index => $val) {                            
@@ -148,7 +153,7 @@ class HController
 
         return implode('/', $newUrl);
     }
-    
+
         protected function getArgs()
     {
         return HRouter::$args;
@@ -162,12 +167,12 @@ class HController
             return false;
         }
     }
-    
+
     public function render()
     {
         $actionName = HRouter::$action . 'Action';
         $methodExists = method_exists(get_class($this), $actionName);        
-        
+
         if (!$methodExists) {
             if (!HApplication::$error) {
                 HApplication::error('method');
@@ -181,13 +186,13 @@ class HController
             call_user_func(array($this, 'init'));
         }
         
-        if ($actionName !== false) {
+        if ($actionName !== false && $methodExists) {
             call_user_func_array(array($this, $actionName), HRouter::$args);
         }
-        
+
         $this->renderPage();
     }
-    
+
     public function renderPage()
     {
         ob_start();
@@ -229,6 +234,8 @@ class HController
         }
 
         $view .= HBasics::underscore($this->view) . '.phtml';
+
+        $this->viewPath = $view;
 
         if (file_exists(APP . $view)) {
             $this->viewPath = APP . $view;
