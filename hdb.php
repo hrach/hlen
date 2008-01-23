@@ -63,12 +63,14 @@ class HDb
 
     public static function getDebug()
     {
-        $ret = '<div id="sql-log"><table>'
-             . '<tr><th>SQL Dotaz</th><th>Řádků</th><th>Čas</th></tr>';
+        $ret = '<table style="position: fixed;bottom: 0;left: 0;border: 1px solid #444;border-collapse: collapse;font-size: 12px;">'
+             . '<tr><th style="background: #777;border: 1px solid #444;color: white;">SQL Dotaz</th>'
+             . '<th style="background: #777;border: 1px solid #444;color: white;">Řádků</th>'
+             . '<th style="background: #777;border: 1px solid #444;color: white;">Čas</th></tr>';
         foreach (self::$debugSql as $query) {
-            $ret .= '<tr><td>' . $query['query'] . '</td>'
-                  . '<td style="width: 50px;">' . $query['affRows'] . '</td>'
-                  . '<td style="width: 50px;">' . sprintf('%0.3f', $query['time'] * 1000) . '</td></tr>';
+            $ret .= '<tr><td style="border: 1px solid #444;">' . $query['query'] . '</td>'
+                  . '<td style="width: 50px;border: 1px solid #444;">' . $query['affRows'] . '</td>'
+                  . '<td style="width: 50px;border: 1px solid #444;">' . sprintf('%0.3f', $query['time'] * 1000) . '</td></tr>';
         }
         $ret .= '</table></div></div>';
 

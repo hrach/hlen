@@ -1,15 +1,15 @@
 <?php $this->title = 'Nenalezena metoda | Hlen framework' ?>
-<div id="err_message">
+<div id="err_message" style="border: 1px solid #aaa;margin: 100px auto;padding: 20px;width: 75%;">
 
-<h1>CHYBA: Nenalezena metoda</h1>
-<p>Zkontrolujte URL (<em>router.php</em>), zda-li jste napsali správně název metody controlleru.</p>
-<p>Pro vytvoření metody využijte následující kostru:</p>
+<h1 style="color: #a00227;font-size: 20px;margin: 0 0 10px 0;">CHYBA: Nenalezena metoda</h1>
+<p style="margin: 15px 0;">Zkontrolujte URL (<em>router.php</em>), zda-li jste napsali správně název metody controlleru.</p>
+<p style="margin: 15px 0;">Pro vytvoření metody využijte následující kostru:</p>
 
 <pre>
 public function <?=HRouter::$action?>Action() {
 	// váš kód
 }
 </pre>
-<p>Po vypnutí ladícího režimu bude tato chyba nahrazenou E404.</p>
+<p style="margin: 15px 0;">Po vypnutí ladícího režimu bude tato chyba nahrazenou E404.</p>
 
 </div>
