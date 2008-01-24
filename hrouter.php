@@ -135,15 +135,19 @@ class HRouter
         }
         
         if (isset($options['args'])) {
-            foreach ((array) $options['args'] as $arg) {
-                if (is_array($arg)) {
-                    $arg = implode(HRouter::$naSeparator, $arg);
-                }   
-                $nArg = self::removePrefix($arg);
-                if (!isset($router['args'][$nArg[0]])) {
-                    $router['args'][$nArg[0]] = $nArg[1];
+            foreach ((array) $options['args'] as $argName => $arg) {
+                if (!is_integer($argName)) {
+                    $newArg = $argName . HRouter::$naSeparator . $arg;
+                    $newArg = self::removePrefix($newArg);
+                    $router['args'][$argName] = $newArg[1];
+                } else {
+                    $router['args'][] = $arg;
                 }
             }
+        }
+
+        if (isset($options['rule'])) {
+            $rule = HHttp::urlToArray($options['rule']);
         }
 
         self::$controller = $router['controller'];
