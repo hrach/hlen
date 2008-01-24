@@ -71,6 +71,10 @@ class HController
 
     private function link($title, array $url = array(), array $options = array())
     {
+        if (!isset($url[3])) {
+            $url[3] = true;
+        }
+
         $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], @$url[2], @$url[3]);
         $el = new HHtml('a');
 
