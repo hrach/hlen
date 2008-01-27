@@ -4,7 +4,7 @@
  * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @copyright  Copyright (c) 2008, Jan Skrasek
  * @package    Hlen
  */
 
@@ -68,9 +68,9 @@ class HDb
              . '<th style="background: #777;border: 1px solid #444;color: white;">Řádků</th>'
              . '<th style="background: #777;border: 1px solid #444;color: white;">Čas</th></tr>';
         foreach (self::$debugSql as $query) {
-            $ret .= '<tr><td style="border: 1px solid #444;">' . $query['query'] . '</td>'
-                  . '<td style="width: 50px;border: 1px solid #444;">' . $query['affRows'] . '</td>'
-                  . '<td style="width: 50px;border: 1px solid #444;">' . sprintf('%0.3f', $query['time'] * 1000) . '</td></tr>';
+            $ret .= '<tr><td style="backgroud: #fff;border: 1px solid #444;">' . $query['query'] . '</td>'
+                  . '<td style="backgroud-color: #fff;width: 50px;border: 1px solid #444;">' . $query['affRows'] . '</td>'
+                  . '<td style="backgroud:  #fff;width: 50px;border: 1px solid #444;">' . sprintf('%0.3f', $query['time'] * 1000) . '</td></tr>';
         }
         $ret .= '</table></div></div>';
 
