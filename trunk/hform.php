@@ -4,10 +4,10 @@
  * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @copyright  Copyright (c) 2008, Jan Skrasek
  * @package    Hlen
- */                                      
- 
+ */
+
 require_once dirname(__FILE__) . '/hhttp.php';
 require_once dirname(__FILE__) . '/hhtml.php';
 require_once dirname(__FILE__) . '/hform_items.php';
@@ -35,10 +35,8 @@ class HForm implements ArrayAccess
 
     public function __construct($url = null, $method = 'post')
     {
-        $action = HHttp::getBase() . $url;
-
         $this->formElement = new HHtml('form');
-        $this->formElement['action'] = $action;
+        $this->formElement['action'] = HHttp::getBase() . $url;
         $this->formElement['method'] = $method;
     }
 
@@ -107,80 +105,82 @@ class HForm implements ArrayAccess
     {
         return $this->formElement->endTag();
     }
-    
+
     public function isSubmited()
     {
         $return = false;
+        $submitData = array();
+
         if (HHttp::getRequestMethod() === 'post') {
             $data = HHttp::getPost();
         } else {
             $data = HHttp::getGet();
-        }        
+        }
 
-        foreach ($this->elements as $el) {
-            
-            $class = get_class($this->elements[$el->id]);
-            
-            if ($class == 'HFormFileItem') {
-                $data[$el->id] = @$_FILES[$el->id];
-            }
+        foreach ($this->elements as $id => $element) {
 
-            if (!isset($data[$el->id])) {
+            $class = get_class($element);
+
+            if ($class == 'HFormFileItem' && isset($_FILES[$id])) {
+                $submitData[$id] = $_FILES[$id];
+            } elseif (isset($data[$id])) {
+                $submitData[$id] = $data[$id];
+            } else {
                 continue;
             }
 
-            
-            if ($el->getEmptyValue() == $data[$el->id]) {
-                $data[$el->id] = null;
+            $value = & $submitData[$id];
+
+            if ($element->trim) {
+                $submitData[$id] = trim($value);
             }
 
-            $value = $data[$el->id];
-            
-            if ($el->isSubmited($value)) {
-                
-                if ($el->trim) {
-                    $data[$el->id] = trim($value);
-                }
-                
+            if ($element->getEmptyValue() == $value) {
+                $submitData[$id] = null;
+            }
+
+            if ($element->isSubmited($value)) {
+
                 switch ($class) {
                     case 'HFormSubmitItem':
-                        unset($data[$el->id]);
+                        unset($submitData[$id]);
                     break;
                     case 'HFormSelectItem':
-                        if (!$el->existsVal($value)) {
-                            unset($data[$el->id]);
+                        if (!$element->existsVal($value)) {
+                            unset($submitData[$id]);
                         }
                     break;
                 }
+
                 $return = true;
 
             }
         }
-        
+
         if ($return) {
-            $this->data = $data;
+            $this->data = $submitData;
         }
-        
+
         return $return;
     }
-    
+
     public function isValid()
     {
         $return = true;
-        foreach ($this->elements as $el) {
-            if (!$el->isValid(@$this->data[$el->id])) {
+
+        foreach ($this->elements as $id => $element) {
+            if (!$element->isValid(@$this->data[$id])) {
                 $return = false;
             }
         }
 
         return $return;
     }
-    
+
     public function setDefaults($defaults)
     {
         foreach ($defaults as $id => $value) {
-            if (is_object($this->elements[$id])
-             && get_class($this->elements[$id]) !== 'HFormSubmitItem') {
+            if (array_key_exists($id, $this->elements)) {
                 $this->elements[$id]->setDefault($value);
             }
         }
@@ -189,9 +189,13 @@ class HForm implements ArrayAccess
     public function reSetDefaults()
     {
         foreach ($this->data as $id => $value) {
-            if (is_object($this->elements[$id])
-             && get_class($this->elements[$id]) !== 'HFormTextPasswordItem') {
-                $this->elements[$id]->setDefault($value);
+            $element = $this->elements[$id];
+            if (array_key_exists($id, $this->elements) && get_class($element) !== 'HFormTextPasswordItem') {
+                if ($value == null && $element->getEmptyValue() !== null) {
+                    $this->elements[$id]->setDefault($element->getEmptyValue());
+                } else {
+                    $this->elements[$id]->setDefault($value);
+                }
             }
         }
     }
@@ -216,19 +220,19 @@ class HForm implements ArrayAccess
     {
         return $this->errors;
     }
-    
+
     public function getErrorList()
     {
         if (empty($this->errors)) {
             return null;
         }
-        
+
         $list = '<ul>';
         foreach ($this->errors as $error) {
             $list .= "<li>$error</li>";
         }
         $list .= '</ul>';
-        
+
         return $list;
     }
 
@@ -288,7 +292,7 @@ class HForm implements ArrayAccess
                 ';
             }
         }
-        
+
         $render .= '
         &lt;?=$' . $formName . '->renderEnd()?>
         </pre>
