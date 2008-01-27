@@ -7,19 +7,20 @@
  * @copyright  Copyright (c) 2007, Jan Skrasek
  * @package    Hlen
  */
- 
- 
+
+
 class HFormItem
 {
- 
+
     public $id;
     protected $form;
     protected $element;
-    protected $emptyValue;
+    protected $emptyValue = null;
     protected $conds = array();
+    protected $required = false;
 
 
-    function __construct($form, $tag, $id)
+    function __construct(HForm $form, $tag, $id)
     {
         $this->id = $id;
         $this->form = $form;
@@ -40,7 +41,7 @@ class HFormItem
     {
         return $this->emptyValue;
     }
-    
+
     public function getValue($name)
     {
         if (isset($this->element[$name])) {
@@ -49,7 +50,7 @@ class HFormItem
             return false;
         }
     }
-    
+
     public function setValue($name, $val)
     {
         $this->element[$name] = $val;
@@ -60,7 +61,6 @@ class HFormItem
         if (!empty($value)) {
             return true;
         }
-
         return false;
     }
 
@@ -81,9 +81,13 @@ class HFormItem
 
     public function addRule($rule, $message, $arg)
     {
+        if ($rule == HForm::FILLED) {
+            $this->required = true;
+        }
+
         $cond = new HFormCondition(null, $this->form, $this);
         $cond->addRule($rule, $message, $arg);
-        
+
         $this->conds[] = $cond;
     }
 
@@ -105,6 +109,10 @@ class HFormItem
 
         foreach ($attributs as $key => $val) {
             $labelEl[$key] = $val;
+        }
+
+        if ($this->required) {
+            $labelEl['class'] .= ' required';
         }
 
         return $labelEl->get();
@@ -131,9 +139,9 @@ class HFormItem
 
 class HFormTextItem extends HFormItem
 {
-    
+
     public $trim = true;
-    
+
 
     public function __construct($form, $id)
     {
@@ -141,18 +149,18 @@ class HFormTextItem extends HFormItem
         $this->element['type'] = 'text';
         $this->element['class'] = 'text';
     }
-    
+
     public function setEmptyValue($value)
     {
         $this->element['value'] = $value;
         $this->emptyValue = $value;
     }
-    
+
     public function setDefault($value)
     {
         $this->element['value'] = $value;
     }
-    
+
     public function getDefault()
     {
         return $this->element['value'];
@@ -163,31 +171,29 @@ class HFormTextItem extends HFormItem
 
 class HFormTextPasswordItem extends HFormTextItem
 {
-        
+
     public function __construct($form, $id)
     {
         parent::__construct($form, $id);
         $this->element['type'] = 'password';
     }
-    
+
 }
 
 
 class HFormTextHiddenItem extends HFormTextItem
 {
-    
+
     public function __construct($form, $id)
     {
         parent::__construct($form, $id);
         $this->element['type'] = 'hidden';
         unset($this->element['class']);
     }
-    
+
     public function label()
-    {
-        return null;
-    }
-    
+    {}
+
 }
 
 
@@ -208,8 +214,9 @@ class HFormFileItem extends HFormTextItem
 
 class HFormTextAreaItem extends HFormItem
 {
-    
+
     public $trim = false;
+
 
     public function __construct($form, $id)
     {
@@ -221,7 +228,7 @@ class HFormTextAreaItem extends HFormItem
 
 class HFormSelectItem extends HFormItem
 {
-    
+
     public $trim = true;
     private $options = array();
     private $optionsVals = array();
@@ -230,9 +237,9 @@ class HFormSelectItem extends HFormItem
     public function __construct($form, $id, $options)
     {
         parent::__construct($form, 'select', $id);
-        
+
         $this->optionsVals = $options;
-        
+
         foreach ($options as $key => $val) {
             $option = new HHtml('option');
             $option['value'] = $key;
@@ -250,12 +257,12 @@ class HFormSelectItem extends HFormItem
             }
         }
     }
-    
+
     public function existsVal($value)
     {
         return array_key_exists($value, $this->optionsVals);
     }
-    
+
     public function element(array $attributs = array())
     {
         $options = '';
@@ -273,7 +280,6 @@ class HFormSelectItem extends HFormItem
 class HFormSubmitItem extends HFormTextItem
 {
 
-    
     public function __construct($form, $id)
     {
         parent::__construct($form, $id);
@@ -281,12 +287,14 @@ class HFormSubmitItem extends HFormTextItem
         $this->element['class'] = 'submit';
     }
 
+    public function setDefault()
+    {}
+
     public function element($value = null, array $attributs = array())
     {
         if ($value) {
             $this->element['value'] = $value;
         }
-        
         return parent::element($attributs);
     }
 
@@ -295,10 +303,10 @@ class HFormSubmitItem extends HFormTextItem
 
 class HFormCheckBoxItem extends HFormItem
 {
-    
+
     public $trim = true;
-    
-    
+
+
     public function __construct($form, $id)
     {
         parent::__construct($form, 'input', $id);
@@ -306,28 +314,28 @@ class HFormCheckBoxItem extends HFormItem
         $this->element['class'] = 'checkbox';
         $this->element['value'] = 'true';
     }
-    
+
     public function setDefault($value)
     {
         if ($this->element['value'] == $value) {
             $this->element['checked'] = 'checked';
         }
     }
-    
+
     public function getDefault()
     {
         return (boolean) $this->element['checked'];
     }
-    
+
 }
 
 
 class HFormMultiCheckBoxItem extends HFormCheckBoxItem
 {
-    
+
     private $value;
-    
-    
+
+
     public function __construct($form, $id, $key, $value)
     {
         parent::__construct($form, $id);
@@ -336,7 +344,7 @@ class HFormMultiCheckBoxItem extends HFormCheckBoxItem
         $this->element['name'] = $id . '[]';
         $this->value = $value;
     }
-    
+
     public function label(array $attributs = array())
     {
         $labelEl = new HHtml('label');
@@ -349,15 +357,16 @@ class HFormMultiCheckBoxItem extends HFormCheckBoxItem
 
         return $labelEl->get();
     }
-    
+
 }
 
 
 class HFormMultiCheckBox implements Iterator
 {
-    
+
     public $id;
     public $trim = false;
+
     private $form;
     private $boxes = array();
     private $boxesVals = array();
@@ -379,18 +388,13 @@ class HFormMultiCheckBox implements Iterator
         if (!empty($value) && is_array($value)) {
             return true;
         }
-
         return false;
     }
 
-    public function setDefault($value)
+    public function setDefault($boxes)
     {
-        foreach ($value as $val) {
-            foreach ($this->boxes as $key => $box) {
-                if ($box->getValue('value') == $val) {
-                    $this->boxes[$key]->setValue('checked', true);
-                }
-            }
+        foreach ($boxes as $box) {
+            $this->boxes[$box]->setValue('checked', true);
         }
     }
 

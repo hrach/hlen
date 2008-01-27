@@ -16,7 +16,7 @@ define('APP', dirname($_SERVER['SCRIPT_FILENAME']) . '/app/');
 
 $appClasses = HLoader::getClasses(APP . 'controllers/', APP . 'cache/classes.cache');
 $coreFiles = array(
-    'hbasics', 'hconfigure', 'hdb',
+    'hbasics', 'hconfigure', 'hdb', 'hcookie',
     'hdebug', 'hform', 'hhtml', 'hcontroller',
     'hhttp', 'hloader', 'hrouter', 'hsession'
 );
