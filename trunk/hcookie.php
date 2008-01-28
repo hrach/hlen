@@ -28,7 +28,7 @@ class HCookie
             Die("Nastaveni cookie nelze provest, hlavicky byly jiz odeslany.");
         }
 
-        setcookie($var, $val, time() + HBasics::getVal(HConfigure::read('Cookie.expires'), 3600));
+        setcookie($var, $val, time() + HBasics::getVal(HConfigure::read('Cookie.expires'), 2419200));
         $_SESSION[$var] = $val;
     }
 
