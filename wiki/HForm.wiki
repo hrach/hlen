@@ -53,7 +53,7 @@ echo $form['surname']->element(array('class' => 'myform'));
 echo $form['submit']->element('Odeslat', array('class' => 'myform'));
 }}}
 
-Nyní budou mít všechny elemnty třídu 'myform'.
+Nyní budou mít všechny elementy třídu 'myform'.
 
 
 == Další prvky tvoření ==
