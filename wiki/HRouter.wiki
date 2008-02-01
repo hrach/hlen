@@ -64,6 +64,9 @@ HRouter::connect('/test/edit/*');
 
 // vyhovuje:      ano
 HRouter::connect('/test/edit/5');
+
+// vyhovuje:      ne
+HRouter::connect('/test/edit/55');
 }}}
 
 Možnost jednoduchého přepisu url - prohození controller a metody:
