@@ -18,11 +18,18 @@ class HDb
     private static $debug = false;
 
 
-    public static function connect($config = null, $debug = false)
+    public static function connect($config = 'Db.connections', $debug = 'Core.debug')
     {
-        if (empty($config) && class_exists('HApplication', false)) {
+        if (is_string($debug) && class_exists('HConfigure', false)) {
+            $debug = HConfigure::read('Core.debug') > 2;
+        } else {
+            $debug = false;
+        }
+
+        if (is_string($config) && class_exists('HConfigure', false)) {
             $config = HConfigure::read('Db.connections');
-            $debug = HConfigure::read('Core.debug') > 1;
+        } else {
+            $config = null;
         }
 
         self::$debug = $debug;

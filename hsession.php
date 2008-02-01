@@ -50,7 +50,7 @@ class HSession
         if (function_exists('ini_set')) {
             ini_set('session.use_cookies', 1);
             ini_set('session.name', HBasics::getVal(HConfigure::read('Session.cookie'), 'hlen-session'));
-            ini_set('session.cookie_lifetime', HBasics::getVal(HConfigure::read('Session.lifeTime'), 60*60*6));
+            ini_set('session.cookie_lifetime', HBasics::getVal(HConfigure::read('Session.lifeTime'), 60*30));
             ini_set('session.save_path', APP . 'cache');
         }
     }

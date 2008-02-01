@@ -4,7 +4,7 @@
  * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @copyright  Copyright (c) 2008, Jan Skrasek
  * @package    Hlen
  */
    
@@ -24,7 +24,7 @@ class HFormCondition
         $this->rule = $rule;
         $this->form = $form;
         $this->el = $el;
-        $this->arg = $arg;             
+        $this->arg = $arg;
     }
 
     public function isValid($value)
@@ -46,7 +46,7 @@ class HFormCondition
             } else {
                 $arg = $rule['arg'];
             }
-            
+
             if (!$this->isValueValid($rule['rule'], $value, $arg, $this->el->getEmptyValue())) {
                 $this->form->addError($rule['message']);
                 return false;
@@ -72,14 +72,14 @@ class HFormCondition
         }
 
         switch ($rule) {
-            case HForm::EQUAL:      return $value == $arg; break;
-            case HForm::FILLED:     return !empty($value); break;
-            case HForm::EMAIL:      return preg_match('/^[^@]+@[^@]+\.[a-z]{2,6}$/i', $value); break;
-            case HForm::URL:        return preg_match('/^.+\.[a-z]{2,6}(\\/.*)?$/i', $value); break;
-            case HForm::NUMERIC:    return is_numeric($value); break;
-            case HForm::MINLENGTH:  return strlen($value) >= $arg; break;
-            case HForm::MAXLENGTH:  return strlen($value) <= $arg; break;
-            case HForm::LENGTH:     return strlen($value) == $arg; break;
+            case HForm::EQUAL:      return $value == $arg;
+            case HForm::FILLED:     return !empty($value);
+            case HForm::EMAIL:      return preg_match('/^[^@]+@[^@]+\.[a-z]{2,6}$/i', $value);
+            case HForm::URL:        return preg_match('/^.+\.[a-z]{2,6}(\\/.*)?$/i', $value);
+            case HForm::NUMERIC:    return is_numeric($value);
+            case HForm::MINLENGTH:  return strlen($value) >= $arg;
+            case HForm::MAXLENGTH:  return strlen($value) <= $arg;
+            case HForm::LENGTH:     return strlen($value) == $arg;
         }
 
         return true;

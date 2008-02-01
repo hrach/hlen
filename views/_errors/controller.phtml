@@ -6,9 +6,11 @@
 <p style="margin: 15px 0;">Pro soubor s controllerem využijte následující kostru:
 
 <pre>
+&lt;php
+
 class <?= HBasics::camelize(HRouter::$controller) ?>Controller extends Controller
 {
-    public function indexAction() {
+    public function <?= HRouter::$defaultController ?>Action() {
         // váš kód
     }
 }
