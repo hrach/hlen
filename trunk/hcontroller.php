@@ -4,7 +4,7 @@
  * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @copyright  Copyright (c) 2008, Jan Skrasek
  * @package    Hlen
  */
 
@@ -12,6 +12,7 @@
 class HController
 {
 
+    public $base;
     public $title;
     public $data = array();
     public $view;
@@ -23,6 +24,10 @@ class HController
     private $db = null;
     private $vars = array();
 
+    public function __construct()
+    {
+        $this->base = HHttp::getBase();
+    }
 
     public function set($var, $val)
     {
@@ -50,13 +55,13 @@ class HController
     public function catchArg($name)
     {
         if (!empty(HRouter::$args[$name])) {
-            $this->catchedArg[$name] = $name . HRouter::$naSeparator . HRouter::$args[$name];
+            $this->catchedArg[$name] = $name . HRouter::$namedArgumentsSeparator . HRouter::$args[$name];
         }
     }
 
     public function a($title, $url, $attrs = array())
     {
-        $url = HHttp::getBase() . $url;
+        $url = $this->base . $url;
         $el = new HHtml('a');
         
         foreach ($attrs as $atr => $val) {
@@ -75,7 +80,7 @@ class HController
             $url[3] = true;
         }
 
-        $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], @$url[2], @$url[3]);
+        $url = $this->base . $this->url(@$url[0], @$url[1], @$url[2], @$url[3]);
         $el = new HHtml('a');
 
         foreach ($options as $atName => $atVal) {
@@ -88,10 +93,14 @@ class HController
         return $el->get();
     }
 
-    public function url($c = null, $a = null, $p = array(), $inherited = true)
+    public function url($c = null, $a = null, array $p = array(), $ruleId = true)
     {
         $newUrl = array();
-        $rule = HRouter::$rule;
+        if (is_integer($ruleId)) {
+            $rule = HRouter::$rules[$ruleId];
+        } else {
+            $rule = HRouter::$rule;
+        }
 
         if (!is_array($p)) {
             $p = (array) $p;
@@ -102,7 +111,7 @@ class HController
                 case ':controller':
                     if (isset($c)) {
                         $newUrl[$index] = $c;
-                    } elseif($inherited) {
+                    } elseif($ruleId !== false) {
                         $newUrl[$index] = HRouter::$controller;
                     } else {
                         $newUrl[$index] = HRouter::$defaultController;
@@ -111,17 +120,17 @@ class HController
                 case ':action':
                     if (isset($a)) {
                         $newUrl[$index] = $a;
-                    } elseif($inherited) {
+                    } elseif($ruleId !== false) {
                         $newUrl[$index] = HRouter::$action;
                     } else {
                         $newUrl[$index] = HRouter::$defaultAction;
-                    }                   
+                    }
                     break;
                 default:
-                    if ($inherited) {
+                    if (!is_integer($ruleId) && $ruleId !== false) {
                         $newUrl[$index] = HRouter::getSegment($index);
                     } else {
-                        $base = HHttp::urlToArray(HRouter::$base);
+                        $base = HHttp::urlToArray(HRouter::$rules[$ruleId]);
                         if (!empty($base[$index])) {
                             $newUrl[$index] = $base[$index];
                         } else {
@@ -134,13 +143,13 @@ class HController
 
         foreach ($p as $i => $arg) {
             if (!is_integer($i)) {
-                $p[$i] = $i . HRouter::$naSeparator . $arg;
+                $p[$i] = $i . HRouter::$namedArgumentsSeparator . $arg;
             }
         }
 
-        if ($inherited) {
+        if ($ruleId !== false) {
             $args = array_merge($this->catchedArg, $p);
-            foreach ($rule as $index => $val) {                            
+            foreach ($rule as $index => $val) {
                 if ($val === ':arg') {
                     $newUrl[$index] = array_shift($args);
                     break;
@@ -158,7 +167,7 @@ class HController
         return implode('/', $newUrl);
     }
 
-        protected function getArgs()
+    protected function getArgs()
     {
         return HRouter::$args;
     }
@@ -172,10 +181,18 @@ class HController
         }
     }
 
+    public function renderElement($elementName)
+    {
+        ob_start();
+        extract (call_user_func(array($this, $elementName . "Element")));
+        require APP . 'views/_elements/' . HBasics::underscore($elementName) . '.phtml';
+        return ob_get_clean();
+    }
+
     public function render()
     {
         $actionName = HRouter::$action . 'Action';
-        $methodExists = method_exists(get_class($this), $actionName);        
+        $methodExists = method_exists(get_class($this), $actionName);
 
         if (!$methodExists) {
             if (!HApplication::$error) {
@@ -189,7 +206,7 @@ class HController
         if (method_exists($this, 'init')) {
             call_user_func(array($this, 'init'));
         }
-        
+
         if ($actionName !== false && $methodExists) {
             call_user_func_array(array($this, $actionName), HRouter::$args);
         }
@@ -212,7 +229,7 @@ class HController
 
         echo $this->parse($this->layoutPath, $vars);
     }
-    
+
     private function parse($__File, $__Vars)
     {
         extract($__Vars);
@@ -268,6 +285,6 @@ class HController
         }
 
         $this->layoutPath = $layouts[$x];
-    }    
-    
+    }
+
 }

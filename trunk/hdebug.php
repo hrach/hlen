@@ -4,7 +4,7 @@
  * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @copyright  Copyright (c) 2008, Jan Skrasek
  * @package    Hlen
  */
 

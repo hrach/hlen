@@ -4,7 +4,7 @@
  * HLEN FRAMEWORK
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2007, Jan Skrasek
+ * @copyright  Copyright (c) 2008, Jan Skrasek
  * @package    Hlen
  */
 
@@ -12,21 +12,23 @@
 require_once dirname(__FILE__) . '/hloader.php';
 
 define('CORE', dirname(__FILE__) . '/');
-define('APP', dirname($_SERVER['SCRIPT_FILENAME']) . '/app/');
+if (!defined('APP')) {
+    define('APP', dirname($_SERVER['SCRIPT_FILENAME']) . '/app/');
+}
 
-$appClasses = HLoader::getClasses(APP . 'controllers/', APP . 'cache/classes.cache');
+$classesFiles = HLoader::getClasses(APP . 'controllers/', APP . 'cache/classes.cache');
+
 $coreFiles = array(
-    'hbasics', 'hconfigure', 'hdb', 'hcookie',
-    'hdebug', 'hform', 'hhtml', 'hcontroller',
-    'hhttp', 'hloader', 'hrouter', 'hsession'
+    'hbasics', 'hconfigure', 'hdb', 'hcookie', 'hdebug', 'hform',
+    'hhttp', 'hloader', 'hrouter', 'hsession',  'hhtml', 'hcontroller'
 );
 
 function __autoload($class)
 {
-    global $appClasses, $coreFiles;
+    global $classesFiles, $coreFiles;
 
-    if (array_key_exists($class, $appClasses)) {
-        require_once $appClasses[$class];
+    if (array_key_exists($class, $classesFiles)) {
+        require_once $classesFiles[$class];
     } elseif(in_array(strtolower($class), $coreFiles)) {
         require_once CORE . strtolower($class) . '.php';
     }
@@ -62,7 +64,7 @@ class HApplication
             if (class_exists('HDb', false)) {
                 echo HDb::getDebug();
             }
-            echo '<!-- time: ' . round((microtime(true)- self::$startTime)*1000, 2) . ' ms -->';
+            echo '<!-- time: ' . round((microtime(true) - self::$startTime) * 1000, 2) . ' ms -->';
         }
     }
 

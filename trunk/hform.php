@@ -33,10 +33,14 @@ class HForm implements ArrayAccess
     private $errors = array();
 
 
-    public function __construct($url = null, $method = 'post')
+    public function __construct($url = null, $method = 'post', $absoluteUrl = false)
     {
         $this->formElement = new HHtml('form');
-        $this->formElement['action'] = HHttp::getBase() . $url;
+        if ($absoluteUrl) {
+            $this->formElement['action'] = $url;
+        } else {
+            $this->formElement['action'] = HHttp::getBase() . $url;
+        }
         $this->formElement['method'] = $method;
     }
 
