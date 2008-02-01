@@ -5,6 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
+ * @version    0.3 - revize $Rev$
  * @package    Hlen
  */
 
