@@ -80,7 +80,7 @@ class HController
             $url[3] = true;
         }
 
-        $url = $this->base . $this->url(@$url[0], @$url[1], @$url[2], @$url[3]);
+        $url = $this->base . $this->url(@$url[0], @$url[1], (array) @$url[2], @$url[3]);
         $el = new HHtml('a');
 
         foreach ($options as $atName => $atVal) {
