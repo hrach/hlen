@@ -8,19 +8,20 @@ HRouter je téměř nejmocnější třída ve frameworku. Díky ní můžete jed
 Třída HRouter ve výchozím nastavení parsuje URL pomocí následujícího volání:
 
 {{{
-HRouter::connect(':controller/:action', array('args' => true));
+HRouter::connect(':controller/:action/*');
 }}}
 
-První fragment bude použit jako kontroler, druhý bude název metody dané třídy, a zbytek fragmentů se použije jako argumenty dané metody.
-Tomuto pravidlu vyhoví URL s počtem argumentů >= 2.
+První fragment bude použit jako controller, druhý bude název metody dané třídy a zbytek fragmentů se použije jako argumenty dané metody.
+
+Tomuto pravidlu vyhoví URL s počtem fragmentů >= 2.
 
 == V praxi ==
 
 Třídu lze samozřejmě používat samostatně. Jak tedy na to.
-Nejdříve klaisicky "naincludujte" soubro h_router.php. Celou akci pak spustíte pomocí příkazu:
+Nejdříve klaisicky includujte soubro "hrouter.php". Celou akci pak spustíte pomocí metody start:
 
 {{{
-HRouter::start($url, $fileName);
+public static function start($url, $router, $isFile = true)
 }}}
 
 První parametr obsahuje samostatné URL, jako druhý parametr se předává název souboru, nebo volatelná funkce, respektive metoda objektu.
