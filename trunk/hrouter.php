@@ -5,6 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
+ * @version    0.3
  * @package    Hlen
  */
 
@@ -19,9 +20,8 @@ class HRouter
 
     public static $defaultController = '';
     public static $defaultAction = 'index';
-    public static $defaultRuleKey = 0;
 
-    public static $rules = array(':controller/:action/*');
+    public static $baseRule = ':controller/:action/*';
 
     public static $namedArguments = array();
     public static $namedArgumentsSeparator = ':';
@@ -48,11 +48,13 @@ class HRouter
         }
 
         if (!self::$routing) {
-            self::connect(self::$rules[0]);
+            self::connect(self::$baseRule);
 
-            if (self::$rules[0] == ':controller/:action/*') {
-                self::connect(':controller', array('ruleKey' => 0));
+            if (self::$baseRule == ':controller/:action/*') {
+                self::connect(':controller', array('rule' => self::$baseRule));
             }
+
+            self::connect('/', array('rule' => self::$baseRule));
         }
     }
 
@@ -112,9 +114,9 @@ class HRouter
             if ($val === ':arg') {
                 $newArg = self::removePrefix(self::getSegment($key));
                 if (is_integer($newArg[0])) {
-                    $router['args'][] = $nArg[1];
+                    $router['args'][] = $newArg[1];
                 } else {
-                    $router['args'][$nArg[0]] = $nArg[1];
+                    $router['args'][$newArg[0]] = $newArg[1];
                 }
             } elseif ($val === ':controller') {
                 $router['controller'] = self::getSegment($key);
@@ -133,8 +135,11 @@ class HRouter
             $router['action'] = $options['action'];
         }
 
-        if (isset($options['ruleKey']) && isset(self::$rules[$options['ruleKey']])) {
-            $router['rule'] = HHttp::urlToArray(self::$rules[$options['ruleKey']]);
+        if (isset($options['rule'])) {
+            $router['rule'] = HHttp::urlToArray($options['rule']);
+            if ($router['rule'][count($router['rule']) - 1] == '*') {
+                array_pop($router['rule']);
+            }
         } else {
             $router['rule'] = $rule;
         }
