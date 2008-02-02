@@ -5,6 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
+ * @version    0.3
  * @package    Hlen
  */
 
@@ -52,7 +53,7 @@ class HBasics
         }
         $title = strtolower($title);
         $title = preg_replace('~[^-a-z0-9_]+~', '', $title);
-        return $url;
+        return $title;
     }
 
     public static function getVal()
