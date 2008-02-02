@@ -5,6 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
+ * @version    0.3
  * @package    Hlen
  */
 
@@ -93,17 +94,23 @@ class HController
         return $el->get();
     }
 
-    public function url($c = null, $a = null, array $p = array(), $ruleId = true)
+    public function url($c = null, $a = null, array $p = array(), $linkRule = true)
     {
         $newUrl = array();
-        if (is_integer($ruleId)) {
-            $rule = HRouter::$rules[$ruleId];
-        } else {
+        if ($linkRule === true) {
             $rule = HRouter::$rule;
-        }
-
-        if (!is_array($p)) {
-            $p = (array) $p;
+        } elseif($linkRule === false) {
+            $newRule = HHttp::urlToArray(HRouter::$baseRule);
+            if ($newRule[count($newRule) - 1] == '*') {
+                array_pop($newRule);
+            }
+            $rule = $newRule;
+        } else {
+            $newRule = HHttp::urlToArray($linkRule);
+            if ($newRule[count($newRule) - 1] == '*') {
+                array_pop($newRule);
+            }
+            $rule = $newRule;
         }
 
         foreach ($rule as $index => $val) {
@@ -111,7 +118,7 @@ class HController
                 case ':controller':
                     if (isset($c)) {
                         $newUrl[$index] = $c;
-                    } elseif($ruleId !== false) {
+                    } elseif($linkRule !== false) {
                         $newUrl[$index] = HRouter::$controller;
                     } else {
                         $newUrl[$index] = HRouter::$defaultController;
@@ -120,19 +127,18 @@ class HController
                 case ':action':
                     if (isset($a)) {
                         $newUrl[$index] = $a;
-                    } elseif($ruleId !== false) {
+                    } elseif($linkRule !== false) {
                         $newUrl[$index] = HRouter::$action;
                     } else {
                         $newUrl[$index] = HRouter::$defaultAction;
                     }
                     break;
                 default:
-                    if (!is_integer($ruleId) && $ruleId !== false) {
+                    if (is_bool($linkRule)) {
                         $newUrl[$index] = HRouter::getSegment($index);
                     } else {
-                        $base = HHttp::urlToArray(HRouter::$rules[$ruleId]);
                         if (!empty($base[$index])) {
-                            $newUrl[$index] = $base[$index];
+                            $newUrl[$index] = $val;
                         } else {
                             continue;
                         }
@@ -147,7 +153,7 @@ class HController
             }
         }
 
-        if ($ruleId !== false) {
+        if ($linkRule !== false) {
             $args = array_merge($this->catchedArg, $p);
             foreach ($rule as $index => $val) {
                 if ($val === ':arg') {
