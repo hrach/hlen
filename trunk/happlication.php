@@ -27,6 +27,7 @@ class HApplication
 
     public static function run()
     {
+        HRouter::route();
         set_exception_handler(array('HApplication', 'exception'));
 
         self::createController(HRouter::$controller);
@@ -52,15 +53,15 @@ class HApplication
 
     public static function error($view)
     {
-        self::$controller->set('__missingView__', self::$controller->viewPath);
+        self::$controller->view->__missingView__ = self::$controller->viewPath;
         
         self::$error = true;
         self::$system = true;
 
         if (HConfigure::read('Core.debug') > 1) {
-            self::$controller->view = $view;
+            self::$controller->view->view($view);
         } else {
-            self::$controller->view = '404';
+            self::$controller->view->view('404');
         }
     }
 

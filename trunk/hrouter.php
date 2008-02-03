@@ -11,6 +11,8 @@
 
 require_once dirname(__FILE__) . '/hhttp.php';
 
+HRouter::start();
+
 
 class HRouter
 {
