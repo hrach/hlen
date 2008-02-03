@@ -47,8 +47,8 @@ class HApplication
         self::$controller = new Controller;
         self::error('sql');
         self::$error = true;
-        self::$controller->set('exception', $exception);
-        self::$controller->renderPage();
+        self::$controller->view->exception = $exception;
+        self::$controller->view->render();
     }
 
     public static function error($view)

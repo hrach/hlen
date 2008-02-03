@@ -380,7 +380,7 @@ class HFormMultiCheckBox implements Iterator
         $this->boxesVals = $boxes;
 
         foreach ($boxes as $key => $value) {
-            $this->boxes[] = new HFormMultiCheckBoxItem($form, $id, $key, $value);
+            $this->boxes[$key] = new HFormMultiCheckBoxItem($form, $id, $key, $value);
         }
     }
 
@@ -418,6 +418,11 @@ class HFormMultiCheckBox implements Iterator
             }
         }
         return true;
+    }
+
+    public function getEmptyValue()
+    {
+        return null;
     }
 
     public function current()

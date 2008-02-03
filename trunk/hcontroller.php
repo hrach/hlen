@@ -24,6 +24,7 @@ class HController
 
         $this->view->baseUrl = HHttp::getBase();
         $this->view->escape = 'htmlspecialchars';
+        $this->view->title = 'HLEN framework';
     }
 
     public function redirect($url, $exit = true)
