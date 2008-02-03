@@ -276,30 +276,34 @@ class HForm implements ArrayAccess
     {
         $render = '
         <pre>
-        &lt;?=$' . $formName . '->getErrorList()?>
+        &lt;?= $' . $formName . '->getErrorList() ?>
         &lt;br />
-        &lt;?=$' . $formName . '->renderStart()?>
+        &lt;?= $' . $formName . '->renderStart() ?>
         ';
 
         foreach ($this->elements as $el) {
-            if (get_class($el) !== 'HFormSubmitItem') {
+            if ($el instanceof HFormSubmitItem) {
                 $render .= '
-                &lt;?=$' . $formName . '[\'' . $el->id . '\']->label(\'' . $el->id . '\')?>
-                &lt;?=$' . $formName . '[\'' . $el->id . '\']->element?>
-                
+                &lt;?= $' . $formName . '[\'' . $el->id . '\']->element(\'' . $el->id . '\') ?>
                 &lt;br />
                 ';
+            } elseif ($el instanceof HFormMultiCheckBox) {
+                $render .= '
+                &lt;?php foreach($' . $formName . '["' . $el->id . '"] as $sub) { ?&gt;
+                    &lt;?= $sub->element ?&gt;
+                    &lt;?= $sub->label() ?&gt;
+                &lt;?php } ?&gt;' . "\n";
             } else {
                 $render .= '
-                &lt;?=$' . $formName . '[\'' . $el->id . '\']->element(\'' . $el->id . '\')?>
-                
+                &lt;?= $' . $formName . '[\'' . $el->id . '\']->label(\'' . $el->id . '\') ?>
+                &lt;?= $' . $formName . '[\'' . $el->id . '\']->element ?>
                 &lt;br />
                 ';
             }
         }
 
         $render .= '
-        &lt;?=$' . $formName . '->renderEnd()?>
+        &lt;?= $' . $formName . '->renderEnd()?>
         </pre>
         ';
 
