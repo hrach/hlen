@@ -9,39 +9,21 @@
  * @package    Hlen
  */
 
+require_once dirname(__FILE__) . '/hview.php';
+
 
 class HController
 {
 
-    public $base;
-    public $title;
-    public $data = array();
-    public $view;
-    public $layout = "default";
-    public $viewPath;
-    public $layoutPath;
-
     private $catchedArg = array();
-    private $db = null;
-    private $vars = array();
+
 
     public function __construct()
     {
-        $this->base = HHttp::getBase();
-    }
+        $this->view = new HView();
 
-    public function set($var, $val)
-    {
-        $this->vars[$var] = $val;
-    }
-
-    public function get($var)
-    {
-        if (isset($this->vars[$var])) {
-            return $this->vars[$var];
-        } else {
-            return false;
-        }
+        $this->view->baseUrl = HHttp::getBase();
+        $this->view->escape = 'htmlspecialchars';
     }
 
     public function redirect($url, $exit = true)
@@ -75,7 +57,7 @@ class HController
         return $el->get();
     }
 
-    private function link($title, array $url = array(), array $options = array())
+    public function link($title, array $url = array(), array $options = array())
     {
         if (!isset($url[3])) {
             $url[3] = true;
@@ -173,12 +155,12 @@ class HController
         return implode('/', $newUrl);
     }
 
-    protected function getArgs()
+    public function getArgs()
     {
         return HRouter::$args;
     }
 
-    protected function getArg($name)
+    public function getArg($name)
     {
         if (isset(HRouter::$args[$name])) {
             return HRouter::$args[$name];
@@ -206,7 +188,7 @@ class HController
                 $actionName = false;
             }
         } else {
-            $this->view = HRouter::$action;
+            $this->view->view(HRouter::$action);
         }
 
         if (method_exists($this, 'init')) {
@@ -217,80 +199,7 @@ class HController
             call_user_func_array(array($this, $actionName), HRouter::$args);
         }
 
-        $this->renderPage();
-    }
-
-    public function renderPage()
-    {
-        ob_start();
-        $this->makeViewPaths();
-        $content = $this->parse($this->viewPath, $this->vars);
-        $vars = array_merge(array(
-            'layout' => array(
-                'content' => $content,
-                'title' => $this->title,
-            )
-        ),$this->vars);
-        $this->makeLayoutPaths();
-
-        echo $this->parse($this->layoutPath, $vars);
-    }
-
-    private function parse($__File, $__Vars)
-    {
-        extract($__Vars);
-        include $__File;
-
-        return ob_get_clean();
-    }
-
-    private function makeViewPaths()
-    {
-        if (HApplication::$error) {
-            $view = 'views/_errors/';
-        } else {
-            if ($this->view[0] !== '|') {
-                $view = 'views/' . HRouter::$controller . '/';
-                if (!empty(HRouter::$service)) {
-                    $view .= HRouter::$service . '/';
-                }
-            } else {
-                $view = 'views/';
-                $this->view = substr($this->view, 1);
-            }
-        }
-
-        $view .= HBasics::underscore($this->view) . '.phtml';
-
-        $this->viewPath = $view;
-
-        if (file_exists(APP . $view)) {
-            $this->viewPath = APP . $view;
-        } elseif (HApplication::$system && file_exists(CORE . $view)) {
-            $this->viewPath = CORE . $view;
-        } else {
-            if (HApplication::$error) {
-                die('Instalace frameworku je poškozena. Prosím, proveďte aktualizaci knihoven a souborů. Chybí soubor: ' . $view);
-            } else {
-                HApplication::error('view');
-                $this->makeViewPaths();
-            }
-        }
-    }
-
-    private function makeLayoutPaths()
-    {
-        $layouts[] = APP . "views/" . HBasics::underscore($this->layout) . ".phtml";
-        $layouts[] = CORE . "views/" . HBasics::underscore($this->layout) . ".phtml";
-        $layouts[] = CORE . "views/default.phtml";
-
-        foreach ($layouts as $x => $layout) {
-            if (file_exists($layout)) {
-                break;
-            }
-        }
-
-        $this->layoutPath = $layouts[$x];
+        $this->view->render();
     }
 
 }
