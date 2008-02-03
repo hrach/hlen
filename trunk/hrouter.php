@@ -95,7 +95,7 @@ class HRouter
         $rule          = HHttp::urlToArray($rule);
         $segmentCount  = count(self::$segment);
 
-        if ($rule[count($rule) - 1] === '*') {
+        if (count($rule) > 1 && $rule[count($rule) - 1] === '*') {
             array_pop($rule);
             $multiArgs = true;
         } else {
