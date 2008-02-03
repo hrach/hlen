@@ -44,7 +44,7 @@ class HController
 
     public function a($title, $url, $attrs = array())
     {
-        $url = $this->base . $url;
+        $url = HHttp::getBase() . $url;
         $el = new HHtml('a');
         
         foreach ($attrs as $atr => $val) {
@@ -63,7 +63,7 @@ class HController
             $url[3] = true;
         }
 
-        $url = $this->base . $this->url(@$url[0], @$url[1], (array) @$url[2], @$url[3]);
+        $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], (array) @$url[2], @$url[3]);
         $el = new HHtml('a');
 
         foreach ($options as $atName => $atVal) {
@@ -98,7 +98,7 @@ class HController
         foreach ($rule as $index => $val) {
             switch ($val) {
                 case ':controller':
-                    if (isset($c)) {
+                    if (!empty($c)) {
                         $newUrl[$index] = $c;
                     } elseif($linkRule !== false) {
                         $newUrl[$index] = HRouter::$controller;
@@ -107,7 +107,7 @@ class HController
                     }
                     break;
                 case ':action':
-                    if (isset($a)) {
+                    if (!empty($a)) {
                         $newUrl[$index] = $a;
                     } elseif($linkRule !== false) {
                         $newUrl[$index] = HRouter::$action;
