@@ -10,7 +10,8 @@
  */
 
 require_once dirname(__FILE__) . '/happlication.php';
-require_once dirname(__FILE__) . '/hdebug.php';
+
+HAutoLoad::registerAutoLoad();
 
 
 class HAutoLoad
