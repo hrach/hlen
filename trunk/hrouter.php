@@ -37,16 +37,13 @@ class HRouter
     private static $services = array();
 
 
-    public static function start($url, $router, $isFile = true)
+    public static function start()
     {
-        self::$segment = HHttp::urlToArray($url);
+        self::$segment = HHttp::urlToArray(HHttp::getGet('url'));
+    }
 
-        if (!$isFile) {
-            call_user_func($router);
-        } else {
-            include $router;
-        }
-
+    public static function route()
+    {
         if (!self::$routing) {
             self::connect(self::$baseRule);
 

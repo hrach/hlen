@@ -9,62 +9,34 @@
  * @package    Hlen
  */
 
-
-require_once dirname(__FILE__) . '/hloader.php';
+HApplication::$startTime = microtime(true);
 
 define('CORE', dirname(__FILE__) . '/');
+
 if (!defined('APP')) {
     define('APP', dirname($_SERVER['SCRIPT_FILENAME']) . '/app/');
 }
-
-$classesFiles = HLoader::getClasses(APP . 'controllers/', APP . 'cache/classes.cache');
-
-$coreFiles = array(
-    'hbasics', 'hconfigure', 'hdb', 'hcookie', 'hdebug', 'hform',
-    'hhttp', 'hloader', 'hrouter', 'hsession',  'hhtml', 'hcontroller'
-);
-
-function __autoload($class)
-{
-    global $classesFiles, $coreFiles;
-
-    if (array_key_exists($class, $classesFiles)) {
-        require_once $classesFiles[$class];
-    } elseif(in_array(strtolower($class), $coreFiles)) {
-        require_once CORE . strtolower($class) . '.php';
-    }
-}
-
 
 class HApplication
 {
 
     static public $controller;
-    static public $loader;
     static public $error = false;
     static public $system = false;
-
-    static private $controllers = array();
-    static private $startTime;
-
+    static public $startTime;
 
     public static function run()
     {
-        self::$startTime = microtime(true);
         set_exception_handler(array('HApplication', 'exception'));
-
-        HBasics::load(APP.'config/bootstrap.php');
-        HBasics::load(APP.'config/core.php');
-
-        HRouter::start(HHttp::getGet('url'), APP.'config/router.php');
 
         self::createController(HRouter::$controller);
         self::render();
 
-        if (class_exists('HConfigure', false) && HConfigure::read('Core.debug') > 1) {
-            if (class_exists('HDb', false)) {
-                echo HDb::getDebug();
-            }
+        if (HConfigure::read('Core.debug') > 2 && class_exists('HDb', false)) {
+            echo HDb::getDebug();
+        }
+
+        if (HConfigure::read('Core.debug') > 1) {
             echo '<!-- time: ' . round((microtime(true) - self::$startTime) * 1000, 2) . ' ms -->';
         }
     }
