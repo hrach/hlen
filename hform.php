@@ -232,7 +232,7 @@ class HForm implements ArrayAccess
             return null;
         }
 
-        $list = '<ul>';
+        $list = '<ul class="form-error-list">';
         foreach ($this->errors as $error) {
             $list .= "<li>$error</li>";
         }

@@ -41,7 +41,7 @@ class HRouter
 
     public static function start()
     {
-        self::$segment = HHttp::urlToArray(HHttp::getGet('url'));
+        self::$segment = HHttp::urlToArray(HHttp::getRequestUrl());
     }
 
     public static function route()
@@ -61,7 +61,7 @@ class HRouter
     {
         self::$services[] = $service;
 
-        if (self::$segment[count(self::$segment)-1] === $service) {
+        if (count(self::$segment) > 0 && self::$segment[count(self::$segment)-1] === $service) {
             self::$service = $service;
             array_pop(self::$segment);
         }
@@ -69,7 +69,7 @@ class HRouter
 
     public static function rewrite($rule, $newUrl)
     {
-        $url = HHttp::sanitizeUrl(HHttp::getGet('url'));
+        $url = HHttp::sanitizeUrl(HHttp::getRequestUrl());
         $rule = HHttp::sanitizeUrl($rule);
 
         if ($url === $rule) {

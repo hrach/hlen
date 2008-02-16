@@ -53,8 +53,10 @@ class HApplication
 
     public static function error($view)
     {
-        self::$controller->view->__missingView__ = self::$controller->viewPath;
-        
+        if ($view == 'view') {
+            self::$controller->view->missingView = self::$controller->view->getViewPath();
+        }
+
         self::$error = true;
         self::$system = true;
 

@@ -13,6 +13,8 @@
 class HView
 {
 
+    public $controller;
+
     private $vars = array();
 
     private $viewPath;
@@ -30,6 +32,31 @@ class HView
     public function layout($layoutName)
     {
         $this->layoutName = $layoutName;
+    }
+
+    public function error($error = '404')
+    {
+        HApplication::error($error);
+    }
+
+    public function getView()
+    {
+        return $this->viewName;
+    }
+
+    public function getLayout()
+    {
+        return $this->viewName;
+    }
+
+    public function getViewPath()
+    {
+        return $this->viewPath;
+    }
+
+    public function getLayoutPath()
+    {
+        return $this->layoutPath;
     }
 
     public function link()
