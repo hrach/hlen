@@ -58,7 +58,7 @@ class HHttp
 
     public static function getUrl()
     {
-        $url  = 'http:' . ($_SERVER['HTTPS'] ? 's' : '') . '//'
+        $url  = 'http:' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '//'
               . $_SERVER['SERVER_NAME']
               . HHttp::getBase();
 
@@ -94,6 +94,16 @@ class HHttp
         } else {
             return null;
         }
+    }
+
+    public static function getRequestUrl()
+    {
+        $url = $_SERVER['REQUEST_URI'];
+        $base = dirname($_SERVER['SCRIPT_NAME']);
+        if (substr($url, 0, strlen($base)) == $base) {
+            $url = substr($url, strlen($base));
+        }
+        return $url;
     }
 
     public static function sanitizeUrl($url)
