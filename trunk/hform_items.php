@@ -106,6 +106,7 @@ class HFormItem
     {
         $labelEl = new HHtml('label');
         $labelEl['for'] = 'form-' . $this->id;
+        $labelEl['id'] = 'form-' . $this->id . '-label';
         $labelEl->setContent($label);
 
         foreach ($attributs as $key => $val) {

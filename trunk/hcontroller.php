@@ -22,6 +22,7 @@ class HController
     {
         $this->view = new HView();
 
+        $this->view->controller = & $this;
         $this->view->baseUrl = HHttp::getBase();
         $this->view->escape = 'htmlspecialchars';
         $this->view->title = 'HLEN framework';
@@ -130,14 +131,21 @@ class HController
             }
         }
 
+        $catched = $this->catchedArg;
+
         foreach ($p as $i => $arg) {
+            if ($arg === false) {
+                unset($p[$i]);
+                unset($catched[$i]);
+                continue;
+            }
             if (!is_integer($i)) {
                 $p[$i] = $i . HRouter::$namedArgumentsSeparator . $arg;
             }
         }
 
         if ($linkRule !== false) {
-            $args = array_merge($this->catchedArg, $p);
+            $args = array_merge($catched, $p);
             foreach ($rule as $index => $val) {
                 if ($val === ':arg') {
                     $newUrl[$index] = array_shift($args);
