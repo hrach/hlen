@@ -1,0 +1,63 @@
+#labels Featured
+=01. - Začínáme s Hlenem=
+
+Hlen je téměř MVC framework, implementuje controller a view a můžete také jednoduše používat modelovou část.
+
+Celá aplikace začíná souborem `index.php`. Do něj pomocí `.httacces` směřujeme všechny požadavky. V `.httacces` by mělo být:
+
+{{{
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule !\.(pdf|php|js|ico|txt|gif|jpg|png|css|rar|zip|tar\.gz)$ index.php [L]
+}}}
+
+Samotný `index.php` má za úkol spustit aplikaci a provést její routing.
+Začíst se dá snad jedině načtením knihovny `Autoload`, která bude obstarávat načtení všech pogtřebnych tříd, a to jak ze strany frameworku, tak i ze strany aplikace.
+
+{{{
+require_once 'hlen/hautoload.php';
+}}}
+
+A to je téměř vše, nyní zbývá aplikaci jen spustit.
+
+{{{
+HApplication::run();
+}}}
+
+Nyní přistupne k vlastním třídám aplikace. Hlen vyžaduje tuto strukturu:
+
+{{{
+index.php
+/app
+    /temp
+	/controllers
+	/views
+}}}
+
+
+To je prosím vše. Složce Temp nastavte přístupová práva na 0777. Nyní bude požadavky url klasicky parsován:
+
+controller/methoda/arg1/args2
+
+Tedy pro url
+
+test/show/5
+
+Se bude volat
+
+TestController::show(5);
+
+Vytvořte třídu TestController a jí vytvořit metodu show, která má jeden argument:
+
+class TestController extends Controller
+{
+	public function show($id)
+	{
+	
+	}
+}
+
+Třídu oddědte od třídy Contrller. Tuto třídu uložte do složky controllers, pod nejlépe výstižným názvem. Hlen krom View
+neaplikuje žádnou speciální jmennou konvenci, vše je na vás. Nemusíte soubor ani ukládat do složky conntrollers, stačí do app,
+ale silně to dopuručuji - zachováte si tak pořádek a přehlednost.
