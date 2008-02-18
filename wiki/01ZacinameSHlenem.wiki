@@ -45,16 +45,16 @@ Složce Temp nastavte přístupová práva na 0777.
 Url je parsováno klasicky, první pozici bere controller, dašlí je jeho metoda a zbyle segmenty jsou argumenty dané metody.
 
 {{{
-controller/methoda/arg1/args2
+/controller/methoda/arg1/args2
 }}}
 
-Url ve tvar `test/show/5` bude interně volat
+Url ve tvar `/test/show/5` bude interně volat
 
 {{{
 TestController::show(5)
 }}}
 
-Z ukázky plyne, že název controller se "kamelizuje" a přídá se k němu suffix "Controller".  Tuto třídu můžete uložit pod jakkýmkoli názvem - Hlen neklade žádné konvence v pojmenování controllerů. Nemusíte soubor ani ukládat do složky `controllers`. To ale nedoporučuji, vyhnete se tak nepořádku, a projekt bude také přehledný.
+Z ukázky plyne, že název controller se "kamelizuje" a přídá se k němu suffix "Controller".  Tuto třídu můžete uložit pod jakkýmkoli názvem - Hlen neklade žádné konvence v pojmenování controllerů. Nemusíte soubor ani ukládat do složky `/app/controllers`. To ale nedoporučuji, vyhnete se tak nepořádku, a projekt bude také přehledný.
 
 Podívejme se, jak by vypadala třída TestController:
 
@@ -68,6 +68,38 @@ class TestController extends Controller
 }
 }}}
 
-Třídu oddědte od třídy Contrller. Tuto třídu uložte do složky controllers, pod nejlépe výstižným názvem. Hlen krom View
-neaplikuje žádnou speciální jmennou konvenci, vše je na vás. Nemusíte soubor ani ukládat do složky conntrollers, stačí do app,
-ale silně to dopuručuji - zachováte si tak pořádek a přehlednost.
+Třída musí být potomkem třídy Controller. Pokud nyní přejdete na adresu `/test/show/5`, provede se tato metoda. Tedy skoro, ještě dříve Hlen "zařve", že nemáte vytvořen "View" soubor.
+
+Vytvožte tedy šablonový soubor `/app/views/test/show.phtml`. Doufám, že logika je jasná.
+Složka `views` obsahuje podsložky se jmény controllerů, v nich se pak nachází soubory s názvy metod mající přípony `.phtml`.
+
+==Předání proměnné z controlleru do view==
+Jednoduše řečeno, co si do view v metodě neuložíte, to tam nemáte. Jak se tedy ukládá?
+
+{{{
+$this->view->promenna = 'hodnota';
+}}}
+
+Ve view pak bude klasicky dostupná proměnná `$promenna`.
+
+==Něco více k View==
+
+Hlen neparsuje jen View, ale využívá také "layouty". Tzn., že view tvoří je obsah, ale na závěr je vložen do layoutu, který obalí hlavičkou, patičkou, atp.
+
+Ve výchozím stavi se používá systémový layout. Ten je velmi strohý a tak si samozřejmě můžete vytvořit svůj vlastní. Ten uložte jako `/app/view/layout.phtml`. Tedy layouty nemají žádné podsložky.
+
+Vnímavější si všimli mnou použitého plurálu layouty. Ano, můžeze mít samozřejmě více layoutů. Všechny se ukládají do složky s view, jména si volíte sami. Jako výchozí je ovšem brán 'layout.phtml'.
+
+===Jak se mění layouty a view===
+K čemu by nám ale bylo více layoutů, když je nemůžeme změnit. Ono se to docela často může hodit. Stejně tak se může hodit změnit view. Třeba hledáte určité položky, ale když zjistíte, že jste žádne nenašli a nemáte co vypsat, tak změníte view na jiný, který se nebude snažit vypsat seznam položek, ale informuje o špatném dotazu.
+
+{{{
+$this->view->view('example');
+$this->view->layout('bez_menu');
+}}}
+
+U layoutů je jasné, že se vezme soubor s jasným názvem. U view je nutno podotknout, že stále pracuje v naší podsložce. Pokud chcete určit view "natvrdo", použijte na začátku řetězce znak `|`:
+
+{{{
+$this->view->view('|controller/view.phtml');
+}}}
