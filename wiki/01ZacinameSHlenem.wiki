@@ -31,25 +31,34 @@ Nyní přistupne k vlastním třídám aplikace. Hlen vyžaduje tuto strukturu:
 index.php
 /app
     /temp
-	/controllers
-	/views
+    /controllers
+    /views
+        /_errors
+        /_elements
 }}}
 
 
-To je prosím vše. Složce Temp nastavte přístupová práva na 0777. Nyní bude požadavky url klasicky parsován:
+Složce Temp nastavte přístupová práva na 0777.
 
+==Jak se parsuje URL==
+
+Url je parsováno klasicky, první pozici bere controller, dašlí je jeho metoda a zbyle segmenty jsou argumenty dané metody.
+
+{{{
 controller/methoda/arg1/args2
+}}}
 
-Tedy pro url
+Url ve tvar `test/show/5` bude interně volat
 
-test/show/5
+{{{
+TestController::show(5)
+}}}
 
-Se bude volat
+Z ukázky plyne, že název controller se "kamelizuje" a přídá se k němu suffix "Controller".  Tuto třídu můžete uložit pod jakkýmkoli názvem - Hlen neklade žádné konvence v pojmenování controllerů. Nemusíte soubor ani ukládat do složky `controllers`. To ale nedoporučuji, vyhnete se tak nepořádku, a projekt bude také přehledný.
 
-TestController::show(5);
+Podívejme se, jak by vypadala třída TestController:
 
-Vytvořte třídu TestController a jí vytvořit metodu show, která má jeden argument:
-
+{{{
 class TestController extends Controller
 {
 	public function show($id)
@@ -57,6 +66,7 @@ class TestController extends Controller
 	
 	}
 }
+}}}
 
 Třídu oddědte od třídy Contrller. Tuto třídu uložte do složky controllers, pod nejlépe výstižným názvem. Hlen krom View
 neaplikuje žádnou speciální jmennou konvenci, vše je na vás. Nemusíte soubor ani ukládat do složky conntrollers, stačí do app,
