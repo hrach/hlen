@@ -101,5 +101,7 @@ $this->view->layout('bez_menu');
 U layoutů je jasné, že se vezme soubor s jasným názvem. U view je nutno podotknout, že stále pracuje v naší podsložce. Pokud chcete určit view "natvrdo", použijte na začátku řetězce znak `|`:
 
 {{{
-$this->view->view('|controller/view.phtml');
+$this->view->view('|test2/error');
 }}}
+
+*Nepřidávejte příponu* - tu Hlen vždy přidá sám. Poslední zápis bude vždy směřovat na stejný soubor `/app/views/test2/error.phtml`.
