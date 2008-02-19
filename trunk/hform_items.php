@@ -178,6 +178,7 @@ class HFormTextPasswordItem extends HFormTextItem
     {
         parent::__construct($form, $id);
         $this->element['type'] = 'password';
+        $this->element['class'] .= ' password';
     }
 
 }

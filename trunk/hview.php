@@ -83,6 +83,12 @@ class HView
         return call_user_func_array(array(HApplication::$controller, 'getArg'), $args);
     }
 
+    public function renderElement($name)
+    {
+        $fileName = APP . "views/_elements/$name.phtml";
+        return $this->parse($fileName, $this->vars);
+    }
+
     public function render()
     {
         ob_start();
@@ -136,7 +142,7 @@ class HView
         } elseif (HApplication::$system && file_exists(CORE . $view)) {
             $this->viewPath = CORE . $view;
         } else {
-            if (HApplication::$error) {
+            if (HApplication::$error && $this->viewName == 'view') {
                 die('Instalace frameworku je poškozena. Prosím, proveďte aktualizaci knihoven a souborů. Chybí soubor: ' . $view);
             } else {
                 HApplication::error('view');
@@ -149,6 +155,7 @@ class HView
     {
         $layouts[] = APP . 'views/' . HBasics::underscore($this->layoutName) . '.phtml';
         $layouts[] = CORE . 'views/' . HBasics::underscore($this->layoutName) . '.phtml';
+        $layouts[] = APP . 'views/layout.phtml';
         $layouts[] = CORE . 'views/layout.phtml';
 
         foreach ($layouts as $x => $layout) {
