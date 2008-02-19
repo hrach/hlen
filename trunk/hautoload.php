@@ -59,7 +59,7 @@ class HAutoLoad
             self::findClasses();
         }
 
-        if (self::$cacheFile !== false && file_exists(APP . dirname(self::$cacheFile))) {
+        if (self::$cacheFile !== false && !file_exists(APP . self::$cacheFile) && file_exists(APP . dirname(self::$cacheFile))) {
             file_put_contents(APP . self::$cacheFile, serialize(self::$list));
         }
     }

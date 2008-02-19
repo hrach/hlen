@@ -178,14 +178,6 @@ class HController
         }
     }
 
-    public function renderElement($elementName)
-    {
-        ob_start();
-        extract (call_user_func(array($this, $elementName . "Element")));
-        require APP . 'views/_elements/' . HBasics::underscore($elementName) . '.phtml';
-        return ob_get_clean();
-    }
-
     public function render()
     {
         $actionName = HRouter::$action . 'Action';

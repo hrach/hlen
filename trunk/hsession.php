@@ -23,7 +23,11 @@ class HSession
 
     public static function read($var)
     {
-        return $_SESSION[$var];
+        if (isset($_SESSION[$var])) {
+            return $_SESSION[$var];
+        } else {
+            false;
+        }
     }
 
     public static function exists($var)
