@@ -101,8 +101,11 @@ class HForm implements ArrayAccess
         return $this;
     }
 
-    public function renderStart()
+    public function renderStart(array $attrs = array())
     {
+        foreach ($attrs as $key => $val) {
+            $this->formElement[$key] = $val;
+        }
         return $this->formElement->startTag();
     }
 
@@ -182,7 +185,7 @@ class HForm implements ArrayAccess
         return $return;
     }
 
-    public function setDefaults($defaults)
+    public function setDefaults(array $defaults)
     {
         foreach ($defaults as $id => $value) {
             if (array_key_exists($id, $this->elements)) {
