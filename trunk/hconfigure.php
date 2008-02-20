@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2007, Jan Skrasek
- * @version    0.3
+ * @version    0.4
  * @package    Hlen
  */
 

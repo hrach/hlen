@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.3
+ * @version    0.4
  * @package    Hlen
  */
 
@@ -42,21 +42,6 @@ class HController
         if (!empty(HRouter::$args[$name])) {
             $this->catchedArg[$name] = $name . HRouter::$namedArgumentsSeparator . HRouter::$args[$name];
         }
-    }
-
-    public function a($title, $url, $attrs = array())
-    {
-        $url = HHttp::getBase() . $url;
-        $el = new HHtml('a');
-        
-        foreach ($attrs as $atr => $val) {
-            $el[$atr] = $val;
-        }
-        
-        $el['href'] = $url;
-        $el->setContent($title);
-
-        return $el->get();
     }
 
     public function link($title, array $url = array(), array $options = array())

@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.3
+ * @version    0.4
  * @package    Hlen
  */
 
@@ -65,13 +65,22 @@ class HHttp
         return $url;
     }
 
-    public static function redirect($absoluteUrl)
+    public static function redirect($absoluteUrl, $code = '303')
     {
-        if (headers_sent()) {
-            Die("Presmerovani nelze provest, hlavicky byly jiz odeslany.");
+        self::checkHeaders();
+        static $supportCode = array('300', '301', '302', '303', '304', '307');
+
+        if (!in_array($code, $supportCode)) {
+            Die("Nepodporovaný typ pøesmìrování.");
         }
 
-        Header('Location: '. $absoluteUrl);
+        Header('Location: '. $absoluteUrl, true, $code);
+    }
+
+    public static function error404()
+    {
+        self::checkHeaders();
+        Header('HTTP/1.1 404 Not Found');
     }
 
     public static function getPost($var = null)
@@ -121,4 +130,12 @@ class HHttp
             return array();
         }
     }
+
+    private static function chceckHeaders()
+    {
+        if (headers_sent()) {
+            Die("Presmerovani nelze provest, hlavicky byly jiz odeslany.");
+        }
+    }
+
 }
