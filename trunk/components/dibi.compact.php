@@ -3,7 +3,7 @@
  * dibi - tiny'n'smart database abstraction layer
  * ----------------------------------------------
  *
- * Copyright (c) 2005, 2008 David Grudl aka -dgx- (http://www.dgx.cz)
+ * Copyright (c) 2005, 2008 David Grudl (http://www.davidgrudl.com)
  *
  * This source file is subject to the "dibi license" that is bundled
  * with this package in the file license.txt.
@@ -13,14 +13,41 @@
  * @author     David Grudl
  * @copyright  Copyright (c) 2005, 2008 David Grudl
  * @license    http://dibiphp.com/license  dibi license
- * @version    0.9 (Revision: 109, Date: 2008/01/20 02:50:30)
+ * @version    0.9 (Revision: 112, Date: 2008/02/15 05:51:35)
  * @link       http://dibiphp.com/
  * @package    dibi
  */
 
 if(version_compare(PHP_VERSION,'5.1.0','<')){throw
 new
-Exception('dibi needs PHP 5.1.0 or newer');}if(!class_exists('NObject',FALSE)){abstract
+Exception('dibi needs PHP 5.1.0 or newer.');}if(!class_exists('NotImplementedException',FALSE)){class
+ArgumentOutOfRangeException
+extends
+InvalidArgumentException{}class
+InvalidStateException
+extends
+RuntimeException{}class
+NotImplementedException
+extends
+LogicException{}class
+NotSupportedException
+extends
+LogicException{}class
+MemberAccessException
+extends
+LogicException{}class
+IOException
+extends
+RuntimeException{}class
+FileNotFoundException
+extends
+IOException{}class
+DirectoryNotFoundException
+extends
+IOException{}class
+AbortException
+extends
+RuntimeException{}}if(!class_exists('NObject',FALSE)){abstract
 class
 NObject{final
 public
@@ -35,32 +62,32 @@ ReflectionObject($this);}protected
 function
 __call($name,$args){if($name===''){throw
 new
-BadMethodCallException("Call to method without name");}$class=get_class($this);if(self::hasEvent($class,$name)){$list=$this->$name;if(is_array($list)||$list
+MemberAccessException("Call to method without name.");}$class=get_class($this);if(self::hasEvent($class,$name)){$list=$this->$name;if(is_array($list)||$list
 instanceof
 Traversable){foreach($list
 as$handler){call_user_func_array($handler,$args);}}return;}$cl=$class;do{if(function_exists($nm=$cl.'_prototype_'.$name)){array_unshift($args,$this);return
 call_user_func_array($nm,$args);}}while($cl=get_parent_class($cl));throw
 new
-BadMethodCallException("Call to undefined method $class::$name()");}protected
+MemberAccessException("Call to undefined method $class::$name().");}protected
 function&__get($name){if($name===''){throw
 new
-LogicException("Cannot read an property without name");}$class=get_class($this);$m='get'.$name;if(self::hasAccessor($class,$m)){$val=$this->$m();return$val;}else{throw
+MemberAccessException("Cannot read an property without name.");}$class=get_class($this);$m='get'.$name;if(self::hasAccessor($class,$m)){$val=$this->$m();return$val;}else{throw
 new
-LogicException("Cannot read an undeclared property $class::\$$name");}}protected
+MemberAccessException("Cannot read an undeclared property $class::\$$name.");}}protected
 function
 __set($name,$value){if($name===''){throw
 new
-LogicException('Cannot assign to an property without name');}$class=get_class($this);if(self::hasAccessor($class,'get'.$name)){$m='set'.$name;if(self::hasAccessor($class,$m)){$this->$m($value);}else{throw
+MemberAccessException('Cannot assign to an property without name.');}$class=get_class($this);if(self::hasAccessor($class,'get'.$name)){$m='set'.$name;if(self::hasAccessor($class,$m)){$this->$m($value);}else{throw
 new
-LogicException("Cannot assign to a read-only property $class::\$$name");}}else{throw
+MemberAccessException("Cannot assign to a read-only property $class::\$$name.");}}else{throw
 new
-LogicException("Cannot assign to an undeclared property $class::\$$name");}}protected
+MemberAccessException("Cannot assign to an undeclared property $class::\$$name.");}}protected
 function
 __isset($name){return$name!==''&&self::hasAccessor(get_class($this),'get'.$name);}protected
 function
 __unset($name){$class=get_class($this);throw
 new
-LogicException("Cannot unset an property $class::\$$name");}private
+MemberAccessException("Cannot unset an property $class::\$$name.");}private
 static
 function
 hasAccessor($c,$m){static$cache;if(!isset($cache[$c])){$cache[$c]=array_flip(get_class_methods($c));}$m[3]=$m[3]&"\xDF";return
@@ -77,7 +104,7 @@ static$handlerClass;public
 function
 initCause(Exception$cause){if($this->cause===NULL){$this->cause=$cause;}else{throw
 new
-BadMethodCallException('Cause was already assigned');}}public
+InvalidStateException('Cause was already assigned.');}}public
 function
 getCause(){return$this->cause;}public
 function
@@ -140,7 +167,7 @@ DibiConnection
 extends
 NObject{private$config;private$driver;private$connected=FALSE;private$inTxn=FALSE;public
 function
-__construct($config){if(is_string($config)){parse_str($config,$config);}if(!isset($config['driver'])){$config['driver']=dibi::$defaultDriver;}$driver=preg_replace('#[^a-z0-9_]#','_',$config['driver']);$class="Dibi".$driver."Driver";if(!class_exists($class)){include_once __FILE__ . "/../../drivers/$driver.php";if(!class_exists($class)){throw
+__construct($config){if(is_string($config)){parse_str($config,$config);}if(!isset($config['driver'])){$config['driver']=dibi::$defaultDriver;}$driver=preg_replace('#[^a-z0-9_]#','_',$config['driver']);$class="Dibi".$driver."Driver";if(!class_exists($class,FALSE)){include_once __FILE__ . "/../../drivers/$driver.php";if(!class_exists($class,FALSE)){throw
 new
 DibiException("Unable to create instance of dibi driver class '$class'.");}}$this->config=$config;$this->driver=new$class;if(empty($config['lazy'])){$this->connect();}}public
 function
@@ -168,7 +195,7 @@ new
 DibiException('SQL translate error: '.$trans->sql);}}final
 public
 function
-test($args){$args=func_get_args();$trans=new
+test($args){$args=func_get_args();$this->connect();$trans=new
 DibiTranslator($this->driver);$ok=$trans->translate($args);dibi::dump($trans->sql);return$ok;}final
 public
 function
@@ -177,23 +204,23 @@ DibiResult(clone$this->driver,$this->config):TRUE;$time+=microtime(TRUE);dibi::$
 function
 affectedRows(){$rows=$this->driver->affectedRows();if(!is_int($rows)||$rows<0)throw
 new
-DibiException('Cannot retrieve number of affected rows');return$rows;}public
+DibiException('Cannot retrieve number of affected rows.');return$rows;}public
 function
 insertId($sequence=NULL){$id=$this->driver->insertId($sequence);if($id<1)throw
 new
-DibiException('Cannot retrieve last generated ID');return(int)$id;}public
+DibiException('Cannot retrieve last generated ID.');return(int)$id;}public
 function
 begin(){$this->connect();if($this->inTxn){throw
 new
-DibiException('There is already an active transaction');}$this->driver->begin();$this->inTxn=TRUE;dibi::notify($this,'begin');}public
+DibiException('There is already an active transaction.');}$this->driver->begin();$this->inTxn=TRUE;dibi::notify($this,'begin');}public
 function
 commit(){if(!$this->inTxn){throw
 new
-DibiException('There is no active transaction');}$this->driver->commit();$this->inTxn=FALSE;dibi::notify($this,'commit');}public
+DibiException('There is no active transaction.');}$this->driver->commit();$this->inTxn=FALSE;dibi::notify($this,'commit');}public
 function
 rollback(){if(!$this->inTxn){throw
 new
-DibiException('There is no active transaction');}$this->driver->rollback();$this->inTxn=FALSE;dibi::notify($this,'rollback');}public
+DibiException('There is no active transaction.');}$this->driver->rollback();$this->inTxn=FALSE;dibi::notify($this,'rollback');}public
 function
 escape($value){$this->connect();return$this->driver->format($value,dibi::FIELD_TEXT);}public
 function
@@ -203,19 +230,19 @@ applyLimit(&$sql,$limit,$offset){$this->driver->applyLimit($sql,$limit,$offset);
 function
 loadFile($file){$this->connect();@set_time_limit(0);$handle=@fopen($file,'r');if(!$handle){throw
 new
-DibiException("Cannot open file '$file'");}$count=0;$sql='';while(!feof($handle)){$s=fgets($handle);$sql.=$s;if(substr(rtrim($s),-1)===';'){$this->driver->query($sql);$sql='';$count++;}}fclose($handle);return$count;}public
+FileNotFoundException("Cannot open file '$file'.");}$count=0;$sql='';while(!feof($handle)){$s=fgets($handle);$sql.=$s;if(substr(rtrim($s),-1)===';'){$this->driver->query($sql);$sql='';$count++;}}fclose($handle);return$count;}public
 function
 getDibiReflection(){throw
 new
-BadMethodCallException(__METHOD__.' is not implemented');}public
+NotImplementedException;}public
 function
 __wakeup(){throw
 new
-DibiException('You cannot serialize or unserialize '.$this->getClass().' instances');}public
+NotSupportedException('You cannot serialize or unserialize '.$this->getClass().' instances.');}public
 function
 __sleep(){throw
 new
-DibiException('You cannot serialize or unserialize '.$this->getClass().' instances');}}class
+NotSupportedException('You cannot serialize or unserialize '.$this->getClass().' instances.');}}class
 DibiResult
 extends
 NObject
@@ -262,19 +289,19 @@ fetchAssoc($assoc){$this->seek(0);$row=$this->fetch(FALSE);if(!$row)return
 array();$data=NULL;$assoc=explode(',',$assoc);foreach($assoc
 as$as){if($as!=='#'&&$as!=='='&&$as!=='@'&&!array_key_exists($as,$row)){throw
 new
-InvalidArgumentException("Unknown column '$as' in associative descriptor");}}$assoc[]='=';$last=count($assoc)-1;while($assoc[$last]==='='||$assoc[$last]==='@'){$leaf=$assoc[$last];unset($assoc[$last]);$last--;if($last<0){$assoc[]='#';break;}}do{$x=&$data;foreach($assoc
+InvalidArgumentException("Unknown column '$as' in associative descriptor.");}}$assoc[]='=';$last=count($assoc)-1;while($assoc[$last]==='='||$assoc[$last]==='@'){$leaf=$assoc[$last];unset($assoc[$last]);$last--;if($last<0){$assoc[]='#';break;}}do{$x=&$data;foreach($assoc
 as$i=>$as){if($as==='#'){$x=&$x[];}elseif($as==='='){if($x===NULL){$x=$row;$x=&$x[$assoc[$i+1]];$x=NULL;}else{$x=&$x[$assoc[$i+1]];}}elseif($as==='@'){if($x===NULL){$x=(object)$row;$x=&$x->{$assoc[$i+1]};$x=NULL;}else{$x=&$x->{$assoc[$i+1]};}}else{$x=&$x[$row[$as]];}}if($x===NULL){if($leaf==='=')$x=$row;else$x=(object)$row;}}while($row=$this->fetch(FALSE));unset($x);return$data;}final
 function
 fetchPairs($key=NULL,$value=NULL){$this->seek(0);$row=$this->fetch(FALSE);if(!$row)return
 array();$data=array();if($value===NULL){if($key!==NULL){throw
 new
-InvalidArgumentException("Either none or both columns must be specified");}if(count($row)<2){throw
+InvalidArgumentException("Either none or both columns must be specified.");}if(count($row)<2){throw
 new
-LoginException("Result must have at least two columns");}$tmp=array_keys($row);$key=$tmp[0];$value=$tmp[1];}else{if(!array_key_exists($value,$row)){throw
+UnexpectedValueException("Result must have at least two columns.");}$tmp=array_keys($row);$key=$tmp[0];$value=$tmp[1];}else{if(!array_key_exists($value,$row)){throw
 new
-InvalidArgumentException("Unknown value column '$value'");}if($key===NULL){do{$data[]=$row[$value];}while($row=$this->fetch(FALSE));return$data;}if(!array_key_exists($key,$row)){throw
+InvalidArgumentException("Unknown value column '$value'.");}if($key===NULL){do{$data[]=$row[$value];}while($row=$this->fetch(FALSE));return$data;}if(!array_key_exists($key,$row)){throw
 new
-InvalidArgumentException("Unknown key column '$key'");}}do{$data[$row[$key]]=$row[$value];}while($row=$this->fetch(FALSE));return$data;}final
+InvalidArgumentException("Unknown key column '$key'.");}}do{$data[$row[$key]]=$row[$value];}while($row=$this->fetch(FALSE));return$data;}final
 public
 function
 setType($col,$type=NULL){if(is_array($col)){$this->xlat=$col;}else{$this->xlat[$col]=$type;}}final
@@ -307,7 +334,7 @@ count(){return$this->rowCount();}private
 function
 getDriver(){if($this->driver===NULL){throw
 new
-DibiException('Resultset was released from memory');}return$this->driver;}}final
+InvalidStateException('Resultset was released from memory.');}return$this->driver;}}final
 class
 DibiResultIterator
 implements
@@ -401,13 +428,13 @@ find($what){if(!is_array($what)){$what=func_get_args();}return$this->complete($t
 function
 findAll($order=NULL){if($order===NULL){return$this->complete($this->connection->query('SELECT * FROM %n',$this->name));}else{$order=func_get_args();return$this->complete($this->connection->query('SELECT * FROM %n',$this->name,'ORDER BY %n',$order));}}public
 function
-fetch($what){return$this->complete($this->connection->query('SELECT * FROM %n',$this->name,'WHERE %n',$this->primary,'='.$this->primaryModifier,$what))->fetch();}public
+fetch($conditions){if(is_array($conditions)){return$this->complete($this->connection->query('SELECT * FROM %n',$this->name,'WHERE %and',$conditions))->fetch();}return$this->complete($this->connection->query('SELECT * FROM %n',$this->name,'WHERE %n='.$this->primaryModifier,$this->primary,$conditions))->fetch();}public
 function
 createBlank(){$row=$this->blankRow;$row[$this->primary]=NULL;if($this->connection->getConfig('result:objects')){$row=(object)$row;}return$row;}protected
 function
 prepare($data){if(is_object($data)){return(array)$data;}elseif(is_array($data)){return$data;}throw
 new
-DibiException('Dataset must be array or anonymous object');}protected
+InvalidArgumentException('Dataset must be array or anonymous object.');}protected
 function
 complete($res){return$res;}}class
 DibiDataSource
@@ -426,7 +453,7 @@ function
 count(){if($this->count===NULL){$this->count=$this->connection->query('
                 SELECT COUNT(*) FROM',$this->sql)->fetchSingle();}return$this->count;}}class
 dibi{const
-FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='n',VERSION='0.9 (Revision: 109, Date: 2008/01/20 02:50:30)';private
+FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='n',VERSION='0.9 (Revision: 112, Date: 2008/02/15 05:51:35)';private
 static$registry=array();private
 static$connection;private
 static$substs=array();private
@@ -456,7 +483,7 @@ static
 function
 getConnection($name=NULL){if($name===NULL){if(!self::$connection){throw
 new
-DibiException('Dibi is not connected to database');}return
+DibiException('Dibi is not connected to database.');}return
 self::$connection;}if(!isset(self::$registry[$name])){throw
 new
 DibiException("There is no connection named '$name'.");}return
@@ -535,7 +562,7 @@ static
 function
 addHandler($callback){if(!is_callable($callback)){throw
 new
-InvalidArgumentException("Invalid callback");}self::$handlers[]=$callback;}public
+InvalidArgumentException("Invalid callback.");}self::$handlers[]=$callback;}public
 static
 function
 notify(DibiConnection$connection=NULL,$event,$arg=NULL){foreach(self::$handlers
@@ -561,13 +588,13 @@ IDibiDriver{private$connection;private$resultset;public
 function
 __construct(){if(!extension_loaded('mssql')){throw
 new
-DibiDriverException("PHP extension 'mssql' is not loaded");}}public
+DibiDriverException("PHP extension 'mssql' is not loaded.");}}public
 function
 connect(array&$config){DibiConnection::alias($config,'username','user');DibiConnection::alias($config,'password','pass');DibiConnection::alias($config,'host');if(empty($config['persistent'])){$this->connection=@mssql_connect($config['host'],$config['username'],$config['password'],TRUE);}else{$this->connection=@mssql_pconnect($config['host'],$config['username'],$config['password']);}if(!is_resource($this->connection)){throw
 new
-DibiDriverException("Can't connect to DB");}if(isset($config['database'])&&!@mssql_select_db($config['database'],$this->connection)){throw
+DibiDriverException("Can't connect to DB.");}if(isset($config['database'])&&!@mssql_select_db($config['database'],$this->connection)){throw
 new
-DibiDriverException("Can't select DB '$config[database]'");}}public
+DibiDriverException("Can't select DB '$config[database]'.");}}public
 function
 disconnect(){mssql_close($this->connection);}public
 function
@@ -581,7 +608,7 @@ mssql_rows_affected($this->connection);}public
 function
 insertId($sequence){throw
 new
-BadMethodCallException(__METHOD__.' is not implemented');}public
+NotSupportedException('MS SQL does not support autoincrementing.');}public
 function
 begin(){$this->query('BEGIN TRANSACTION');}public
 function
@@ -593,11 +620,11 @@ format($value,$type){if($type===dibi::FIELD_TEXT)return"'".str_replace("'","''",
 date("'Y-m-d'",$value);if($type===dibi::FIELD_DATETIME)return
 date("'Y-m-d H:i:s'",$value);throw
 new
-InvalidArgumentException('Unsupported formatting type');}public
+InvalidArgumentException('Unsupported formatting type.');}public
 function
 applyLimit(&$sql,$limit,$offset){if($limit>=0){$sql='SELECT TOP '.(int)$limit.' * FROM ('.$sql.')';}if($offset){throw
 new
-InvalidArgumentException('Offset is not implemented');}}public
+NotImplementedException('Offset is not implemented.');}}public
 function
 rowCount(){return
 mssql_num_rows($this->resultset);}public
@@ -624,7 +651,7 @@ IDibiDriver{private$connection;private$resultset;private$buffered;public
 function
 __construct(){if(!extension_loaded('mysql')){throw
 new
-DibiDriverException("PHP extension 'mysql' is not loaded");}}public
+DibiDriverException("PHP extension 'mysql' is not loaded.");}}public
 function
 connect(array&$config){DibiConnection::alias($config,'username','user');DibiConnection::alias($config,'password','pass');DibiConnection::alias($config,'options');if(!isset($config['username']))$config['username']=ini_get('mysql.default_user');if(!isset($config['password']))$config['password']=ini_get('mysql.default_password');if(!isset($config['host'])){$host=ini_get('mysql.default_host');if($host){$config['host']=$host;$config['port']=ini_get('mysql.default_port');}else{if(!isset($config['socket']))$config['socket']=ini_get('mysql.default_socket');$config['host']=NULL;}}if(empty($config['socket'])){$host=$config['host'].(empty($config['port'])?'':':'.$config['port']);}else{$host=':'.$config['socket'];}if(empty($config['persistent'])){$this->connection=@mysql_connect($host,$config['username'],$config['password'],TRUE,$config['options']);}else{$this->connection=@mysql_pconnect($host,$config['username'],$config['password'],$config['options']);}if(!is_resource($this->connection)){throw
 new
@@ -651,13 +678,13 @@ format($value,$type){if($type===dibi::FIELD_TEXT)return"'".mysql_real_escape_str
 date("'Y-m-d'",$value);if($type===dibi::FIELD_DATETIME)return
 date("'Y-m-d H:i:s'",$value);throw
 new
-InvalidArgumentException('Unsupported formatting type');}public
+InvalidArgumentException('Unsupported formatting type.');}public
 function
 applyLimit(&$sql,$limit,$offset){if($limit<0&&$offset<1)return;$sql.=' LIMIT '.($limit<0?'18446744073709551615':(int)$limit).($offset>0?' OFFSET '.(int)$offset:'');}public
 function
 rowCount(){if(!$this->buffered){throw
 new
-DibiDriverException('Row count is not available for unbuffered queries');}return
+DibiDriverException('Row count is not available for unbuffered queries.');}return
 mysql_num_rows($this->resultset);}public
 function
 fetch($type){return
@@ -665,7 +692,7 @@ mysql_fetch_array($this->resultset,$type?MYSQL_ASSOC:MYSQL_NUM);}public
 function
 seek($row){if(!$this->buffered){throw
 new
-DibiDriverException('Cannot seek an unbuffered result set');}return
+DibiDriverException('Cannot seek an unbuffered result set.');}return
 mysql_data_seek($this->resultset,$row);}public
 function
 free(){mysql_free_result($this->resultset);$this->resultset=NULL;}public
@@ -688,7 +715,7 @@ IDibiDriver{private$connection;private$resultset;private$buffered;public
 function
 __construct(){if(!extension_loaded('mysqli')){throw
 new
-DibiDriverException("PHP extension 'mysqli' is not loaded");}}public
+DibiDriverException("PHP extension 'mysqli' is not loaded.");}}public
 function
 connect(array&$config){DibiConnection::alias($config,'username','user');DibiConnection::alias($config,'password','pass');DibiConnection::alias($config,'options');DibiConnection::alias($config,'database');if(!isset($config['username']))$config['username']=ini_get('mysqli.default_user');if(!isset($config['password']))$config['password']=ini_get('mysqli.default_pw');if(!isset($config['socket']))$config['socket']=ini_get('mysqli.default_socket');if(!isset($config['host'])){$config['host']=ini_get('mysqli.default_host');if(!isset($config['port']))$config['port']=ini_get('mysqli.default_port');if(!isset($config['host']))$config['host']='localhost';}$this->connection=mysqli_init();@mysqli_real_connect($this->connection,$config['host'],$config['username'],$config['password'],$config['database'],$config['port'],$config['socket'],$config['options']);if($errno=mysqli_connect_errno()){throw
 new
@@ -715,13 +742,13 @@ format($value,$type){if($type===dibi::FIELD_TEXT)return"'".mysqli_real_escape_st
 date("'Y-m-d'",$value);if($type===dibi::FIELD_DATETIME)return
 date("'Y-m-d H:i:s'",$value);throw
 new
-InvalidArgumentException('Unsupported formatting type');}public
+InvalidArgumentException('Unsupported formatting type.');}public
 function
 applyLimit(&$sql,$limit,$offset){if($limit<0&&$offset<1)return;$sql.=' LIMIT '.($limit<0?'18446744073709551615':(int)$limit).($offset>0?' OFFSET '.(int)$offset:'');}public
 function
 rowCount(){if(!$this->buffered){throw
 new
-DibiDriverException('Row count is not available for unbuffered queries');}return
+DibiDriverException('Row count is not available for unbuffered queries.');}return
 mysqli_num_rows($this->resultset);}public
 function
 fetch($type){return
@@ -729,7 +756,7 @@ mysqli_fetch_array($this->resultset,$type?MYSQLI_ASSOC:MYSQLI_NUM);}public
 function
 seek($row){if(!$this->buffered){throw
 new
-DibiDriverException('Cannot seek an unbuffered result set');}return
+DibiDriverException('Cannot seek an unbuffered result set.');}return
 mysqli_data_seek($this->resultset,$row);}public
 function
 free(){mysqli_free_result($this->resultset);$this->resultset=NULL;}public
@@ -752,7 +779,7 @@ IDibiDriver{private$connection;private$resultset;private$row=0;public
 function
 __construct(){if(!extension_loaded('odbc')){throw
 new
-DibiDriverException("PHP extension 'odbc' is not loaded");}}public
+DibiDriverException("PHP extension 'odbc' is not loaded.");}}public
 function
 connect(array&$config){DibiConnection::alias($config,'username','user');DibiConnection::alias($config,'password','pass');if(!isset($config['username']))$config['username']=ini_get('odbc.default_user');if(!isset($config['password']))$config['password']=ini_get('odbc.default_pw');if(!isset($config['dsn']))$config['dsn']=ini_get('odbc.default_db');if(empty($config['persistent'])){$this->connection=@odbc_connect($config['dsn'],$config['username'],$config['password']);}else{$this->connection=@odbc_pconnect($config['dsn'],$config['username'],$config['password']);}if(!is_resource($this->connection)){throw
 new
@@ -768,7 +795,7 @@ odbc_num_rows($this->resultset);}public
 function
 insertId($sequence){throw
 new
-BadMethodCallException(__METHOD__.' is not implemented');}public
+NotSupportedException('ODBC does not support autoincrementing.');}public
 function
 begin(){if(!odbc_autocommit($this->connection,FALSE)){$this->throwException();}}public
 function
@@ -780,11 +807,11 @@ format($value,$type){if($type===dibi::FIELD_TEXT)return"'".str_replace("'","''",
 date("#m/d/Y#",$value);if($type===dibi::FIELD_DATETIME)return
 date("#m/d/Y H:i:s#",$value);throw
 new
-InvalidArgumentException('Unsupported formatting type');}public
+InvalidArgumentException('Unsupported formatting type.');}public
 function
 applyLimit(&$sql,$limit,$offset){if($limit>=0){$sql='SELECT TOP '.(int)$limit.' * FROM ('.$sql.')';}if($offset)throw
 new
-InvalidArgumentException('Offset is not implemented in driver odbc');}public
+InvalidArgumentException('Offset is not implemented in driver odbc.');}public
 function
 rowCount(){return
 odbc_num_rows($this->resultset);}public
@@ -816,7 +843,7 @@ IDibiDriver{private$connection;private$resultset;private$autocommit=TRUE;public
 function
 __construct(){if(!extension_loaded('oci8')){throw
 new
-DibiDriverException("PHP extension 'oci8' is not loaded");}}public
+DibiDriverException("PHP extension 'oci8' is not loaded.");}}public
 function
 connect(array&$config){DibiConnection::alias($config,'username','user');DibiConnection::alias($config,'password','pass');DibiConnection::alias($config,'database','db');DibiConnection::alias($config,'charset');$this->connection=@oci_new_connect($config['username'],$config['password'],$config['database'],$config['charset']);if(!$this->connection){$err=oci_error();throw
 new
@@ -831,11 +858,11 @@ is_resource($this->resultset);}public
 function
 affectedRows(){throw
 new
-BadMethodCallException(__METHOD__.' is not implemented');}public
+NotImplementedException;}public
 function
 insertId($sequence){throw
 new
-BadMethodCallException(__METHOD__.' is not implemented');}public
+NotSupportedException('Oracle does not support autoincrementing.');}public
 function
 begin(){$this->autocommit=FALSE;}public
 function
@@ -847,7 +874,7 @@ format($value,$type){if($type===dibi::FIELD_TEXT)return"'".str_replace("'","''",
 date("U",$value);if($type===dibi::FIELD_DATETIME)return
 date("U",$value);throw
 new
-InvalidArgumentException('Unsupported formatting type');}public
+InvalidArgumentException('Unsupported formatting type.');}public
 function
 applyLimit(&$sql,$limit,$offset){if($limit<0&&$offset<1)return;$sql.=' LIMIT '.$limit.($offset>0?' OFFSET '.(int)$offset:'');}public
 function
@@ -859,7 +886,7 @@ oci_fetch_array($this->resultset,($type?OCI_ASSOC:OCI_NUM)|OCI_RETURN_NULLS);}pu
 function
 seek($row){throw
 new
-BadMethodCallException(__METHOD__.' is not implemented');}public
+NotImplementedException;}public
 function
 free(){oci_free_statement($this->resultset);$this->resultset=NULL;}public
 function
@@ -881,14 +908,14 @@ IDibiDriver{private$connection;private$resultset;private$affectedRows=FALSE;publ
 function
 __construct(){if(!extension_loaded('pdo')){throw
 new
-DibiDriverException("PHP extension 'pdo' is not loaded");}}public
+DibiDriverException("PHP extension 'pdo' is not loaded.");}}public
 function
 connect(array&$config){DibiConnection::alias($config,'username','user');DibiConnection::alias($config,'password','pass');DibiConnection::alias($config,'dsn');DibiConnection::alias($config,'options');try{$this->connection=new
 PDO($config['dsn'],$config['username'],$config['password'],$config['options']);}catch(PDOException$e){throw
 new
 DibiDriverException($e->getMessage(),$e->getCode());}if(!$this->connection){throw
 new
-DibiDriverException('Connecting error');}}public
+DibiDriverException('Connecting error.');}}public
 function
 disconnect(){$this->connection=NULL;}public
 function
@@ -910,27 +937,27 @@ format($value,$type){if($type===dibi::FIELD_TEXT)return$this->connection->quote(
 date("'Y-m-d'",$value);if($type===dibi::FIELD_DATETIME)return
 date("'Y-m-d H:i:s'",$value);throw
 new
-InvalidArgumentException('Unsupported formatting type');}public
+InvalidArgumentException('Unsupported formatting type.');}public
 function
 applyLimit(&$sql,$limit,$offset){throw
 new
-BadMethodCallException(__METHOD__.' is not implemented');}public
+NotSupportedException('PDO does not support applying limit or offset.');}public
 function
 rowCount(){throw
 new
-DibiDriverException('Row count is not available for unbuffered queries');}public
+DibiDriverException('Row count is not available for unbuffered queries.');}public
 function
 fetch($type){return$this->resultset->fetch($type?PDO::FETCH_ASSOC:PDO::FETCH_NUM);}public
 function
 seek($row){throw
 new
-DibiDriverException('Cannot seek an unbuffered result set');}public
+DibiDriverException('Cannot seek an unbuffered result set.');}public
 function
 free(){$this->resultset=NULL;}public
 function
 getColumnsMeta(){$count=$this->resultset->columnCount();$meta=array();for($i=0;$i<$count;$i++){$info=@$this->resultset->getColumnsMeta($i);if($info===FALSE){throw
 new
-DibiDriverException('Driver does not support meta data');}$meta[]=$info;}return$meta;}protected
+DibiDriverException('Driver does not support meta data.');}$meta[]=$info;}return$meta;}protected
 function
 throwException($sql=NULL){$err=$this->connection->errorInfo();throw
 new
@@ -948,11 +975,11 @@ IDibiDriver{private$connection;private$resultset;private$escMethod=FALSE;public
 function
 __construct(){if(!extension_loaded('pgsql')){throw
 new
-DibiDriverException("PHP extension 'pgsql' is not loaded");}}public
+DibiDriverException("PHP extension 'pgsql' is not loaded.");}}public
 function
 connect(array&$config){if(isset($config['string'])){$string=$config['string'];}else{$string='';foreach(array('host','hostaddr','port','dbname','user','password','connect_timeout','options','sslmode','service')as$key){if(isset($config[$key]))$string.=$key.'='.$config[$key].' ';}}DibiDriverException::catchError();if(isset($config['persistent'])){$this->connection=@pg_connect($string,PGSQL_CONNECT_FORCE_NEW);}else{$this->connection=@pg_pconnect($string,PGSQL_CONNECT_FORCE_NEW);}DibiDriverException::restore();if(!is_resource($this->connection)){throw
 new
-DibiDriverException('Connecting error');}if(isset($config['charset'])){DibiDriverException::catchError();@pg_set_client_encoding($this->connection,$config['charset']);DibiDriverException::restore();}$this->escMethod=version_compare(PHP_VERSION,'5.2.0','>=');}public
+DibiDriverException('Connecting error.');}if(isset($config['charset'])){DibiDriverException::catchError();@pg_set_client_encoding($this->connection,$config['charset']);DibiDriverException::restore();}if(isset($config['schema'])){$this->query('SET search_path TO '.$config['schema']);}$this->escMethod=version_compare(PHP_VERSION,'5.2.0','>=');}public
 function
 disconnect(){pg_close($this->connection);}public
 function
@@ -979,7 +1006,7 @@ substr($value,0,$a).'."'.str_replace('"','""',substr($value,$a+1)).'"';}if($type
 date("'Y-m-d'",$value);if($type===dibi::FIELD_DATETIME)return
 date("'Y-m-d H:i:s'",$value);throw
 new
-InvalidArgumentException('Unsupported formatting type');}public
+InvalidArgumentException('Unsupported formatting type.');}public
 function
 applyLimit(&$sql,$limit,$offset){if($limit>=0)$sql.=' LIMIT '.(int)$limit;if($offset>0)$sql.=' OFFSET '.(int)$offset;}public
 function
@@ -1008,7 +1035,7 @@ IDibiDriver{private$connection;private$resultset;private$buffered;private$fmtDat
 function
 __construct(){if(!extension_loaded('sqlite')){throw
 new
-DibiDriverException("PHP extension 'sqlite' is not loaded");}}public
+DibiDriverException("PHP extension 'sqlite' is not loaded.");}}public
 function
 connect(array&$config){DibiConnection::alias($config,'database','file');$this->fmtDate=isset($config['format:date'])?$config['format:date']:'U';$this->fmtDateTime=isset($config['format:datetime'])?$config['format:datetime']:'U';$errorMsg='';if(empty($config['persistent'])){$this->connection=@sqlite_open($config['database'],0666,$errorMsg);}else{$this->connection=@sqlite_popen($config['database'],0666,$errorMsg);}if(!$this->connection){throw
 new
@@ -1035,13 +1062,13 @@ format($value,$type){if($type===dibi::FIELD_TEXT)return"'".sqlite_escape_string(
 date($this->fmtDate,$value);if($type===dibi::FIELD_DATETIME)return
 date($this->fmtDateTime,$value);throw
 new
-InvalidArgumentException('Unsupported formatting type');}public
+InvalidArgumentException('Unsupported formatting type.');}public
 function
 applyLimit(&$sql,$limit,$offset){if($limit<0&&$offset<1)return;$sql.=' LIMIT '.$limit.($offset>0?' OFFSET '.(int)$offset:'');}public
 function
 rowCount(){if(!$this->buffered){throw
 new
-DibiDriverException('Row count is not available for unbuffered queries');}return
+DibiDriverException('Row count is not available for unbuffered queries.');}return
 sqlite_num_rows($this->resultset);}public
 function
 fetch($type){return
@@ -1049,7 +1076,7 @@ sqlite_fetch_array($this->resultset,$type?SQLITE_ASSOC:SQLITE_NUM);}public
 function
 seek($row){if(!$this->buffered){throw
 new
-DibiDriverException('Cannot seek an unbuffered result set');}return
+DibiDriverException('Cannot seek an unbuffered result set.');}return
 sqlite_seek($this->resultset,$row);}public
 function
 free(){$this->resultset=NULL;}public
