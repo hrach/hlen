@@ -44,13 +44,18 @@ class HController
         }
     }
 
-    public function link($title, array $url = array(), array $options = array())
+    public function link($title, $url = array(), array $options = array())
     {
         if (!isset($url[3])) {
             $url[3] = true;
         }
 
-        $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], (array) @$url[2], @$url[3]);
+        if (is_array($url)) {
+            $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], (array) @$url[2], @$url[3]);
+        } else {
+            $url = HHttp::getBase() . $url;
+        }
+
         $el = new HHtml('a');
 
         foreach ($options as $atName => $atVal) {

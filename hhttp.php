@@ -56,11 +56,16 @@ class HHttp
         }
     }
 
+    public static function getDomain()
+    {
+        return $_SERVER['SERVER_NAME'];
+    }
+
     public static function getUrl()
     {
         $url  = 'http:' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '//'
-              . $_SERVER['SERVER_NAME']
-              . HHttp::getBase();
+              . self::getDomain()
+              . self::getBase();
 
         return $url;
     }
@@ -131,7 +136,7 @@ class HHttp
         }
     }
 
-    private static function chceckHeaders()
+    private static function checkHeaders()
     {
         if (headers_sent()) {
             Die("Presmerovani nelze provest, hlavicky byly jiz odeslany.");

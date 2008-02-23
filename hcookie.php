@@ -9,13 +9,16 @@
  * @package    Hlen
  */
 
-
 class HCookie
 {
 
     public static function read($var)
     {
-        return $_COOKIE[$var];
+        if (isset($_COOKIE[$var])) {
+            return $_COOKIE[$var];
+        } else {
+            return false;
+        }
     }
 
     public static function exists($var)
@@ -23,23 +26,22 @@ class HCookie
         return isset($_COOKIE[$var]);
     }
 
-    public static function write($var, $val)
+    public static function write($var, $val, $path = null, $domain = null)
     {
         self::checkHeaders();
-
-        setcookie($var, $val, time() + HBasics::getNonEmpty(HConfigure::read('Cookie.expires'), 2419200));
-        $_SESSION[$var] = $val;
+        setcookie($var, $val, time() + HBasics::getNonEmpty(HConfigure::read('Cookie.expires'), 3600), $path, $domain);
     }
 
-    public static function delete($var)
+    public static function delete($var, $path = null, $domain = null)
     {
-        setcookie($var, '', time() - 60000);
+        self::checkHeaders();
+        setcookie($var, false, time() - 60000, $path, $domain);
     }
 
-    private static function chceckHeaders()
+    private static function checkHeaders()
     {
         if (headers_sent()) {
-            Die("Presmerovani nelze provest, hlavicky byly jiz odeslany.");
+            Die("Nelze nastavit cookie, hlavicky byly jiz odeslany.");
         }
     }
 
