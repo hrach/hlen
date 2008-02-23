@@ -55,16 +55,18 @@ class HSession
     {
         if (function_exists('ini_set')) {
             ini_set('session.use_cookies', 1);
-            ini_set('session.name', HBasics::getNonEmpty(HConfigure::read('Session.cookie'), 'hlen-session'));
-            ini_set('session.cookie_lifetime', HBasics::getNonEmpty(HConfigure::read('Session.lifeTime'), 60*30));
-            ini_set('session.save_path', APP . 'temp');
+            ini_set('session.name', HBasics::getNonEmpty(HConfigure::read('Session.name'), 'hlen-session'));
+            ini_set('session.cookie_lifetime', HBasics::getNonEmpty(HConfigure::read('Session.expires'), 3600));
+            ini_set('session.cookie_path', HBasics::getNonEmpty(Hconfigure::read('Session.path'), HHttp::getBase()));
+            ini_set('session.cookie_domain', HBasics::getNonEmpty(Hconfigure::read('Session.domain'), HHttp::getDomain()));
+            ini_set('session.save_path', HBasics::getNonEmpty(Hconfigure::read('Session.temp'), APP . 'temp'));
         }
     }
 
     private static function checkHeaders()
     {
         if (headers_sent()) {
-            Die("Presmerovani nelze provest, hlavicky byly jiz odeslany.");
+            Die("Nelze nastavit session promennou, hlavicky byly jiz odeslany.");
         }
     }
 
