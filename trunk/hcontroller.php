@@ -30,7 +30,7 @@ class HController
 
     public function redirect($url, $exit = true)
     {
-        HHttp::redirect(HHttp::getUrl() . $url);
+        HHttp::headerRedirect(HHttp::getUrl() . $url);
 
         if ($exit) {
             exit;

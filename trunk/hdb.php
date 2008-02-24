@@ -22,7 +22,7 @@ class HDb
     public static function connect($config = 'Db.connections', $debug = 'Core.debug')
     {
         if (is_string($debug) && class_exists('HConfigure', false)) {
-            $debug = HConfigure::read('Core.debug') > 2;
+            $debug = HConfigure::read('Core.debug') > 1;
         } else {
             $debug = false;
         }
@@ -71,16 +71,18 @@ class HDb
 
     public static function getDebug()
     {
-        $ret = '<table style="position: fixed;bottom: 0;left: 0;border: 1px solid #444;border-collapse: collapse;font-size: 12px;">'
-             . '<tr><th style="background: #777;border: 1px solid #444;color: white;">SQL Dotaz</th>'
-             . '<th style="background: #777;border: 1px solid #444;color: white;">Řádků</th>'
-             . '<th style="background: #777;border: 1px solid #444;color: white;">Čas</th></tr>';
+        $ret = '<div id="hlen-sql-log" style="position:fixed;top:0;left:0;text-align:left;">'
+                . '<a href="#" style="border:1px solid #888;background: white;" onclick="table=document.getElementById(\'hlen-sql-log-table\');table.style.display = (table.style.display==\'block\') ? \'none\' : \'block\';">SQL log</a><br />'
+                . '<table id="hlen-sql-log-table" style="display:none;background:white;border:1px solid #444;border-collapse:collapse;font-size: 12px;">'
+                    . '<tr><th style="background: #777;border: 1px solid #444;color: white;">SQL Dotaz</th>'
+                    . '<th style="background: #777;border: 1px solid #444;color: white;">Řádků</th>'
+                    . '<th style="background: #777;border: 1px solid #444;color: white;">Čas</th></tr>';
         foreach (self::$debugSql as $query) {
             $ret .= '<tr><td style="backgroud: #fff;border: 1px solid #444;">' . $query['query'] . '</td>'
                   . '<td style="backgroud-color: #fff;width: 50px;border: 1px solid #444;">' . $query['affRows'] . '</td>'
                   . '<td style="backgroud:  #fff;width: 50px;border: 1px solid #444;">' . sprintf('%0.3f', $query['time'] * 1000) . '</td></tr>';
         }
-        $ret .= '</table></div></div>';
+        $ret .= '</table></div>';
 
         return $ret;
     }

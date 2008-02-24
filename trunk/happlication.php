@@ -17,6 +17,12 @@ if (!defined('APP')) {
     define('APP', dirname($_SERVER['SCRIPT_FILENAME']) . '/app/');
 }
 
+require_once dirname(__FILE__) . '/hconfigure.php';
+require_once dirname(__FILE__) . '/hautoload.php';
+require_once dirname(__FILE__) . '/hrouter.php';
+require_once dirname(__FILE__) . '/hhttp.php';
+
+
 class HApplication
 {
 
@@ -24,6 +30,7 @@ class HApplication
     static public $error = false;
     static public $system = false;
     static public $startTime;
+
 
     public static function run()
     {
@@ -33,11 +40,11 @@ class HApplication
         self::createController(HRouter::$controller);
         self::render();
 
-        if (HConfigure::read('Core.debug') > 2 && class_exists('HDb', false)) {
+        if (HConfigure::read('Core.debug') > 1 && class_exists('HDb', false)) {
             echo HDb::getDebug();
         }
 
-        if (HConfigure::read('Core.debug') > 1) {
+        if (HConfigure::read('Core.debug') > 0) {
             echo '<!-- time: ' . round((microtime(true) - self::$startTime) * 1000, 2) . ' ms -->';
         }
     }
@@ -60,9 +67,10 @@ class HApplication
         self::$error = true;
         self::$system = true;
 
-        if (HConfigure::read('Core.debug') > 1) {
+        if (HConfigure::read('Core.debug') > 0) {
             self::$controller->view->view($view);
         } else {
+            HHttp::headerError('404');
             self::$controller->view->view('404');
         }
     }

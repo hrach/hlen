@@ -70,7 +70,7 @@ class HHttp
         return $url;
     }
 
-    public static function redirect($absoluteUrl, $code = '303')
+    public static function headerRedirect($absoluteUrl, $code = '303')
     {
         self::checkHeaders();
         static $supportCode = array('300', '301', '302', '303', '304', '307');
@@ -82,10 +82,17 @@ class HHttp
         Header('Location: '. $absoluteUrl, true, $code);
     }
 
-    public static function error404()
+    public static function headerError($code = '404')
     {
         self::checkHeaders();
-        Header('HTTP/1.1 404 Not Found');
+        switch ($code) {
+            case '404':
+                Header('HTTP/1.1 404 Not Found');
+            break;
+            default:
+                Die("Nepodporovaný typ chybové hlavièky.");
+            break;
+        }
     }
 
     public static function getPost($var = null)
