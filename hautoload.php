@@ -9,8 +9,6 @@
  * @package    Hlen
  */
 
-require_once dirname(__FILE__) . '/happlication.php';
-
 HAutoLoad::registerAutoLoad();
 
 
@@ -18,15 +16,9 @@ class HAutoLoad
 {
 
     public static $scanDir = "";
-
     public static $cacheFile = "./temp/classes.cache";
-
     public static $list = array();
-
-    public static $coreFiles = array(
-        'hbasics', 'hconfigure', 'hdb', 'hcookie', 'hdebug', 'hform',
-        'hhttp', 'hloader', 'hrouter', 'hsession',  'hhtml', 'hcontroller'
-    );
+    public static $coreFiles = array('hdb', 'hcookie', 'hdebug', 'hform','hsession', 'hhtml', 'hcontroller', 'hbasics');
 
 
     public static function registerAutoload()
