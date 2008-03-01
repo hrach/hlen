@@ -26,7 +26,8 @@ class HForm implements ArrayAccess
         MAXLENGTH = 204,
         LENGTH = 205,
         EMAIL = 206,
-        URL = 207;
+        URL = 207,
+        NOTFILLED = 208;
 
     public $data = array();
     private $elements = array();

@@ -18,6 +18,7 @@ if (!defined('APP')) {
 }
 
 require_once dirname(__FILE__) . '/hconfigure.php';
+require_once dirname(__FILE__) . '/hdebug.php';
 require_once dirname(__FILE__) . '/hautoload.php';
 require_once dirname(__FILE__) . '/hrouter.php';
 require_once dirname(__FILE__) . '/hhttp.php';
@@ -34,6 +35,7 @@ class HApplication
 
     public static function run()
     {
+        HAutoload::registerAutoLoad();
         HRouter::route();
         set_exception_handler(array('HApplication', 'exception'));
 
