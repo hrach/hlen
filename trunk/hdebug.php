@@ -13,6 +13,24 @@
 class HDebug
 {
 
+    public static function debugErrors()
+    {
+        if (function_exists('ini_set')) {
+            ini_set('show_errors', true);
+            ini_set('error_reporting', E_ALL);
+        }
+    }
+
+    public static function logErrors()
+    {
+        if (function_exists('ini_set')) {
+            ini_set('display_errors', false);
+            ini_set('error_reporting', E_ERROR | E_WARNING | E_PARSE);
+            ini_set('log_errors', true);
+            ini_set('error_log', HConfigure::read('Core.debug.file', APP . 'temp/errors.log'));
+        }
+    }
+
     public static function dump($var, $escapeHtml = true)
     {
         echo '<pre style="text-align: left;">';

@@ -81,6 +81,7 @@ class HFormCondition
             case HForm::MINLENGTH:  return strlen($value) >= $arg;
             case HForm::MAXLENGTH:  return strlen($value) <= $arg;
             case HForm::LENGTH:     return strlen($value) == $arg;
+            case HForm::NOTFILLED:  return empty($value);
         }
 
         return true;

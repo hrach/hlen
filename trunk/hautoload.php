@@ -9,20 +9,21 @@
  * @package    Hlen
  */
 
-HAutoLoad::registerAutoLoad();
-
 
 class HAutoLoad
 {
 
-    public static $scanDir = "";
-    public static $cacheFile = "./temp/classes.cache";
+    public static $scanDir;
+    public static $cacheFile;
     public static $list = array();
-    public static $coreFiles = array('hdb', 'hcookie', 'hdebug', 'hform','hsession', 'hhtml', 'hcontroller', 'hbasics');
+    public static $coreFiles = array('hdb', 'hcookie', 'hform','hsession', 'hhtml', 'hcontroller', 'hbasics');
 
 
     public static function registerAutoload()
     {
+        self::$scanDir = HConfigure::read('Autoload.scan.dir', '');
+        self::$cacheFile = HConfigure::read('Autoload.cache.file', APP . 'temp/classes.cache');
+
         self::makeClassesList();
         spl_autoload_register(array('HAutoLoad', 'autoload'));
     }

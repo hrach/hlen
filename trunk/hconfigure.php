@@ -21,10 +21,12 @@ class HConfigure
         HConfigure::$config[$var] = $val;
     }
 
-    public static function read($var)
+    public static function read($var, $default = null)
     {
         if (isset(HConfigure::$config[$var])) {
             return HConfigure::$config[$var];
+        } elseif (isset($default)) {
+            return $default;
         } else {
             return false;
         }

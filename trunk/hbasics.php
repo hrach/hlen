@@ -45,13 +45,4 @@ class HBasics
         return $title;
     }
 
-    public static function getNonEmpty()
-    {
-        foreach (func_get_args() as $var) {
-            if (!empty($var)) {
-                return $var;
-            }
-        }
-    }
-
 }
