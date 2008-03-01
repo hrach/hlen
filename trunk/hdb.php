@@ -37,7 +37,7 @@ class HDb
 
         if (is_array($config)) {
             $serverName = $_SERVER['SERVER_NAME'];
-            if (substr($serverName, 0, 4) === 'www.') {
+            if (HConfigure::read('Db.trim.www', true) && substr($serverName, 0, 4) === 'www.') {
                 $serverName = substr($serverName, 4);
             }
 
@@ -72,11 +72,15 @@ class HDb
     public static function getDebug()
     {
         $ret = '<div id="hlen-sql-log" style="position:fixed;top:0;left:0;text-align:left;">'
-                . '<a href="#" style="border:1px solid #888;background: white;" onclick="table=document.getElementById(\'hlen-sql-log-table\');table.style.display = (table.style.display==\'block\') ? \'none\' : \'block\';">SQL log</a><br />'
-                . '<table id="hlen-sql-log-table" style="display:none;background:white;border:1px solid #444;border-collapse:collapse;font-size: 12px;">'
-                    . '<tr><th style="background: #777;border: 1px solid #444;color: white;">SQL Dotaz</th>'
-                    . '<th style="background: #777;border: 1px solid #444;color: white;">Řádků</th>'
-                    . '<th style="background: #777;border: 1px solid #444;color: white;">Čas</th></tr>';
+             . '<script type="text/javascript">//<![CDATA[
+                function hlen_sql_table() { table=document.getElementById(\'hlen-sql-log-table\'); table.style.display = (table.style.display==\'block\') ? \'none\' : \'block\'; }
+                //]]>
+                </script>'
+             . '<a style="border:1px solid #888;background: white;" href="javascript:hlen_sql_table()">SQL log</a><br />'
+             . '<table id="hlen-sql-log-table" style="display:none;background:white;border:1px solid #444;border-collapse:collapse;font-size: 12px;">'
+             . '<tr><th style="background: #777;border: 1px solid #444;color: white;">SQL Dotaz</th>'
+             . '<th style="background: #777;border: 1px solid #444;color: white;">Řádků</th>'
+             . '<th style="background: #777;border: 1px solid #444;color: white;">Čas</th></tr>';
         foreach (self::$debugSql as $query) {
             $ret .= '<tr><td style="backgroud: #fff;border: 1px solid #444;">' . $query['query'] . '</td>'
                   . '<td style="backgroud-color: #fff;width: 50px;border: 1px solid #444;">' . $query['affRows'] . '</td>'

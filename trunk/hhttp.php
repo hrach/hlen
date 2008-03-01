@@ -76,21 +76,24 @@ class HHttp
         static $supportCode = array('300', '301', '302', '303', '304', '307');
 
         if (!in_array($code, $supportCode)) {
-            Die("Nepodporovaný typ pøesmìrování.");
+            die("Nepodporovaný typ pøesmìrování.");
         }
 
-        Header('Location: '. $absoluteUrl, true, $code);
+        header('Location: '. $absoluteUrl, true, $code);
     }
 
     public static function headerError($code = '404')
     {
         self::checkHeaders();
         switch ($code) {
+            case '401':
+                header('HTTP/1.0 401 Unauthorized');
+            break;
             case '404':
-                Header('HTTP/1.1 404 Not Found');
+                header('HTTP/1.1 404 Not Found');
             break;
             default:
-                Die("Nepodporovaný typ chybové hlavièky.");
+                die("Nepodporovaný typ chybové hlavièky.");
             break;
         }
     }
@@ -146,7 +149,7 @@ class HHttp
     private static function checkHeaders()
     {
         if (headers_sent()) {
-            Die("Presmerovani nelze provest, hlavicky byly jiz odeslany.");
+            die("Presmerovani nelze provest, hlavicky byly jiz odeslany.");
         }
     }
 

@@ -30,7 +30,7 @@ class HCookie
     public static function write($var, $val, $path = null, $domain = null)
     {
         self::checkHeaders();
-        setcookie($var, $val, time() + HBasics::getNonEmpty(HConfigure::read('Cookie.expires'), 3600), $path, $domain);
+        setcookie($var, $val, time() + HConfigure::read('Cookie.expires', 3600), $path, $domain);
     }
 
     public static function delete($var, $path = null, $domain = null)
