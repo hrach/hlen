@@ -18,10 +18,31 @@ class HHtml implements ArrayAccess
     private $data = array();
     private $paar = true;
     private $emptyElements = array(
-        'img', 'hr', 'br', 'input', 'meta', 'area',
+        'img', 'input', 'meta', 'area',
         'base', 'col', 'link', 'param', 'frame', 'embed'
     );
 
+
+    /*
+     * Vytvori html odkaz
+     * Pokud nezadate druhy parametr, pouzije se jako text odkazu jeho url
+     * 
+     * @param	string	url
+     * @param	string	text odkazu
+     * @return	string
+     */
+    public static function link($href, $text = null) {
+        $link = new HHtml('a');
+        $link['href'] = $href;
+
+        if ($text === null) {
+            $link->setContent($href);
+        } else {
+            $link->setContent($text);
+        }
+
+        return $link->get();
+    }
 
     function __construct($element)
     {
@@ -40,13 +61,8 @@ class HHtml implements ArrayAccess
 
     public function get()
     {
-        $el = $this->startTag()
-            . $this->content
-            . $this->endTag();
-
-        return $el;
+        return $this->startTag() . $this->content . $this->endTag();
     }
-
 
     public function startTag()
     {

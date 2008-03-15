@@ -19,21 +19,32 @@ class HDb
     private static $debug = false;
 
 
-    public static function connect($config = 'Db.connections', $debug = 'Core.debug')
+    /*
+     * Pripoji se k databazi
+     * Pokud neni predan jako paramatr pole pripojeni, je nacteno z HConfigure::read('Db.connections')
+     * Format pole:
+     * 			array(
+     * 				'driver' => 'mysql',
+     * 				// e.g.
+     * 			)
+     * Pokud chcete vyuzit multi-pripojeni, vyzijte nasledujicho tvaru pole:
+     * 			array(
+     * 				'server.name.com' => array(
+     * 						'driver' => 'mysql',
+     * 						// e.g.
+     * 					)
+     * 			)
+     * 
+     * @param	array	pole s propojenim(i)
+     * @return	void
+     */
+    public static function connect(array $config = null)
     {
-        if (is_string($debug) && class_exists('HConfigure', false)) {
-            $debug = HConfigure::read('Core.debug') > 1;
-        } else {
-            $debug = false;
-        }
-
-        if (is_string($config) && class_exists('HConfigure', false)) {
+        self::$debug = HConfigure::read('Core.debug', 0) > 1;
+        
+        if ($config === null) {
             $config = HConfigure::read('Db.connections');
-        } else {
-            $config = null;
         }
-
-        self::$debug = $debug;
 
         if (is_array($config)) {
             $serverName = $_SERVER['SERVER_NAME'];
@@ -51,24 +62,31 @@ class HDb
         }
     }
 
+    /*
+     * Handler pro debug sql
+     * 
+     * @param	DibiConnection	pripojeni
+     * @param	DibiEvent		zprava
+     * @param	mixed			argument
+     * @return	void
+     */
     public static function sqlHandler($connection, $event, $arg)
     {
         if ($event === 'afterQuery') {
             self::$debugSql[] = array(
-                'query' => dibi::$sql,
-                'time' => dibi::$elapsedTime,
-                'affRows' => dibi::affectedRows(),
+                'query'		=> dibi::$sql,
+                'time'		=> dibi::$elapsedTime,
+                'affRows'	=> dibi::affectedRows(),
             );
         }
     }
 
-    public static function afterRender()
-    {
-        if (self::$debug) {
-            echo self::getDebug();
-        }
-    }
-
+    /*
+     * Vypise sql debug
+     * Jedna se o tabulku, bude umistena vlevo nahore. Specialne nasriptovana.
+     * 
+     * @return	string
+     */
     public static function getDebug()
     {
         $ret = '<div id="hlen-sql-log" style="position:fixed;top:0;left:0;text-align:left;">'

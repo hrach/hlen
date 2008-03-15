@@ -13,22 +13,45 @@
 class HBasics
 {
 
+	/*
+	 * Kamelizuje retezec
+	 * 
+	 * @param	string	retezec, ktery chcete kamelizovat
+	 * @return	string
+	 */
     public static function camelize($word)
     {
         $camelWord = str_replace(' ', '', ucwords(str_replace('_', ' ', $word)));
         return $camelWord;
     }
 
+    /*
+     * Velka pismena prevede na male a vlozi pred ne podtrzitko
+     * 
+     * @param	string	retezec, ktery chcete prevest
+     * @return	string
+     */
     public static function underscore($word)
     {
         $underscoreWord = strtolower(preg_replace('/(?<=\\w)([A-Z])/', '_\\1', $word));
         return $underscoreWord;
     }
 
-    public static function coolUrl($title, $alternative = false) {
+    /*
+     * Vytvori z retezce jeho reprezentaci vhodnou pro url
+     * Preved vsechny znaky na mala pismena, vsechny ne-alfanumericke znaky nahradi pomlckou;
+     * 		odstrani pripadne pomlcky za sebou
+     * U stare knihovny glic v inconv exstenzi nefungoval spravne prevod na ascii;
+     * 		metoda proto obsahuje kontrolu, a pokud neni dostupna moderni knihovna libiconv,
+     * 		prevede retezec na ascii sama; tento zpusob ale funguje pouze pro ceske a slovenske znaky  
+     * 
+     * @param	string	retezec, ktery chcete prevest
+     * @return	string
+     */
+    public static function coolUrl($title) {
         $title = preg_replace('~[^\\pL0-9_]+~u', '-', $title);
         $title = trim($title, "-");
-        if ($alternative) {
+        if (defined('ICONV_IMPL') && ICONV_IMPL != 'libiconv') {
 
             // author David GRUDL
             // site http://www.davidgrudl.cz/

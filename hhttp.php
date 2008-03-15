@@ -9,12 +9,16 @@
  * @package    Hlen
  */
 
-HHttp::sanitizeData();
-
 
 class HHttp
 {
 
+	/*
+	 * Pokud je treba, odstrani automaticky magic quotes
+	 * 		z $_GET, $_POST, $_COOKIE a $_REQUEST
+	 * 
+	 * @return	void
+	 */
     public static function sanitizeData()
     {
         if (get_magic_quotes_gpc()) {
@@ -35,19 +39,53 @@ class HHttp
         }
     }
 
+    /*
+     * Zjisti, zda je volana stranka ajaxem
+     * 
+     * @return	boolean
+     */
+    public static function isAjax()
+    {
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+            return true;
+        }
+        return false;
+    }
+
+    /*
+     * Vrati IP uzivatele
+     * 
+     * @return	string
+     */
     public static function getIp()
     {
         return $_SERVER['REMOTE_ADDR'];
     }
 
+    /*
+     * Vrati metodu pozadavku
+     * 
+     * @return	string
+     */
     public static function getRequestMethod()
     {
         return strtolower($_SERVER['REQUEST_METHOD']);
     }
 
+    /*
+     * Vrati zakladni url
+     * Zakladni url se vztahuje vuci pozivi aplikace na serveru. Neobsahuje tedy jmeno serveru, ale pouze cestu
+     * 		v ramci nej
+     * Priklady:	aplikace bezi na				base url
+     * 				example.com						/
+     * 				test.example.com				/
+     * 				example.com/test				/test/
+     * 
+     * @return	string
+     */
     public static function getBase()
     {
-        $base = HHttp::sanitizeUrl(dirname($_SERVER['PHP_SELF']));
+        $base = HHttp::sanitizeUrl(dirname($_SERVER['SCRIPT_NAME']));
 
         if (empty($base)) {
             return '/';
@@ -56,11 +94,21 @@ class HHttp
         }
     }
 
+    /*
+     * Vrati domenove jmeno / jmeno serveru
+     * 
+     * @return	string
+     */
     public static function getDomain()
     {
         return $_SERVER['SERVER_NAME'];
     }
 
+    /*
+     * Vrati absolutni base url 
+     * 
+     * @return	string
+     */
     public static function getUrl()
     {
         $url  = 'http:' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '//'
@@ -70,34 +118,57 @@ class HHttp
         return $url;
     }
 
-    public static function headerRedirect($absoluteUrl, $code = '303')
+    /*
+     * Zasle presmerovaci hlavicku
+     * 
+     * @param	string	absolutni url, na ktere chcete presmerovat
+     * @param	integer	cislo presmerovaci hlavicky
+     * @return	void
+     */
+    public static function headerRedirect($absoluteUrl, $code = 303)
     {
         self::checkHeaders();
-        static $supportCode = array('300', '301', '302', '303', '304', '307');
+        static $supportCode = array(300, 301, 302, 303, 304, 307);
 
         if (!in_array($code, $supportCode)) {
-            die("Nepodporovaný typ pøesmìrování.");
+            die("Nepodporovany typ presmerovani.");
         }
 
-        header('Location: '. $absoluteUrl, true, $code);
+        header('Location: ' . $absoluteUrl, true, $code);
     }
 
-    public static function headerError($code = '404')
+    /*
+     * Zasle chybovou hlavicku
+     * 
+     * @param	integer	cislo chybove hlavicky
+     * @return	void
+     */
+    public static function headerError($code = 404)
     {
         self::checkHeaders();
         switch ($code) {
-            case '401':
-                header('HTTP/1.0 401 Unauthorized');
+            case 401:
+                header('HTTP/1.1 401 Unauthorized');
             break;
-            case '404':
+            case 404:
                 header('HTTP/1.1 404 Not Found');
             break;
+            case 500:
+                header('HTTP/1.1 500 Internal Server Error');
+            break;
             default:
-                die("Nepodporovaný typ chybové hlavièky.");
+                die("Nepodporovany typ chybove hlavicky.");
             break;
         }
     }
 
+    /*
+     * Vrati hodnotu promenne predane pomoci post,
+     * 		nebo pokud nezadate nazev promennet vraci pole vsech parametru
+     * 
+     * @param	string	jmeno promenne
+     * @return	mixed
+     */
     public static function getPost($var = null)
     {
         if (isset($_POST[$var])) {
@@ -109,6 +180,13 @@ class HHttp
         }
     }
 
+    /*
+     * Vrati hodnotu promenne predane pomoci get,
+     * 		nebo pokud nezadate nazev promennet vraci pole vsech parametru
+     * 
+     * @param	string	jmeno promenne
+     * @return	mixed
+     */
     public static function getGet($var = null)
     {
         if (isset($_GET[$var])) {
@@ -120,21 +198,43 @@ class HHttp
         }
     }
 
+    /*
+     * Vraci routovaci url
+     * 
+     * @return	string
+     */
     public static function getRequestUrl()
     {
         $url = $_SERVER['REQUEST_URI'];
         $base = dirname($_SERVER['SCRIPT_NAME']);
+        $baseFile = basename($_SERVER['SCRIPT_NAME']);
         if (substr($url, 0, strlen($base)) == $base) {
             $url = substr($url, strlen($base));
+        }
+        $url = self::sanitizeUrl($url);
+        if (substr($url, 0, strlen($baseFile)) == $baseFile) {
+            $url = substr($url, strlen($baseFile));
         }
         return $url;
     }
 
+    /*
+     * Osetri url, aby na zacatku a na konci nebyly lomitka
+     * 
+     * @param	string	url
+     * @return	string
+     */
     public static function sanitizeUrl($url)
     {
         return trim($url, '/');
     }
 
+    /*
+     * Prevede url na pole, jednotlive prvky url jsou rozdeleny pomoci lomitek
+     * 
+     * @param	string	url
+     * @return	array
+     */
     public static function urlToArray($url)
     {
         $url = self::sanitizeUrl($url);
@@ -146,6 +246,12 @@ class HHttp
         }
     }
 
+    /*
+     * Zkontroluje, zda nebyly odeslany hlavicky
+     * V pripade ze ano, script ukonci a vypise chybovou hlasku
+     * 
+     * @return	void
+     */
     private static function checkHeaders()
     {
         if (headers_sent()) {
@@ -154,3 +260,5 @@ class HHttp
     }
 
 }
+
+HHttp::sanitizeData();
