@@ -13,7 +13,7 @@
  * @author     David Grudl
  * @copyright  Copyright (c) 2005, 2008 David Grudl
  * @license    http://dibiphp.com/license  dibi license
- * @version    0.9 (Revision: 112, Date: 2008/02/15 05:51:35)
+ * @version    0.9 (Revision: 113, Date: 2008/03/04 15:01:22)
  * @link       http://dibiphp.com/
  * @package    dibi
  */
@@ -69,6 +69,11 @@ as$handler){call_user_func_array($handler,$args);}}return;}$cl=$class;do{if(func
 call_user_func_array($nm,$args);}}while($cl=get_parent_class($cl));throw
 new
 MemberAccessException("Call to undefined method $class::$name().");}protected
+static
+function
+__callStatic($name,$args){$class=get_called_class();throw
+new
+MemberAccessException("Call to undefined static method $class::$name().");}protected
 function&__get($name){if($name===''){throw
 new
 MemberAccessException("Cannot read an property without name.");}$class=get_class($this);$m='get'.$name;if(self::hasAccessor($class,$m)){$val=$this->$m();return$val;}else{throw
@@ -95,32 +100,8 @@ isset($cache[$c][$m]);}private
 static
 function
 hasEvent($c,$m){return
-preg_match('#^on[A-Z]#',$m)&&property_exists($c,$m);}}}if(!class_exists('NException',FALSE)){class
-NException
-extends
-Exception{private$cause;private
-static$oldHandler;private
-static$handlerClass;public
-function
-initCause(Exception$cause){if($this->cause===NULL){$this->cause=$cause;}else{throw
-new
-InvalidStateException('Cause was already assigned.');}}public
-function
-getCause(){return$this->cause;}public
-function
-__toString(){return
-parent::__toString().($this->cause===NULL?'':"\nCaused by ".$this->cause->__toString());}public
-static
-function
-catchError($class=__CLASS__){self::$oldHandler=set_error_handler(array(__CLASS__,'_errorHandler'),E_ALL);self::$handlerClass=$class;}public
-static
-function
-restore(){if(self::$oldHandler!==NULL){set_error_handler(self::$oldHandler);self::$oldHandler=NULL;}else{restore_error_handler();}}public
-static
-function
-_errorHandler($code,$message,$file,$line,$context){self::restore();if(ini_get('html_errors')){$message=strip_tags($message);}throw
-new
-self::$handlerClass($message,$code);}}}interface
+preg_match('#^on[A-Z]#',$m)&&property_exists($c,$m);}}}if(!interface_exists('IDebuggable',FALSE)){interface
+IDebuggable{}}interface
 IDibiVariable{public
 function
 toSql(DibiTranslator$translator,$modifier);}interface
@@ -148,10 +129,13 @@ getResultResource();function
 getDibiReflection();}class
 DibiException
 extends
-NException{}class
+Exception{}class
 DibiDriverException
 extends
-DibiException{private$sql;public
+DibiException
+implements
+IDebuggable{private
+static$errorMsg;private$sql;public
 function
 __construct($message=NULL,$code=0,$sql=NULL){parent::__construct($message,(int)$code);$this->sql=$sql;dibi::notify(NULL,'exception',$this);}final
 public
@@ -162,12 +146,20 @@ __toString(){return
 parent::__toString().($this->sql?"\nSQL: ".$this->sql:'');}public
 static
 function
-catchError($class=__CLASS__){parent::catchError($class);}}class
+tryError(){set_error_handler(array(__CLASS__,'_errorHandler'),E_ALL);self::$errorMsg=NULL;}public
+static
+function
+catchError(&$message){restore_error_handler();$message=self::$errorMsg;self::$errorMsg=NULL;return$message!==NULL;}public
+static
+function
+_errorHandler($code,$message){restore_error_handler();if(ini_get('html_errors')){$message=strip_tags($message);$message=html_entity_decode($message);}self::$errorMsg=$message;}}class
 DibiConnection
 extends
 NObject{private$config;private$driver;private$connected=FALSE;private$inTxn=FALSE;public
 function
-__construct($config){if(is_string($config)){parse_str($config,$config);}if(!isset($config['driver'])){$config['driver']=dibi::$defaultDriver;}$driver=preg_replace('#[^a-z0-9_]#','_',$config['driver']);$class="Dibi".$driver."Driver";if(!class_exists($class,FALSE)){include_once __FILE__ . "/../../drivers/$driver.php";if(!class_exists($class,FALSE)){throw
+__construct($config){if(is_string($config)){parse_str($config,$config);}elseif($config
+instanceof
+IMap){$config=$config->toArray();}if(!isset($config['driver'])){$config['driver']=dibi::$defaultDriver;}$driver=preg_replace('#[^a-z0-9_]#','_',$config['driver']);$class="Dibi".$driver."Driver";if(!class_exists($class,FALSE)){include_once __FILE__."/../../drivers/$driver.php";if(!class_exists($class,FALSE)){throw
 new
 DibiException("Unable to create instance of dibi driver class '$class'.");}}$this->config=$config;$this->driver=new$class;if(empty($config['lazy'])){$this->connect();}}public
 function
@@ -453,7 +445,7 @@ function
 count(){if($this->count===NULL){$this->count=$this->connection->query('
                 SELECT COUNT(*) FROM',$this->sql)->fetchSingle();}return$this->count;}}class
 dibi{const
-FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='n',VERSION='0.9 (Revision: 112, Date: 2008/02/15 05:51:35)';private
+FIELD_TEXT='s',FIELD_BINARY='S',FIELD_BOOL='b',FIELD_INTEGER='i',FIELD_FLOAT='f',FIELD_DATE='d',FIELD_DATETIME='t',FIELD_UNKNOWN='?',FIELD_COUNTER='C',IDENTIFIER='n',VERSION='0.9 (Revision: 113, Date: 2008/03/04 15:01:22)';private
 static$registry=array();private
 static$connection;private
 static$substs=array();private
@@ -470,7 +462,9 @@ new
 LogicException("Cannot instantiate static class ".get_class($this));}public
 static
 function
-connect($config=array(),$name=0){if(is_array($config)){$config['name']=$name;}else{$config.='&name='.urlencode($name);}return
+connect($config=array(),$name=0){if(is_array($config)||$config
+instanceof
+IMap){$config['name']=$name;}else{$config.='&name='.urlencode($name);}return
 self::$connection=self::$registry[$name]=new
 DibiConnection($config);}public
 static
@@ -535,7 +529,7 @@ rollback(){self::getConnection()->rollback();}public
 static
 function
 loadFile($file){return
-self::getConnection()->loadFile($file);}public
+self::getConnection()->loadFile($file);}protected
 static
 function
 __callStatic($name,$args){return
@@ -977,9 +971,13 @@ __construct(){if(!extension_loaded('pgsql')){throw
 new
 DibiDriverException("PHP extension 'pgsql' is not loaded.");}}public
 function
-connect(array&$config){if(isset($config['string'])){$string=$config['string'];}else{$string='';foreach(array('host','hostaddr','port','dbname','user','password','connect_timeout','options','sslmode','service')as$key){if(isset($config[$key]))$string.=$key.'='.$config[$key].' ';}}DibiDriverException::catchError();if(isset($config['persistent'])){$this->connection=@pg_connect($string,PGSQL_CONNECT_FORCE_NEW);}else{$this->connection=@pg_pconnect($string,PGSQL_CONNECT_FORCE_NEW);}DibiDriverException::restore();if(!is_resource($this->connection)){throw
+connect(array&$config){if(isset($config['string'])){$string=$config['string'];}else{$string='';foreach(array('host','hostaddr','port','dbname','user','password','connect_timeout','options','sslmode','service')as$key){if(isset($config[$key]))$string.=$key.'='.$config[$key].' ';}}DibiDriverException::tryError();if(isset($config['persistent'])){$this->connection=pg_connect($string,PGSQL_CONNECT_FORCE_NEW);}else{$this->connection=pg_pconnect($string,PGSQL_CONNECT_FORCE_NEW);}if(DibiDriverException::catchError($msg)){throw
 new
-DibiDriverException('Connecting error.');}if(isset($config['charset'])){DibiDriverException::catchError();@pg_set_client_encoding($this->connection,$config['charset']);DibiDriverException::restore();}if(isset($config['schema'])){$this->query('SET search_path TO '.$config['schema']);}$this->escMethod=version_compare(PHP_VERSION,'5.2.0','>=');}public
+DibiDriverException($msg,0);}if(!is_resource($this->connection)){throw
+new
+DibiDriverException('Connecting error.');}if(isset($config['charset'])){DibiDriverException::tryError();pg_set_client_encoding($this->connection,$config['charset']);if(DibiDriverException::catchError($msg)){throw
+new
+DibiDriverException($msg,0);}}if(isset($config['schema'])){$this->query('SET search_path TO '.$config['schema']);}$this->escMethod=version_compare(PHP_VERSION,'5.2.0','>=');}public
 function
 disconnect(){pg_close($this->connection);}public
 function
@@ -1043,7 +1041,9 @@ DibiDriverException($errorMsg);}$this->buffered=empty($config['unbuffered']);}pu
 function
 disconnect(){sqlite_close($this->connection);}public
 function
-query($sql){DibiDriverException::catchError();if($this->buffered){$this->resultset=sqlite_query($this->connection,$sql);}else{$this->resultset=sqlite_unbuffered_query($this->connection,$sql);}DibiDriverException::restore();return
+query($sql){DibiDriverException::tryError();if($this->buffered){$this->resultset=sqlite_query($this->connection,$sql);}else{$this->resultset=sqlite_unbuffered_query($this->connection,$sql);}if(DibiDriverException::catchError($msg)){throw
+new
+DibiDriverException($msg,sqlite_last_error($this->connection),$sql);}return
 is_resource($this->resultset);}public
 function
 affectedRows(){return

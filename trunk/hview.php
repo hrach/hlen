@@ -75,7 +75,7 @@ class HView
      */
     public function getLayout()
     {
-        return $this->viewName;
+        return $this->layoutName;
     }
 
     /*
