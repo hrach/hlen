@@ -15,19 +15,29 @@ require_once dirname(__FILE__) . '/hview.php';
 class HController
 {
 
-    private $catchedArg = array();
+    private $catchedArgs = array();
 
-
+	/*
+	 * Konstruktor
+	 * 
+	 * @return	void
+	 */
     public function __construct()
     {
-        $this->view = new HView();
+        $this->view = new HView(&$this);
 
-        $this->view->controller = & $this;
         $this->view->baseUrl = HHttp::getBase();
         $this->view->escape = 'htmlspecialchars';
         $this->view->title = 'HLEN framework';
     }
 
+    /*
+     * Presmeruje na novou url
+     * 
+     * @param	string	url - relativni
+     * @param	boolean	zavolat po presmerovani exit
+     * @return	void
+     */
     public function redirect($url, $exit = true)
     {
         HHttp::headerRedirect(HHttp::getUrl() . $url);
@@ -37,128 +47,118 @@ class HController
         }
     }
 
+    /*
+     * Zachyti argument pro jeho automaticke pouziti v url
+     * 
+     * @param	string	jmeno argumentu
+     * @return	boolean
+     */
     public function catchArg($name)
     {
-        if (!empty(HRouter::$args[$name])) {
-            $this->catchedArg[$name] = $name . HRouter::$namedArgumentsSeparator . HRouter::$args[$name];
+        if (is_string($name) && isset(HRouter::$args[$name])) {
+            if (!isset(HRouter::$replaceNamedArgs[$name])) {
+                $this->catchedArgs[$name] = $name . ':' . HRouter::$args[$name];
+            } else {
+                $this->catchedArgs[$name] = HRouter::$args[$name];
+            }
+            return true;
         }
+        return false;
     }
 
-    public function link($title, $url = array(), array $options = array())
+    /*
+     * Recaller metody HApplication::error()
+     */
+    public function error()
     {
-        if (!isset($url[3])) {
-            $url[3] = true;
-        }
-
-        if (is_array($url)) {
-            $url = HHttp::getBase() . $this->url(@$url[0], @$url[1], (array) @$url[2], @$url[3]);
-        } else {
-            $url = HHttp::getBase() . $url;
-        }
-
-        $el = new HHtml('a');
-
-        foreach ($options as $atName => $atVal) {
-            $el[$atName] = $atVal;
-        }
-
-        $el['href'] = $url;
-        $el->setContent($title);
-
-        return $el->get();
+        $args = func_get_args();
+        call_user_func_array(array('HApplication', 'error'), $args);
     }
 
-    public function url($c = null, $a = null, array $p = array(), $linkRule = true)
+    /*
+     * Vytvori URL v ramci frameworku
+     * 
+     * @param	string	jmeno controlleru
+     * @param	string	jmeno action
+     * @param	array	argumenty
+     * @param	boolean	zdedit arguemnty (dedi se pouze zachycene jmenne argumenty!)
+     * @param	string	pravidlo, podle ktereho se ma url vytvorit
+     * @return	string
+     */
+    public function url($controller = null, $action = null, array $args = array(), $inherited = true, $rule = null)
     {
         $newUrl = array();
-        if ($linkRule === true) {
-            $rule = HRouter::$rule;
-        } elseif($linkRule === false) {
-            $newRule = HHttp::urlToArray(HRouter::$baseRule);
-            if ($newRule[count($newRule) - 1] == '*') {
-                array_pop($newRule);
-            }
-            $rule = $newRule;
+
+        if ($rule === null) {
+            $newRule = HRouter::$rule;
         } else {
-            $newRule = HHttp::urlToArray($linkRule);
-            if ($newRule[count($newRule) - 1] == '*') {
-                array_pop($newRule);
-            }
-            $rule = $newRule;
+            $newRule = HHttp::urlToArray($rule);
         }
 
-        foreach ($rule as $index => $val) {
-            switch ($val) {
+        foreach ($args as $name => $value) {
+        	if (is_string($name) && !isset(HRouter::$replaceNamedArgs[$name])) {
+        		$args[$name] = $name . ':' . $value;
+        	}
+        }
+
+        if ($inherited) {
+	        $args = array_merge($this->catchedArgs, $args);
+        }
+        
+        foreach ($args as $key => $value) {
+            if ($value === false) {
+                unset($args[$key]);
+            }
+        }
+        
+        foreach ($newRule as $index => $value) {
+            switch ($value) {
                 case ':controller':
-                    if (!empty($c)) {
-                        $newUrl[$index] = $c;
-                    } elseif($linkRule !== false) {
-                        $newUrl[$index] = HRouter::$controller;
+                    if (!empty($controller)) {
+                        $newUrl[$index] = $controller;
                     } else {
-                        $newUrl[$index] = HRouter::$defaultController;
+                        $newUrl[$index] = HRouter::$controller;
                     }
                     break;
                 case ':action':
-                    if (!empty($a)) {
-                        $newUrl[$index] = $a;
-                    } elseif($linkRule !== false) {
+                    if (!empty($action)) {
+                        $newUrl[$index] = $action;
+                    } else {
                         $newUrl[$index] = HRouter::$action;
-                    } else {
-                        $newUrl[$index] = HRouter::$defaultAction;
                     }
                     break;
-                default:
-                    if (is_bool($linkRule)) {
-                        $newUrl[$index] = HRouter::getSegment($index);
-                    } else {
-                        if (!empty($base[$index])) {
-                            $newUrl[$index] = $val;
-                        } else {
-                            continue;
-                        }
-                    }
-                    break;
-            }
-        }
-
-        $catched = $this->catchedArg;
-
-        foreach ($p as $i => $arg) {
-            if ($arg === false) {
-                unset($p[$i]);
-                unset($catched[$i]);
-                continue;
-            }
-            if (!is_integer($i)) {
-                $p[$i] = $i . HRouter::$namedArgumentsSeparator . $arg;
-            }
-        }
-
-        if ($linkRule !== false) {
-            $args = array_merge($catched, $p);
-            foreach ($rule as $index => $val) {
-                if ($val === ':arg') {
+                case ':arg':
                     $newUrl[$index] = array_shift($args);
+                	break;
+                default:
+                	$newUrl[$index] = $value;
                     break;
-                }
             }
-            while (!empty($args)) {
-                $newUrl[] = array_shift($args);
-            }
-        } else {
-            foreach ($p as $arg) {
-                $newUrl[] = $arg;
-            }
+        }
+
+        while (!empty($args)) {
+        	$newUrl[] = array_shift($args);
         }
 
         return implode('/', $newUrl);
     }
 
+    /*
+     * Vrati pole se vsemi argumenty
+     * 
+     * @return	array
+     */
     public function getArgs()
     {
         return HRouter::$args;
     }
 
+    /*
+     * Vrati hodnotu jmenneho argumentu
+     * 
+     * @param	string	jmeno argumentu
+     * @return	mixed	pokud argument neexistuje, vraci false
+     */
     public function getArg($name)
     {
         if (isset(HRouter::$args[$name])) {
@@ -168,6 +168,12 @@ class HController
         }
     }
 
+    /*
+     * Spusti rendering
+     * TUTO METODU NIKDY SAMI NEVOLEJTE
+     * 
+     * @return	void
+     */
     public function render()
     {
         $actionName = HRouter::$action . 'Action';

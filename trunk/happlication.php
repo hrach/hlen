@@ -28,64 +28,66 @@ class HApplication
 {
 
     static public $controller;
-    static public $error = false;
-    static public $system = false;
     static public $startTime;
+    static public $error = false;
 
-
+	/*
+	 * Spustí celou aplikaci
+	 * 
+	 * @return	void
+	 */
     public static function run()
     {
-        HAutoload::registerAutoLoad();
+        HAutoload::registerAutoload();
         HRouter::route();
-        set_exception_handler(array('HApplication', 'exception'));
+
+        $debug = HConfigure::read('Core.debug', 0);
+        
+        if ($debug > 0) {
+        	HDebug::enableErrors();
+        	HDebug::enableExceptions(true);
+        } else {
+        	HDebug::logErrors();
+        	HDebug::enableExceptions();
+        }
 
         self::createController(HRouter::$controller);
-        self::render();
+        self::$controller->render();
 
-        if (HConfigure::read('Core.debug') > 1 && class_exists('HDb', false)) {
+        if ($debug > 1 && class_exists('HDb', false)) {
             echo HDb::getDebug();
         }
 
-        if (HConfigure::read('Core.debug') > 0) {
-            echo '<!-- time: ' . round((microtime(true) - self::$startTime) * 1000, 2) . ' ms -->';
+        if ($debug > 0) {
+            echo "\n<!-- time: " . round((microtime(true) - self::$startTime) * 1000, 2) . ' ms -->';
         }
     }
 
-    public static function exception($exception)
-    {
-        self::$controller = new Controller;
-        self::error('sql');
-        self::$error = true;
-        self::$controller->view->exception = $exception;
-        self::$controller->view->render();
-    }
-
+    /*
+     * Zobrazi chybovou chybovou zpravu
+     * Pokud je ladici rezim vypnut, zobrazi se chyba 404
+     * 
+     * @param	string	jmeno view
+     * @return	void
+     */
     public static function error($view)
     {
-        if ($view == 'view') {
-            self::$controller->view->missingView = self::$controller->view->getViewPath();
-        }
+        self::$error  = true;
 
-        self::$error = true;
-        self::$system = true;
-
-        if (HConfigure::read('Core.debug') > 0) {
+        if (HConfigure::read('Core.debug', 0) > 0) {
             self::$controller->view->view($view);
         } else {
             HHttp::headerError('404');
-            self::$controller->view->view('404');
+  	        self::$controller->view->view('404');
         }
     }
 
-    public static function systemUrl($url)
-    {
-        if ($url[0] !== '/') {
-            $url = HRouter::$controller . '/' . $url;
-        }
-
-        return HHttp::sanitizeUrl($url);
-    }
-
+    /*
+     * Vytvori controller; vola prislusne chybove metody
+     * 
+     * @param	string	jmeno controlleru
+     * @return	void
+     */
     private static function createController($controllerName)
     {
         if (!class_exists('Controller')) {
@@ -103,11 +105,6 @@ class HApplication
         } else {
             self::$controller = new $controllerClass;
         }
-    }
-
-    private static function render()
-    {
-        self::$controller->render();
     }
 
 }

@@ -9,8 +9,6 @@
  * @package    Hlen
  */
 
-HSession::start();
-
 
 class HSession
 {
@@ -71,3 +69,5 @@ class HSession
     }
 
 }
+
+HSession::start();
