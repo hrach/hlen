@@ -39,11 +39,6 @@ class HRouter
         self::$segments = HHttp::urlToArray(HHttp::getRequestUrl());
     }
 
-    public static function route()
-    {
-    	//
-    }
-
     /*
      * Prida sluzbu - renderovani alternativniho obsahu
      * 
