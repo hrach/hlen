@@ -39,7 +39,6 @@ class HApplication
     public static function run()
     {
         HAutoload::registerAutoload();
-        HRouter::route();
 
         $debug = HConfigure::read('Core.debug', 0);
         
@@ -54,12 +53,14 @@ class HApplication
         self::createController(HRouter::$controller);
         self::$controller->render();
 
-        if ($debug > 1 && class_exists('HDb', false)) {
-            echo HDb::getDebug();
-        }
+        if (self::$controller->view->getLayout() != 'layout_xml') {
+        	if ($debug > 1 && class_exists('HDb', false)) {
+            	echo HDb::getDebug();
+        	}
 
-        if ($debug > 0) {
-            echo "\n<!-- time: " . round((microtime(true) - self::$startTime) * 1000, 2) . ' ms -->';
+        	if ($debug > 0) {
+            	echo "\n<!-- time: " . round((microtime(true) - self::$startTime) * 1000, 2) . ' ms -->';
+        	}
         }
     }
 

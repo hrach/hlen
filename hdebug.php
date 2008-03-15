@@ -17,10 +17,11 @@ class HDebug
 	 * Vypise lidsky-citelny obsah promenne
 	 * 
 	 * @param	mixed	promenna pro vypis
+	 * @param	boolean	vratit misto vypsani
 	 * @param	boolean	escapovat text
 	 * @return	void
 	 */
-    public static function dump($var, $escapeHtml = true)
+    public static function dump($var, $return = false, $escapeHtml = true)
     {
         if ($escapeHtml) {
             $content = htmlspecialchars(print_r($var, true));
@@ -28,7 +29,11 @@ class HDebug
             $content = print_r($var, true);
         }
 
-        echo '<pre style="text-align: left;">' . $content . '</pre>';
+        if ($return) {
+        	return '<pre style="text-align: left;">' . $content . '</pre>';        	
+        } else {
+        	echo '<pre style="text-align: left;">' . $content . '</pre>';        	
+        }
     }
 
     /*
@@ -54,7 +59,7 @@ class HDebug
      */
     public static function exceptionHandler(Exception $exception)
     {
-		echo 'Vyjímka';
+    	require_once dirname(__FILE__) . '/hdebug_template.phtml';
     }
     
 	/*
