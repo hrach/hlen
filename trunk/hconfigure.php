@@ -16,11 +16,26 @@ class HConfigure
     private static $config = array();
 
 
+    /*
+     * Zapise konfiguraci
+     * 
+     * @param	string	jmeno konfiguracni direktivy
+     * @param	mixed	hodnota
+     * @return	void
+     */
     public static function write($var, $val)
     {
         HConfigure::$config[$var] = $val;
     }
 
+    /*
+     * Precte konfiguraci
+     * Pokud neni direktiva dostupna (nebyla jeste nastavena), vrati metoda druhy argument
+     * 
+     * @param	string	jmeno direktivy
+     * @param	mixed	vyhozi hodnota
+     * @return	mixed
+     */
     public static function read($var, $default = null)
     {
         if (isset(HConfigure::$config[$var])) {

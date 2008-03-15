@@ -13,7 +13,71 @@
 class HDebug
 {
 
-    public static function debugErrors()
+	/*
+	 * Vypise lidsky-citelny obsah promenne
+	 * 
+	 * @param	mixed	promenna pro vypis
+	 * @param	boolean	escapovat text
+	 * @return	void
+	 */
+    public static function dump($var, $escapeHtml = true)
+    {
+        if ($escapeHtml) {
+            $content = htmlspecialchars(print_r($var, true));
+        } else {
+            $content = print_r($var, true);
+        }
+
+        echo '<pre style="text-align: left;">' . $content . '</pre>';
+    }
+
+    /*
+     * Zapne zachyceni neodchycenych vyjimek
+     * 
+     * @param	boolen	debug rezim
+     * @return	void 
+     */
+    public static function enableExceptions($debug = false)
+    {
+    	if ($debug) {
+			set_exception_handler(array('HDebug', 'exceptionHandler'));
+    	} else {
+	    	set_exception_handler(array('HDebug', 'exceptionHandlerApp'));
+    	}
+    }
+    
+    /*
+     * Zachyti neodchycene vyjimky a zobrazi podrobny vypis chyby
+     * 
+     * @param	Exception	nezachycena vyjimka
+     * @return	void 
+     */
+    public static function exceptionHandler(Exception $exception)
+    {
+		echo 'Vyjímka';
+    }
+    
+	/*
+     * Zachyti neodchycene vyjimky a zobrazi podrobny vypis chyby v ramci aplikace
+     * Render pro koncove uzivatele
+     * 
+     * @param	Exception	nezachycena vyjimka
+     * @return	void 
+     */
+    public static function exceptionHandlerApp(Exception $exception)
+    {
+    	HApplication::$error = true;
+		HApplication::$controller = new Controller;
+        HApplication::$controller->view->view('500');
+        HApplication::$controller->view->render();
+    }
+    
+    /*
+     * Zapne vypisovani chyb
+     * 
+     * @return	void
+     */
+    public static function enableErrors()
     {
         if (function_exists('ini_set')) {
             ini_set('show_errors', true);
@@ -21,6 +85,11 @@ class HDebug
         }
     }
 
+    /*
+     * Zapne lgovani chyb do souboru
+     * 
+     * @return	void
+     */
     public static function logErrors()
     {
         if (function_exists('ini_set')) {
@@ -29,24 +98,6 @@ class HDebug
             ini_set('log_errors', true);
             ini_set('error_log', HConfigure::read('Core.debug.file', APP . 'temp/errors.log'));
         }
-    }
-
-    public static function dump($var, $escapeHtml = true)
-    {
-        echo '<pre style="text-align: left;">';
-        if ($escapeHtml) {
-            echo htmlspecialchars(print_r($var, true));
-        } else {
-            print_r($var);
-        }
-        echo '</pre>';
-    }
-
-    public function mark($var)
-    {
-        echo '<span style="color: black;background: white;" class="debigging-marks">';
-        echo 'Debug mark: <strong style="color: red;">' . $var . '</strong>';
-        echo '</span><br/>';
     }
 
 }

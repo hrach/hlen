@@ -120,10 +120,10 @@ class HForm implements ArrayAccess
         $return = false;
         $submitData = array();
 
-        if (HHttp::getRequestMethod() === 'post') {
-            $data = HHttp::getPost();
-        } else {
+        if (HHttp::getRequestMethod() === 'get') {
             $data = HHttp::getGet();
+        } else {
+            $data = HHttp::getPost();
         }
 
         foreach ($this->elements as $id => $element) {
@@ -223,6 +223,11 @@ class HForm implements ArrayAccess
     public function addError($message)
     {
         $this->errors[] = $message;
+    }
+
+    public function getUrl()
+    {
+        return $this->formElement['action'];
     }
 
     public function getErrors()
