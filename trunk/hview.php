@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
 
@@ -23,7 +23,7 @@ class HView
     /*
      * Kontruktor
      * Pøidá mezi promìnné referenci na controller
-     * 
+     *
      * @param	HController	reference na controller
      * @return void
      */
@@ -36,7 +36,7 @@ class HView
      * Nastaví view sablonu
      * Jmeno predavejte bez pripony
      * Pokud chcete urcit cestu k sablone primo, zadejte pred retezec znak |
-     * 
+     *
      * @param	string jmeno sablony
      * @return	void 
      */
@@ -49,7 +49,7 @@ class HView
      * Nastavi layout sablonu
      * Jmeno predavejte bez pripony
      * Pokud zadate false, nepouzije se zadna sablona
-     * 
+     *
      * @param	string	jemeno sablony
      * @return	void
      */
@@ -60,7 +60,7 @@ class HView
 
     /*
      * Vrati jmeno view sablony, bez pripony
-     * 
+     *
      * @return	string
      */
     public function getView()
@@ -70,7 +70,7 @@ class HView
 
     /*
      * Vrati jmeno layout sablony, bez pripony
-     * 
+     *
      * @return	string
      */
     public function getLayout()
@@ -80,17 +80,17 @@ class HView
 
     /*
      * Vrati cestu k view sablone
-     * 
+     *
      * @return	string
      */
     public function getViewPath()
     {
         return $this->viewPath;
     }
-    
+
     /*
      * Vrati cestu k view layoutu
-     * 
+     *
      * @return	string
      */
 
@@ -107,8 +107,7 @@ class HView
         $args = func_get_args();
         call_user_func_array(array('HApplication', 'error'), $args);
     }
-    
-    
+
     /*
      * Recaller metody HController::url()
      */
@@ -117,13 +116,13 @@ class HView
         $args = func_get_args();
         return call_user_func_array(array(HApplication::$controller, 'url'), $args);
     }
-    
-	/*
-	 * Naètení externího kodu
-	 * 
-	 * @param	string	jmeno souboru bez pripony
-	 * @return	void
-	 */
+
+    /*
+     * Naètení externího kodu
+     *
+     * @param	string	jmeno souboru bez pripony
+     * @return	void
+     */
     public function load($name)
     {
         extract($this->vars);
@@ -132,16 +131,16 @@ class HView
             include $fileName;
         }
     }
-    
-	/*
-	 * Vytvori odkaz v zavislosti na systemovem routingu
-	 * 
-	 * @param	string	text odkazu
-	 * @param	mixed	1) pole s paramtery pro funkci HApplication::url()
-	 * 					2) retezec s url
-	 * @param	array	pole s atributy
-	 * @return	string
-	 */
+
+    /*
+     * Vytvori odkaz v zavislosti na systemovem routingu
+     *
+     * @param	string	text odkazu
+     * @param	mixed	1) pole s paramtery pro funkci HApplication::url()
+     * 					2) retezec s url
+     * @param	array	pole s atributy
+     * @return	string
+     */
     public function link($title, $url = array(), array $attributs = array())
     {
         if (!isset($url[3])) {
@@ -149,9 +148,9 @@ class HView
         }
 
         if (is_array($url)) {
-            $url = HHttp::getBase() . HApplication::$controller->url(@$url[0], @$url[1], (array) @$url[2], @$url[3]);
+            $url = HHttp::getBaseUrl() . HApplication::$controller->url(@$url[0], @$url[1], (array) @$url[2], @$url[3], @$url[4]);
         } else {
-            $url = HHttp::getBase() . $url;
+            $url = HHttp::getBaseUrl() . $url;
         }
 
         $el = new HHtml('a');
@@ -164,12 +163,12 @@ class HView
 
         return $el->get();
     }
-    
-	/*
-	 * Vyrenderuje stranku z view a layoutu
-	 * 
-	 * @return	void
-	 */
+
+    /*
+     * Vyrenderuje stranku z view a layoutu
+     *
+     * @return	void
+     */
     public function render()
     {
         ob_start();
@@ -186,7 +185,7 @@ class HView
 
     /*
      * Ulozi do seznamu promennych pro sablonu
-     * 
+     *
      * @param	string	jmeno promenne
      * @param	mixed	hodnota promenne
      * @return	boolean
@@ -203,7 +202,7 @@ class HView
     
     /*
      * Vrati hodnotu ze seznamu promennych pro sablonu
-     * 
+     *
      * @param	string	jmeno promenne
      * @return	mixed
      */
@@ -218,7 +217,7 @@ class HView
 
     /*
      * Parsuje sablonu
-     * 
+     *
      * @param	string	cesta k souboru
      * @param	array	pole s promennymi
      * @return	string
@@ -233,7 +232,7 @@ class HView
     /*
      * Vytvori cestu k view sablone
      * V pripade chyby vola prislusnou chybovou zpravu
-     * 
+     *
      * @return	void
      */
     private function makeViewPaths()
@@ -242,7 +241,8 @@ class HView
             $view = 'views/_errors/';
         } else {
             if ($this->viewName[0] !== '|') {
-                $view = 'views/' . HRouter::$controller . '/';
+                $controllerDir = HBasics::underscore(HApplication::$admin . HBasics::camelize(HRouter::$controller));
+                $view = 'views/' . $controllerDir . '/';
                 if (!empty(HRouter::$service)) {
                     $view .= HRouter::$service . '/';
                 }
@@ -273,15 +273,20 @@ class HView
     /*
      * Vytvori cestu k layout sablone
      * V nenalezeni layout sablony nastavi layout sablonu na false 
-     * 
+     *
      * @return	void
      */
     private function makeLayoutPaths()
     {
-    	$x = -1;
-        $layouts[] = APP . 'views/' . HBasics::underscore($this->layoutName) . '.phtml';
+        $admin = '';
+        if (!empty(HApplication::$admin)) {
+            $admin = HApplication::$admin . '_';
+        }
+        
+        $x = -1;
+        $layouts[] = APP  . 'views/' . HBasics::underscore($admin . $this->layoutName) . '.phtml';
         $layouts[] = CORE . 'views/' . HBasics::underscore($this->layoutName) . '.phtml';
-        $layouts[] = APP . 'views/layout.phtml';
+        $layouts[] = APP  . 'views/layout.phtml';
         $layouts[] = CORE . 'views/layout.phtml';
 
         foreach ($layouts as $x => $layout) {
@@ -291,10 +296,12 @@ class HView
         }
 
         if ($x === -1) {
-        	$this->layoutName = false;
+            $this->layoutName = false;
         } else {
-	        $this->layoutPath = $layouts[$x];
+            $this->layoutPath = $layouts[$x];
         }
     }
 
 }
+
+ob_start();

@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
 
@@ -52,7 +52,11 @@ class HDb
                 $serverName = substr($serverName, 4);
             }
 
-            dibi::connect($config[$serverName]);
+            if (isset($config[$serverName])) {
+            	dibi::connect($config[$serverName]);
+            } else {
+	            dibi::connect();
+            }
         } else {
             dibi::connect($config);
         }

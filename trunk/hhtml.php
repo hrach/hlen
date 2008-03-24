@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
 
@@ -26,7 +26,7 @@ class HHtml implements ArrayAccess
     /*
      * Vytvori html odkaz
      * Pokud nezadate druhy parametr, pouzije se jako text odkazu jeho url
-     * 
+     *
      * @param	string	url
      * @param	string	text odkazu
      * @return	string

@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
 
@@ -13,12 +13,12 @@
 class HBasics
 {
 
-	/*
-	 * Kamelizuje retezec
-	 * 
-	 * @param	string	retezec, ktery chcete kamelizovat
-	 * @return	string
-	 */
+    /*
+     * Kamelizuje retezec
+     *
+     * @param	string	retezec, ktery chcete kamelizovat
+     * @return	string
+     */
     public static function camelize($word)
     {
         $camelWord = str_replace(' ', '', ucwords(str_replace('_', ' ', $word)));
@@ -27,7 +27,7 @@ class HBasics
 
     /*
      * Velka pismena prevede na male a vlozi pred ne podtrzitko
-     * 
+     *
      * @param	string	retezec, ktery chcete prevest
      * @return	string
      */
@@ -44,7 +44,7 @@ class HBasics
      * U stare knihovny glic v inconv exstenzi nefungoval spravne prevod na ascii;
      * 		metoda proto obsahuje kontrolu, a pokud neni dostupna moderni knihovna libiconv,
      * 		prevede retezec na ascii sama; tento zpusob ale funguje pouze pro ceske a slovenske znaky  
-     * 
+     *
      * @param	string	retezec, ktery chcete prevest
      * @return	string
      */
@@ -67,5 +67,5 @@ class HBasics
         $title = preg_replace('~[^-a-z0-9_]+~', '', $title);
         return $title;
     }
-
+    
 }
