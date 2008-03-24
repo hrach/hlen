@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
 
@@ -17,23 +17,24 @@ class HController
 
     private $catchedArgs = array();
 
-	/*
-	 * Konstruktor
-	 * 
-	 * @return	void
-	 */
+    /*
+     * Konstruktor
+     *
+     * @return	void
+     */
     public function __construct()
     {
-        $this->view = new HView(&$this);
+        $this->view = new HView(& $this);
 
-        $this->view->baseUrl = HHttp::getBase();
-        $this->view->escape = 'htmlspecialchars';
-        $this->view->title = 'HLEN framework';
+        $this->view->baseUrl = HHttp::getBaseUrl();
+        $this->view->realUrl = HHttp::getRealUrl();
+        $this->view->escape  = 'htmlspecialchars';
+        $this->view->title   = 'HLEN framework';
     }
 
     /*
      * Presmeruje na novou url
-     * 
+     *
      * @param	string	url - relativni
      * @param	boolean	zavolat po presmerovani exit
      * @return	void
@@ -49,7 +50,7 @@ class HController
 
     /*
      * Zachyti argument pro jeho automaticke pouziti v url
-     * 
+     *
      * @param	string	jmeno argumentu
      * @return	boolean
      */
@@ -77,7 +78,7 @@ class HController
 
     /*
      * Vytvori URL v ramci frameworku
-     * 
+     *
      * @param	string	jmeno controlleru
      * @param	string	jmeno action
      * @param	array	argumenty
@@ -96,13 +97,13 @@ class HController
         }
 
         foreach ($args as $name => $value) {
-        	if (is_string($name) && !isset(HRouter::$replaceNamedArgs[$name])) {
-        		$args[$name] = $name . ':' . $value;
-        	}
+            if (is_string($name) && !isset(HRouter::$replaceNamedArgs[$name])) {
+                $args[$name] = $name . ':' . $value;
+            }
         }
 
         if ($inherited) {
-	        $args = array_merge($this->catchedArgs, $args);
+            $args = array_merge($this->catchedArgs, $args);
         }
         
         foreach ($args as $key => $value) {
@@ -123,29 +124,31 @@ class HController
                 case ':action':
                     if (!empty($action)) {
                         $newUrl[$index] = $action;
-                    } else {
+                    } elseif($inherited) {
                         $newUrl[$index] = HRouter::$action;
+                    } else {
+                        $newUrl[$index] = 'index';
                     }
                     break;
                 case ':arg':
                     $newUrl[$index] = array_shift($args);
-                	break;
+                    break;
                 default:
-                	$newUrl[$index] = $value;
+                    $newUrl[$index] = $value;
                     break;
             }
         }
 
         while (!empty($args)) {
-        	$newUrl[] = array_shift($args);
+            $newUrl[] = array_shift($args);
         }
-
+        
         return implode('/', $newUrl);
     }
 
     /*
      * Vrati pole se vsemi argumenty
-     * 
+     *
      * @return	array
      */
     public function getArgs()
@@ -155,48 +158,53 @@ class HController
 
     /*
      * Vrati hodnotu jmenneho argumentu
-     * 
-     * @param	string	jmeno argumentu
-     * @return	mixed	pokud argument neexistuje, vraci false
+     *
+     * @param   string	jmeno argumentu
+     * @param   mixed   defaultni hodnota, pokud argument neexistuje; nastaveno na false
+     * @return  mixed
      */
-    public function getArg($name)
+    public function getArg($name, $default = false)
     {
         if (isset(HRouter::$args[$name])) {
             return HRouter::$args[$name];
         } else {
-            return false;
+            return $default;
         }
     }
 
     /*
-     * Spusti rendering
-     * TUTO METODU NIKDY SAMI NEVOLEJTE
-     * 
-     * @return	void
+     * Spusti volani action a rendering
+     *
+     * @return  void
      */
     public function render()
     {
-        $actionName = HRouter::$action . 'Action';
-        $methodExists = method_exists(get_class($this), $actionName);
+        static $run = false;
 
-        if (!$methodExists) {
-            if (!HApplication::$error) {
-                HApplication::error('method');
-                $actionName = false;
+        if ($run === false) {
+            $run = true;
+            $actionName = HRouter::$action . 'Action';
+            $methodExists = method_exists(get_class($this), $actionName);
+
+            if (!$methodExists) {
+                if (!HApplication::$error) {
+                    HApplication::error('method');
+                    $actionName = false;
+                }
+            } else {
+                $this->view->view(HRouter::$action);
             }
-        } else {
-            $this->view->view(HRouter::$action);
-        }
 
-        if (method_exists($this, 'init')) {
-            call_user_func(array($this, 'init'));
-        }
+            if (method_exists($this, 'init')) {
+                call_user_func(array($this, 'init'));
+            }
 
-        if ($actionName !== false && $methodExists) {
-            call_user_func_array(array($this, $actionName), HRouter::$args);
-        }
+            if ($actionName !== false && $methodExists) {
+                call_user_func_array(array($this, $actionName), HRouter::$args);
+            }
 
-        $this->view->render();
+            $this->view->render();
+        }
     }
 
 }

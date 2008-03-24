@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
 
@@ -13,12 +13,12 @@
 class HHttp
 {
 
-	/*
-	 * Pokud je treba, odstrani automaticky magic quotes
-	 * 		z $_GET, $_POST, $_COOKIE a $_REQUEST
-	 * 
-	 * @return	void
-	 */
+    /*
+     * Pokud je treba, odstrani automaticky magic quotes
+     * 		z $_GET, $_POST, $_COOKIE a $_REQUEST
+     *
+     * @return	void
+     */
     public static function sanitizeData()
     {
         if (get_magic_quotes_gpc()) {
@@ -41,7 +41,7 @@ class HHttp
 
     /*
      * Zjisti, zda je volana stranka ajaxem
-     * 
+     *
      * @return	boolean
      */
     public static function isAjax()
@@ -54,7 +54,7 @@ class HHttp
 
     /*
      * Vrati IP uzivatele
-     * 
+     *
      * @return	string
      */
     public static function getIp()
@@ -64,7 +64,7 @@ class HHttp
 
     /*
      * Vrati metodu pozadavku
-     * 
+     *
      * @return	string
      */
     public static function getRequestMethod()
@@ -73,20 +73,53 @@ class HHttp
     }
 
     /*
-     * Vrati zakladni url
-     * Zakladni url se vztahuje vuci pozivi aplikace na serveru. Neobsahuje tedy jmeno serveru, ale pouze cestu
-     * 		v ramci nej
-     * Priklady:	aplikace bezi na				base url
-     * 				example.com						/
-     * 				test.example.com				/
-     * 				example.com/test				/test/
+     * Vrati zakladni url pro tvorbu odkazu
+     * Url se vztahuje JEN vuci aplikace na serveru.
+     * Pro zakladni url na css a jine soubory, tedy url ne-vedoucí do aplikace, využijte metodu HHttp::getRealUrl()
+     *
+     * Priklady se zapnutym mod_rewrite:
+     *              aplikace bezi na				base url
+     *              ----------------------------------------
+     *              example.com						/
+     *              test.example.com				/
+     *              example.com/test				/test/
+     *
+     * Priklady bez mod_rewrite:
+     *              example.com/index.php           /index.php/
+     *              example.com/test/framework.php  /test/framework.php/
      * 
-     * @return	string
+     * @return  string
      */
-    public static function getBase()
+    public static function getBaseUrl()
+    {
+        $app = class_exists('HApplication', false); 
+        if ($app) {
+            $rewrite = HConfigure::read('Core.mod.rewrite', true);
+        } else {
+            $rewrite = false;
+        }
+
+        if ($rewrite) {
+            $base = HHttp::sanitizeUrl(dirname($_SERVER['SCRIPT_NAME']));
+        } else {
+            $base = HHttp::sanitizeUrl($_SERVER['SCRIPT_NAME']);
+        }
+
+        if (empty($base)) {
+            return '/';
+        } else {
+            if ($app) {
+                return '/' . $base . '/';
+            } else {
+                return '/' . $base;
+            }
+        }
+    }
+    
+    public static function getRealUrl()
     {
         $base = HHttp::sanitizeUrl(dirname($_SERVER['SCRIPT_NAME']));
-
+        
         if (empty($base)) {
             return '/';
         } else {
@@ -96,7 +129,7 @@ class HHttp
 
     /*
      * Vrati domenove jmeno / jmeno serveru
-     * 
+     *
      * @return	string
      */
     public static function getDomain()
@@ -105,22 +138,22 @@ class HHttp
     }
 
     /*
-     * Vrati absolutni base url 
-     * 
+     * Vrati absolutni base url
+     *
      * @return	string
      */
     public static function getUrl()
     {
         $url  = 'http:' . (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '') . '//'
               . self::getDomain()
-              . self::getBase();
+              . self::getBaseUrl();
 
         return $url;
     }
 
     /*
      * Zasle presmerovaci hlavicku
-     * 
+     *
      * @param	string	absolutni url, na ktere chcete presmerovat
      * @param	integer	cislo presmerovaci hlavicky
      * @return	void
@@ -139,7 +172,7 @@ class HHttp
 
     /*
      * Zasle chybovou hlavicku
-     * 
+     *
      * @param	integer	cislo chybove hlavicky
      * @return	void
      */
@@ -165,7 +198,7 @@ class HHttp
     /*
      * Vrati hodnotu promenne predane pomoci post,
      * 		nebo pokud nezadate nazev promennet vraci pole vsech parametru
-     * 
+     *
      * @param	string	jmeno promenne
      * @return	mixed
      */
@@ -183,7 +216,7 @@ class HHttp
     /*
      * Vrati hodnotu promenne predane pomoci get,
      * 		nebo pokud nezadate nazev promennet vraci pole vsech parametru
-     * 
+     *
      * @param	string	jmeno promenne
      * @return	mixed
      */
@@ -200,7 +233,7 @@ class HHttp
 
     /*
      * Vraci routovaci url
-     * 
+     *
      * @return	string
      */
     public static function getRequestUrl()
@@ -220,7 +253,7 @@ class HHttp
 
     /*
      * Osetri url, aby na zacatku a na konci nebyly lomitka
-     * 
+     *
      * @param	string	url
      * @return	string
      */
@@ -231,7 +264,7 @@ class HHttp
 
     /*
      * Prevede url na pole, jednotlive prvky url jsou rozdeleny pomoci lomitek
-     * 
+     *
      * @param	string	url
      * @return	array
      */
@@ -249,7 +282,7 @@ class HHttp
     /*
      * Zkontroluje, zda nebyly odeslany hlavicky
      * V pripade ze ano, script ukonci a vypise chybovou hlasku
-     * 
+     *
      * @return	void
      */
     private static function checkHeaders()

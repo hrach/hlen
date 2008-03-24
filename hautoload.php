@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
 
@@ -15,12 +15,12 @@ class HAutoLoad
 
     public static $cacheFile;
     public static $classList = array();
-    public static $coreFiles = array('hdb', 'hcookie', 'hform','hsession', 'hhtml', 'hcontroller', 'hbasics');
+    public static $coreFiles = array('hdb', 'hcookie', 'hform','hsession', 'hhtml', 'hcontroller');
 
 
     /*
      * Zaregistruje auto-load
-     * 
+     *
      * @return	void
      */
     public static function registerAutoload()
@@ -33,7 +33,7 @@ class HAutoLoad
 
     /*
      * Handler pro auto-load
-     * 
+     *
      * @param	string	jmeno tridy
      * @return	void
      */
@@ -50,7 +50,7 @@ class HAutoLoad
 
     /*
      * Cachuje pole $class => $cesta
-     * 
+     *
      * @return	void
      */
     private static function createClassList()
@@ -64,14 +64,14 @@ class HAutoLoad
         } else {
             self::findClasses();
             if (file_exists(dirname(self::$cacheFile))) {
-            	file_put_contents(self::$cacheFile, serialize(self::$classList));	
+                file_put_contents(self::$cacheFile, serialize(self::$classList));	
             }
         }
     }
 
     /*
      * Vytvori pole $class => $cesta
-     * 
+     *
      * @retrun	void
      */
     private static function findClasses()
@@ -85,7 +85,7 @@ class HAutoLoad
 
     /*
      * Vrato soubory prislusneho adresare
-     * 
+     *
      * @param	string	cesta prohledavaneho adresare
      * @return	array
      */
@@ -111,7 +111,7 @@ class HAutoLoad
 
     /*
      * Najde v souboru vsechny tridy a ulozi cesty k nim
-     * 
+     *
      * @param	string	$file
      * @return	void
      */
