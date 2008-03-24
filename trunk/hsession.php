@@ -5,9 +5,11 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
+
+require_once dirname(__FILE__) . '/hhttp.php';
 
 
 class HSession
@@ -53,11 +55,30 @@ class HSession
     {
         if (function_exists('ini_set')) {
             ini_set('session.use_cookies', 1);
-            ini_set('session.name', HConfigure::read('Session.name', 'hlen-session'));
-            ini_set('session.cookie_lifetime', HConfigure::read('Session.expires', 3600));
-            ini_set('session.cookie_path', Hconfigure::read('Session.path', HHttp::getBase()));
-            ini_set('session.cookie_domain', Hconfigure::read('Session.domain', HHttp::getDomain()));
-            ini_set('session.save_path', Hconfigure::read('Session.temp', APP . 'temp'));
+            
+            $sname    = 'hlen-session';
+            $sexpires = 3600;
+            $spath    = HHttp::getRealUrl();
+            $sdomain  = HHttp::getDomain();
+            
+            if (class_exists('HApplication', false)) {
+                ini_set('session.save_path', Hconfigure::read('Session.temp', APP . 'temp'));    
+                $sname    = HConfigure::read('Session.name', $sname);
+                $sexpires = HConfigure::read('Session.expires', $sexpires);
+                $spath    = Hconfigure::read('Session.path', $spath);
+                $sdomain  = Hconfigure::read('Session.domain', $sdomain);
+            }
+
+            if (substr_count ($sdomain, ".") == 1) {
+                $sdomain = '.' . $sdomain;
+            } else {
+                $sdomain = preg_replace ('/^([^.])*/i', null, $sdomain);
+            }
+
+            ini_set('session.name', $sname);
+            ini_set('session.cookie_lifetime', $sexpires);
+            ini_set('session.cookie_path', $spath);
+            ini_set('session.cookie_domain', $sdomain);
         }
     }
 

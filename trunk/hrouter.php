@@ -5,7 +5,7 @@
  *
  * @author     Jan Skrasek <skrasek.jan@gmail.com>
  * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.4
+ * @version    0.5
  * @package    Hlen
  */
 
@@ -14,8 +14,6 @@ require_once dirname(__FILE__) . '/hhttp.php';
 
 class HRouter
 {
-
-    public static $routing = false;
 
     public static $segments = array();
     public static $baseRule = ':controller/:action/*';
@@ -31,6 +29,9 @@ class HRouter
     public static $service = false;
     public static $system = false;
 
+    private static $routing = false;
+
+    
     /*
      * Parsuje url a ulozi do $segements
      */
@@ -41,15 +42,15 @@ class HRouter
 
     /*
      * Prida sluzbu - renderovani alternativniho obsahu
-     * 
+     *
      * @param	string	jmeno sluzby
      */
     public static function addService($service)
     {
-		$lastKey = count(self::$segments) - 1;
+        $lastKey = count(self::$segments) - 1;
         
         if (self::$service === false && isset(self::$segments[$lastKey])
-        							 && self::$segments[$lastKey] === $service) {
+                                     && self::$segments[$lastKey] === $service) {
             self::$service = $service;
             array_pop(self::$segments);
         }
@@ -57,7 +58,7 @@ class HRouter
 
     /*
      * Interne prepise url pri shode s $rule na $newUrl
-     * 
+     *
      * @param	string	url, pri kterem prepsat
      * @param	string	nove url 
      */
@@ -76,7 +77,7 @@ class HRouter
 
     /*
      * Pripoji se k Url
-     * 
+     *
      * @param	string	url vyraz
      * @param	array	nastaveni
      * @param	array	prirazeni jmen argumentum, pravdilo klic a hodnota:
@@ -110,7 +111,7 @@ class HRouter
         if (($ruleCount > $segmentCount) ||
             ($ruleCount < $segmentCount && $multiArgs === false) ||
             ($ruleCount == 0 && $multiArgs === true)) {
-            	return false;
+                return false;
         }
 
         $key = -1;
@@ -120,7 +121,7 @@ class HRouter
 
                 if (isset($namedArg[$key])) {
                     $arg = array($namedArg[$key], $arg[1]);
-                	self::$replaceNamedArgs[$namedArg[$key]] = true;
+                    self::$replaceNamedArgs[$namedArg[$key]] = true;
                 }
 
                 if ($arg[0] === -1) {
@@ -177,9 +178,13 @@ class HRouter
                 }
             }
         }
+        
+        if (isset($options['admin']) && !empty($options['admin'])) {
+            HApplication::$admin = HBasics::camelize($options['admin']); 
+        }
 
         self::$controller = $router['controller'];
-        self::$action     = $router['action'];
+        self::$action     = strtolower($router['action']);
         self::$args       = $router['args'];
         self::$rule       = $router['rule'];
         self::$routing    = true;
@@ -189,7 +194,7 @@ class HRouter
 
     /*
      * Vrati segment z url
-     * 
+     *
      * @param	integer	cislo segmentu
      * @return	mixed	pokud segment neexistuje, vraci metoda false
      */
@@ -205,7 +210,7 @@ class HRouter
     /*
      * Argument je preveden na pole
      * Pokud je argument jmenny pak je jeho klic vracen misto zvlast a odstranen z hodnoty
-     * 
+     *
      * @param	string	argument
      * @return	array
      */
