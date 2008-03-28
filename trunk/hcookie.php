@@ -30,12 +30,12 @@ class HCookie
     public static function write($var, $val, $path = null, $domain = null)
     {
         self::checkHeaders();
-        
+
         $expires = 3600;
         if (class_exists('HApplication', false)) {
             $expires = HConfigure::read('Cookie.expires', $expires);
         }
-        
+
         setcookie($var, $val, time() + $expires, $path, $domain);
     }
 

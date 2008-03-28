@@ -10,17 +10,20 @@
  */
 
 
+/**
+ * Trida HDebug poskytuje sluzby okolo debugingu vasi aplikace
+ */
 class HDebug
 {
 
-	/*
-	 * Vypise lidsky-citelny obsah promenne
-	 * 
-	 * @param	mixed	promenna pro vypis
-	 * @param	boolean	vratit misto vypsani
-	 * @param	boolean	escapovat text
-	 * @return	void
-	 */
+    /**
+     * Vypise lidsky-citelny obsah a strukturu promenne
+     *
+     * @param   mixed   promenna pro vypis
+     * @param   bool    vratit misto vypsani
+     * @param   bool    escapovat text
+     * @return  void
+     */
     public static function dump($var, $return = false, $escapeHtml = true)
     {
         if ($escapeHtml) {
@@ -30,57 +33,57 @@ class HDebug
         }
 
         if ($return) {
-        	return '<pre style="text-align: left;">' . $content . '</pre>';        	
+            return '<pre style="text-align: left;">' . $content . '</pre>';
         } else {
-        	echo '<pre style="text-align: left;">' . $content . '</pre>';        	
+            echo '<pre style="text-align: left;">' . $content . '</pre>';
         }
     }
 
-    /*
+    /**
      * Zapne zachyceni neodchycenych vyjimek
-     * 
-     * @param	boolen	debug rezim
-     * @return	void 
+     *
+     * @param   bool    debug rezim
+     * @return  void
      */
     public static function enableExceptions($debug = false)
     {
-    	if ($debug) {
-			set_exception_handler(array('HDebug', 'exceptionHandler'));
-    	} else {
-	    	set_exception_handler(array('HDebug', 'exceptionHandlerApp'));
-    	}
+        if ($debug) {
+            set_exception_handler(array('HDebug', 'exceptionHandler'));
+        } else {
+            set_exception_handler(array('HDebug', 'exceptionHandlerApp'));
+        }
     }
-    
-    /*
+
+    /**
      * Zachyti neodchycene vyjimky a zobrazi podrobny vypis chyby
-     * 
-     * @param	Exception	nezachycena vyjimka
-     * @return	void 
+     *
+     * @param   Exception   nezachycena vyjimka
+     * @return  void
      */
     public static function exceptionHandler(Exception $exception)
     {
-    	require_once dirname(__FILE__) . '/hdebug_template.phtml';
+        require_once dirname(__FILE__) . '/hdebug_template.phtml';
     }
-    
-	/*
+
+    /**
      * Zachyti neodchycene vyjimky a zobrazi podrobny vypis chyby v ramci aplikace
      * Render pro koncove uzivatele
-     * 
-     * @param	Exception	nezachycena vyjimka
-     * @return	void 
+     *
+     * @param   Exception   nezachycena vyjimka
+     * @return  void
      */
     public static function exceptionHandlerApp(Exception $exception)
     {
-    	HApplication::$error = true;
-		HApplication::$controller = new Controller;
+        HApplication::$error = true;
+        HApplication::$controller = new Controller;
         HApplication::$controller->view->view('500');
         HApplication::$controller->view->render();
     }
-    
-    /*
+
+    /**
      * Zapne vypisovani chyb
-     * 
-     * @return	void
+     *
+     * @return  void
      */
     public static function enableErrors()
     {
@@ -90,10 +93,10 @@ class HDebug
         }
     }
 
-    /*
+    /**
      * Zapne lgovani chyb do souboru
-     * 
-     * @return	void
+     *
+     * @return  void
      */
     public static function logErrors()
     {

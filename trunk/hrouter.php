@@ -12,6 +12,9 @@
 require_once dirname(__FILE__) . '/hhttp.php';
 
 
+/**
+ * Trida HRouter routuje celou vasi aplikace
+ */
 class HRouter
 {
 
@@ -32,7 +35,7 @@ class HRouter
     private static $routing = false;
 
     
-    /*
+    /**
      * Parsuje url a ulozi do $segements
      */
     public static function staticConstruct()
@@ -40,10 +43,11 @@ class HRouter
         self::$segments = HHttp::urlToArray(HHttp::getRequestUrl());
     }
 
-    /*
+    /**
      * Prida sluzbu - renderovani alternativniho obsahu
      *
-     * @param	string	jmeno sluzby
+     * @param   string  jmeno sluzby
+     * @return  void
      */
     public static function addService($service)
     {
@@ -56,11 +60,13 @@ class HRouter
         }
     }
 
-    /*
+    /**
      * Interne prepise url pri shode s $rule na $newUrl
+     * Vhode pro zpetnou kompabilitu 
      *
-     * @param	string	url, pri kterem prepsat
-     * @param	string	nove url 
+     * @param   string  url, pri kterem prepsat
+     * @param   string  nove url
+     * @return  bool
      */
     public static function rewrite($rule, $newUrl)
     {
@@ -68,21 +74,21 @@ class HRouter
         $rule = HHttp::sanitizeUrl($rule);
 
         if ($url === $rule) {
-            self::$segments = HHttp::urlToArray($newUrl);
-            return true;
+            HHttp::headerRedirect(HHttp::getUrl() . $newUrl);
+            exit;
         }
 
         return false;
     }
 
-    /*
+    /**
      * Pripoji se k Url
      *
-     * @param	string	url vyraz
-     * @param	array	nastaveni
-     * @param	array	prirazeni jmen argumentum, pravdilo klic a hodnota:
-     * 					$poziceVurl => $jmenoArgumetnu
-     * @return	boolean
+     * @param   string  url vyraz
+     * @param   array   nastaveni
+     * @param   array   prirazeni jmen argumentum, pravdilo klic a hodnota:
+     *                  $poziceVurl => $jmenoArgumetnu
+     * @return  bool
      */
     public static function connect($rule, array $options = array(), array $namedArg = array())
     {
@@ -101,7 +107,7 @@ class HRouter
         $lastRuleKey   = count($rule) - 1;
         $multiArgs	   = false; 
         
-        if (isset($rule[$lastRuleKey]) && $rule[$lastRuleKey] === '*') {
+        if (isset($rule[$lastRuleKey]) && $rule[$lastRuleKey] == '*') {
             array_pop($rule);
             $multiArgs = true;
         }
@@ -192,11 +198,11 @@ class HRouter
         return true;
     }
 
-    /*
+    /**
      * Vrati segment z url
      *
-     * @param	integer	cislo segmentu
-     * @return	mixed	pokud segment neexistuje, vraci metoda false
+     * @param   int     cislo segmentu
+     * @return  mixed   pokud segment neexistuje, vraci metoda false
      */
     public static function getSegment($x)
     {
@@ -207,17 +213,17 @@ class HRouter
         return false;
     }
 
-    /*
+    /**
      * Argument je preveden na pole
      * Pokud je argument jmenny pak je jeho klic vracen misto zvlast a odstranen z hodnoty
      *
-     * @param	string	argument
-     * @return	array
+     * @param   string  argument
+     * @return  array
      */
     private static function sanitizeNamedArg($arg)
     {
         foreach (self::$allowedNamedArgs as $name) {
-        	$len = strlen($name) + 1;
+            $len = strlen($name) + 1;
             if ($name . ':' === substr($arg, 0, $len)) {
                 return array($name, substr($arg, $len));
             }

@@ -41,7 +41,7 @@ class HForm implements ArrayAccess
         if ($absoluteUrl) {
             $this->formElement['action'] = $url;
         } else {
-            $this->formElement['action'] = HHttp::getBaseUrl() . $url;
+            $this->formElement['action'] = HHttp::getInternalUrl() . $url;
         }
         $this->formElement['method'] = $method;
     }

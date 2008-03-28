@@ -9,9 +9,13 @@
  * @package    Hlen
  */
 
+require_once dirname(__FILE__) . '/hconfigure.php';
 require_once dirname(__FILE__) . '/components/dibi.compact.php';
 
 
+/**
+ * Trida HDb zapouzdruhe dibi knihovnu, pripoji se se spravnymi udaji
+ */
 class HDb
 {
 
@@ -19,64 +23,40 @@ class HDb
     private static $debug = false;
 
 
-    /*
-     * Pripoji se k databazi
-     * Pokud neni predan jako paramatr pole pripojeni, je nacteno z HConfigure::read('Db.connections')
-     * Format pole:
-     * 			array(
-     * 				'driver' => 'mysql',
-     * 				// e.g.
-     * 			)
-     * Pokud chcete vyuzit multi-pripojeni, vyzijte nasledujicho tvaru pole:
-     * 			array(
-     * 				'server.name.com' => array(
-     * 						'driver' => 'mysql',
-     * 						// e.g.
-     * 					)
-     * 			)
-     * 
-     * @param	array	pole s propojenim(i)
-     * @return	void
+    /**
+     * Pripoji se k databazi<br />
+     * Pokud neni predan jako parametr pole pripojeni, je nacteno z konfiguracni direktivi 'Db.connection'<br />
+     * Priklad pro rozdilnou serverovou konfiguraci naleznete na adrese http://hlen.programujte.com/manual/show/api-hconfigure.
+     *
+     * @param   array   nastaveni pripojeni
+     * @return  void
      */
     public static function connect(array $config = null)
     {
         self::$debug = HConfigure::read('Core.debug', 0) > 1;
         
         if ($config === null) {
-            $config = HConfigure::read('Db.connections');
+            $config = HConfigure::read('Db.connection');
         }
 
-        if (is_array($config)) {
-            $serverName = $_SERVER['SERVER_NAME'];
-            if (HConfigure::read('Db.trim.www', true) && substr($serverName, 0, 4) === 'www.') {
-                $serverName = substr($serverName, 4);
-            }
-
-            if (isset($config[$serverName])) {
-            	dibi::connect($config[$serverName]);
-            } else {
-	            dibi::connect();
-            }
-        } else {
-            dibi::connect($config);
-        }
+        dibi::connect($config);
 
         if (self::$debug) {
             dibi::addHandler(array('HDb', 'sqlHandler'));
         }
     }
 
-    /*
+    /**
      * Handler pro debug sql
-     * 
-     * @param	DibiConnection	pripojeni
-     * @param	DibiEvent		zprava
-     * @param	mixed			argument
-     * @return	void
+     *
+     * @param   DibiConnection  pripojeni
+     * @param   DibiEvent       zprava
+     * @param	mixed           argument
+     * @return  void
      */
     public static function sqlHandler($connection, $event, $arg)
     {
-        if ($event === 'afterQuery') {
+        if ($event == 'afterQuery') {
             self::$debugSql[] = array(
                 'query'		=> dibi::$sql,
                 'time'		=> dibi::$elapsedTime,
@@ -85,11 +65,11 @@ class HDb
         }
     }
 
-    /*
+    /**
      * Vypise sql debug
      * Jedna se o tabulku, bude umistena vlevo nahore. Specialne nasriptovana.
-     * 
-     * @return	string
+     *
+     * @return  string
      */
     public static function getDebug()
     {

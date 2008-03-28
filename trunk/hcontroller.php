@@ -12,32 +12,36 @@
 require_once dirname(__FILE__) . '/hview.php';
 
 
+/**
+ * Trida HController
+ */
 class HController
 {
 
     private $catchedArgs = array();
 
-    /*
+    /**
      * Konstruktor
      *
-     * @return	void
+     * @param   string  jmeno view tridy - muzete si vytvorit vlastni View tridu pro template systemy
+     * @return  void
      */
-    public function __construct()
+    public function __construct($viewClass = 'HView')
     {
-        $this->view = new HView(& $this);
+        $this->view = new $viewClass($this);
 
-        $this->view->baseUrl = HHttp::getBaseUrl();
+        $this->view->baseUrl = HHttp::getInternalUrl();
         $this->view->realUrl = HHttp::getRealUrl();
         $this->view->escape  = 'htmlspecialchars';
         $this->view->title   = 'HLEN framework';
     }
 
-    /*
+    /**
      * Presmeruje na novou url
      *
-     * @param	string	url - relativni
-     * @param	boolean	zavolat po presmerovani exit
-     * @return	void
+     * @param   string  url - relativni
+     * @param   bool    zavolat po presmerovani exit
+     * @return  void
      */
     public function redirect($url, $exit = true)
     {
@@ -48,11 +52,11 @@ class HController
         }
     }
 
-    /*
+    /**
      * Zachyti argument pro jeho automaticke pouziti v url
      *
-     * @param	string	jmeno argumentu
-     * @return	boolean
+     * @param   string  jmeno argumentu
+     * @return  bool
      */
     public function catchArg($name)
     {
@@ -67,7 +71,7 @@ class HController
         return false;
     }
 
-    /*
+    /**
      * Recaller metody HApplication::error()
      */
     public function error()
@@ -76,15 +80,15 @@ class HController
         call_user_func_array(array('HApplication', 'error'), $args);
     }
 
-    /*
+    /**
      * Vytvori URL v ramci frameworku
      *
-     * @param	string	jmeno controlleru
-     * @param	string	jmeno action
-     * @param	array	argumenty
-     * @param	boolean	zdedit arguemnty (dedi se pouze zachycene jmenne argumenty!)
-     * @param	string	pravidlo, podle ktereho se ma url vytvorit
-     * @return	string
+     * @param   string  jmeno controlleru
+     * @param   string  jmeno action
+     * @param   array   argumenty
+     * @param   bool    zdedit arguemnty (dedi se pouze zachycene jmenne argumenty!)
+     * @param   string  pravidlo, podle ktereho se ma url vytvorit
+     * @return  string
      */
     public function url($controller = null, $action = null, array $args = array(), $inherited = true, $rule = null)
     {
@@ -146,20 +150,20 @@ class HController
         return implode('/', $newUrl);
     }
 
-    /*
+    /**
      * Vrati pole se vsemi argumenty
      *
-     * @return	array
+     * @return  array
      */
     public function getArgs()
     {
         return HRouter::$args;
     }
 
-    /*
+    /**
      * Vrati hodnotu jmenneho argumentu
      *
-     * @param   string	jmeno argumentu
+     * @param   string  jmeno argumentu
      * @param   mixed   defaultni hodnota, pokud argument neexistuje; nastaveno na false
      * @return  mixed
      */
@@ -172,7 +176,7 @@ class HController
         }
     }
 
-    /*
+    /**
      * Spusti volani action a rendering
      *
      * @return  void
