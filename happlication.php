@@ -24,7 +24,11 @@ require_once dirname(__FILE__) . '/hbasics.php';
 require_once dirname(__FILE__) . '/hrouter.php';
 require_once dirname(__FILE__) . '/hhttp.php';
 
+HConfigure::loadYaml(APP . 'config.yaml');
 
+/**
+ * Trida HApplication ma na starost cely chod aplikace
+ */
 class HApplication
 {
 
@@ -33,10 +37,12 @@ class HApplication
     static public $admin;
     static public $error = false;
 
-    /*
-     * Spustí celou aplikaci
+    /**
+     * Spustí celou aplikaci:<br />
+     * Pokud je aktivni debug mod, zapne odchycení chyb.<br />
+     * Po provedení pozadavku vypise debug informace.
      *
-     * @return	void
+     * @return  void
      */
     public static function run()
     {
@@ -66,12 +72,12 @@ class HApplication
         }
     }
 
-    /*
-     * Zobrazi chybovou chybovou zpravu
-     * Pokud je ladici rezim vypnut, zobrazi se chyba 404
+    /**
+     * Zobrazi chybovou chybovou zpravu.<br />
+     * Pokud je ladici rezim vypnut, zobrazi se chyba 404.
      *
-     * @param	string	jmeno view
-     * @return	void
+     * @param   string  jmeno view
+     * @return  void
      */
     public static function error($view)
     {
@@ -85,11 +91,11 @@ class HApplication
         }
     }
 
-    /*
+    /**
      * Vytvori controller; vola prislusne chybove metody
      *
-     * @param	string	jmeno controlleru
-     * @return	void
+     * @param   string  jmeno controlleru
+     * @return  void
      */
     private static function createController($controllerName)
     {

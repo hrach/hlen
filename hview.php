@@ -10,88 +10,94 @@
  */
 
 
+/**
+ * Trida HView obstarava nacitani view a layoutu, ukladani promenych a take tvorbu odkazu
+ */
 class HView
 {
 
+    protected $ext = '.phtml';
+    
     private $vars = array();
     private $viewPath;
     private $viewName;
     private $layoutPath;
     private $layoutName = 'layout';
+    private $theme = false;
 
 
-    /*
+    /**
      * Kontruktor
      * Pøidá mezi promìnné referenci na controller
      *
-     * @param	HController	reference na controller
-     * @return void
+     * @param   HController reference na controller
+     * @return  void
      */
-    public function __construct(HController $controller)
+    public function __construct(HController & $controller)
     {
         $this->vars['controller'] = $controller;
     }
 
-    /*
+    /**
      * Nastaví view sablonu
      * Jmeno predavejte bez pripony
      * Pokud chcete urcit cestu k sablone primo, zadejte pred retezec znak |
      *
-     * @param	string jmeno sablony
-     * @return	void 
+     * @param   string jmeno sablony
+     * @return  void
      */
     public function view($viewName)
     {
         $this->viewName = $viewName;
     }
 
-    /*
+    /**
      * Nastavi layout sablonu
      * Jmeno predavejte bez pripony
      * Pokud zadate false, nepouzije se zadna sablona
      *
-     * @param	string	jemeno sablony
-     * @return	void
+     * @param   string  jemeno sablony
+     * @return  void
      */
     public function layout($layoutName)
     {
         $this->layoutName = $layoutName;
     }
 
-    /*
+    /**
      * Vrati jmeno view sablony, bez pripony
      *
-     * @return	string
+     * @return  string
      */
     public function getView()
     {
         return $this->viewName;
     }
 
-    /*
+    /**
      * Vrati jmeno layout sablony, bez pripony
      *
-     * @return	string
+     * @return  string
      */
     public function getLayout()
     {
         return $this->layoutName;
     }
 
-    /*
+    /**
      * Vrati cestu k view sablone
      *
-     * @return	string
+     * @return  string
      */
     public function getViewPath()
     {
         return $this->viewPath;
     }
 
-    /*
+    /**
      * Vrati cestu k view layoutu
      *
-     * @return	string
+     * @return  string
      */
 
     public function getLayoutPath()
@@ -99,7 +105,29 @@ class HView
         return $this->layoutPath;
     }
 
-    /*
+    /**
+     * Nastavi view tema
+     * Temata vypnete pomoci false
+     *
+     * @param   string  jmeno tematu
+     * @return  void
+     */
+    public function theme($themeName)
+    {
+        $this->theme = $themeName;
+    }
+
+    /**
+     * Vrati jmeno tematu
+     *
+     * @return  mixed
+     */
+    public function getTheme()
+    {
+        return $this->theme;        
+    }
+
+    /**
      * Recaller metody HApplication::error()
      */
     public function error()
@@ -108,7 +136,7 @@ class HView
         call_user_func_array(array('HApplication', 'error'), $args);
     }
 
-    /*
+    /**
      * Recaller metody HController::url()
      */
     public function url()
@@ -117,29 +145,29 @@ class HView
         return call_user_func_array(array(HApplication::$controller, 'url'), $args);
     }
 
-    /*
+    /**
      * Naètení externího kodu
      *
-     * @param	string	jmeno souboru bez pripony
-     * @return	void
+     * @param   string  jmeno souboru bez pripony
+     * @return  void
      */
     public function load($name)
     {
         extract($this->vars);
-        $fileName = APP . "views/$name.phtml";
+        $fileName = APP . "views/" . $name . $this->ext;;
         if (file_exists($fileName)) {
             include $fileName;
         }
     }
 
-    /*
+    /**
      * Vytvori odkaz v zavislosti na systemovem routingu
      *
-     * @param	string	text odkazu
-     * @param	mixed	1) pole s paramtery pro funkci HApplication::url()
-     * 					2) retezec s url
-     * @param	array	pole s atributy
-     * @return	string
+     * @param   string  text odkazu
+     * @param   mixed   1) pole s paramtery pro funkci HApplication::url()
+     *                  2) retezec s url
+     * @param   array   pole s atributy
+     * @return  string
      */
     public function link($title, $url = array(), array $attributs = array())
     {
@@ -148,9 +176,9 @@ class HView
         }
 
         if (is_array($url)) {
-            $url = HHttp::getBaseUrl() . HApplication::$controller->url(@$url[0], @$url[1], (array) @$url[2], @$url[3], @$url[4]);
+            $url = HHttp::getInternalUrl() . HApplication::$controller->url(@$url[0], @$url[1], (array) @$url[2], @$url[3], @$url[4]);
         } else {
-            $url = HHttp::getBaseUrl() . $url;
+            $url = HHttp::getInternalUrl() . $url;
         }
 
         $el = new HHtml('a');
@@ -164,10 +192,10 @@ class HView
         return $el->get();
     }
 
-    /*
+    /**
      * Vyrenderuje stranku z view a layoutu
      *
-     * @return	void
+     * @return  void
      */
     public function render()
     {
@@ -183,12 +211,12 @@ class HView
         }
     }
 
-    /*
+    /**
      * Ulozi do seznamu promennych pro sablonu
      *
-     * @param	string	jmeno promenne
-     * @param	mixed	hodnota promenne
-     * @return	boolean
+     * @param   string  jmeno promenne
+     * @param   mixed   hodnota promenne
+     * @return  boolean
      */
     public function __set($name, $value)
     {
@@ -200,11 +228,11 @@ class HView
         return true;
     }
     
-    /*
+    /**
      * Vrati hodnotu ze seznamu promennych pro sablonu
      *
-     * @param	string	jmeno promenne
-     * @return	mixed
+     * @param   string  jmeno promenne
+     * @return  mixed
      */
     public function __get($name)
     {
@@ -215,12 +243,12 @@ class HView
         return false;
     }
 
-    /*
+    /**
      * Parsuje sablonu
      *
-     * @param	string	cesta k souboru
-     * @param	array	pole s promennymi
-     * @return	string
+     * @param   string  cesta k souboru
+     * @param   array   pole s promennymi
+     * @return  string
      */
     private function parse($parsedFile, $parsedVars)
     {
@@ -228,12 +256,26 @@ class HView
         include $parsedFile;
         return ob_get_clean();
     }
-    
-    /*
+
+    /**
+     * Vrati cast cesty nastaveneho tematu
+     *
+     * @return string
+     */
+    private function getThemePath()
+    {
+        if ($this->theme === false) {
+            return '';
+        } else {
+            return $this->theme . '/';
+        }
+    }
+
+    /**
      * Vytvori cestu k view sablone
      * V pripade chyby vola prislusnou chybovou zpravu
      *
-     * @return	void
+     * @return  void
      */
     private function makeViewPaths()
     {
@@ -242,7 +284,7 @@ class HView
         } else {
             if ($this->viewName[0] !== '|') {
                 $controllerDir = HBasics::underscore(HApplication::$admin . HBasics::camelize(HRouter::$controller));
-                $view = 'views/' . $controllerDir . '/';
+                $view = 'views/' . $this->getThemePath() . $controllerDir . '/';
                 if (!empty(HRouter::$service)) {
                     $view .= HRouter::$service . '/';
                 }
@@ -252,7 +294,7 @@ class HView
             }
         }
 
-        $view .= HBasics::underscore($this->viewName) . '.phtml';
+        $view .= HBasics::underscore($this->viewName) . $this->ext;
         $this->viewPath = $view;
 
         if (file_exists(APP . $view)) {
@@ -263,18 +305,18 @@ class HView
             if (HApplication::$error && $this->viewName == 'view') {
                 die('Instalace frameworku je poskozena. Prosim, provedte aktualizaci knihoven a souboru. Chybi soubor: ' . $view);
             } else {
-            	$this->missingView = $view;
+                $this->missingView = $view;
                 HApplication::error('view');
                 $this->makeViewPaths();
             }
         }
     }
 
-    /*
+    /**
      * Vytvori cestu k layout sablone
      * V nenalezeni layout sablony nastavi layout sablonu na false 
      *
-     * @return	void
+     * @return  void
      */
     private function makeLayoutPaths()
     {
@@ -284,10 +326,9 @@ class HView
         }
         
         $x = -1;
-        $layouts[] = APP  . 'views/' . HBasics::underscore($admin . $this->layoutName) . '.phtml';
+        $layouts[] = APP  . 'views/' . $this->getThemePath(). HBasics::underscore($admin . $this->layoutName) . $this->ext;
         $layouts[] = CORE . 'views/' . HBasics::underscore($this->layoutName) . '.phtml';
-        $layouts[] = APP  . 'views/layout.phtml';
-        $layouts[] = CORE . 'views/layout.phtml';
+        $layouts[] = APP  . 'views/layout' . $this->ext;
 
         foreach ($layouts as $x => $layout) {
             if (file_exists($layout)) {

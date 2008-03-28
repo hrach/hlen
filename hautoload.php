@@ -10,6 +10,9 @@
  */
 
 
+/**
+ * Trida HAutoload nacita vsechny potrebne tridy pro beh aplikace
+ */
 class HAutoLoad
 {
 
@@ -18,10 +21,10 @@ class HAutoLoad
     public static $coreFiles = array('hdb', 'hcookie', 'hform','hsession', 'hhtml', 'hcontroller');
 
 
-    /*
+    /**
      * Zaregistruje auto-load
      *
-     * @return	void
+     * @return  void
      */
     public static function registerAutoload()
     {
@@ -31,11 +34,11 @@ class HAutoLoad
         spl_autoload_register(array('HAutoLoad', 'autoLoadHandler'));
     }
 
-    /*
+    /**
      * Handler pro auto-load
      *
-     * @param	string	jmeno tridy
-     * @return	void
+     * @param   string  jmeno tridy
+     * @return  void
      */
     public static function autoLoadHandler($className)
     {
@@ -48,10 +51,10 @@ class HAutoLoad
         }
     }
 
-    /*
+    /**
      * Cachuje pole $class => $cesta
      *
-     * @return	void
+     * @return  void
      */
     private static function createClassList()
     {
@@ -69,10 +72,10 @@ class HAutoLoad
         }
     }
 
-    /*
+    /**
      * Vytvori pole $class => $cesta
      *
-     * @retrun	void
+     * @retrun  void
      */
     private static function findClasses()
     {
@@ -83,11 +86,11 @@ class HAutoLoad
         }
     }
 
-    /*
+    /**
      * Vrato soubory prislusneho adresare
      *
-     * @param	string	cesta prohledavaneho adresare
-     * @return	array
+     * @param   string  cesta prohledavaneho adresare
+     * @return  array
      */
     private static function getFiles($dir)
     {
@@ -109,11 +112,11 @@ class HAutoLoad
         return $files;
     }
 
-    /*
+    /**
      * Najde v souboru vsechny tridy a ulozi cesty k nim
      *
-     * @param	string	$file
-     * @return	void
+     * @param   string  $file
+     * @return  void
      */
     private static function getClasses($file) {
         $catch = false;
