@@ -10,6 +10,9 @@
  */
 
 
+/**
+ * Trida HHtml vam pomuze pri tvorbe html tagu
+ */
 class HHtml implements ArrayAccess
 {
 
@@ -23,13 +26,13 @@ class HHtml implements ArrayAccess
     );
 
 
-    /*
+    /**
      * Vytvori html odkaz
      * Pokud nezadate druhy parametr, pouzije se jako text odkazu jeho url
      *
-     * @param	string	url
-     * @param	string	text odkazu
-     * @return	string
+     * @param   string  url
+     * @param   string  text odkazu
+     * @return  string
      */
     public static function link($href, $text = null) {
         $link = new HHtml('a');

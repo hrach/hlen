@@ -10,14 +10,17 @@
  */
 
 
+/**
+ * Trida HBasics poskytuje casto pouzivane funkce, zatim v oblasti retezcu
+ */
 class HBasics
 {
 
-    /*
+    /**
      * Kamelizuje retezec
      *
-     * @param	string	retezec, ktery chcete kamelizovat
-     * @return	string
+     * @param   string  retezec, ktery chcete kamelizovat
+     * @return  string
      */
     public static function camelize($word)
     {
@@ -25,11 +28,11 @@ class HBasics
         return $camelWord;
     }
 
-    /*
+    /**
      * Velka pismena prevede na male a vlozi pred ne podtrzitko
      *
-     * @param	string	retezec, ktery chcete prevest
-     * @return	string
+     * @param   string  retezec, ktery chcete prevest
+     * @return  string
      */
     public static function underscore($word)
     {
@@ -37,16 +40,16 @@ class HBasics
         return $underscoreWord;
     }
 
-    /*
+    /**
      * Vytvori z retezce jeho reprezentaci vhodnou pro url
      * Preved vsechny znaky na mala pismena, vsechny ne-alfanumericke znaky nahradi pomlckou;
-     * 		odstrani pripadne pomlcky za sebou
+     *      odstrani pripadne pomlcky za sebou
      * U stare knihovny glic v inconv exstenzi nefungoval spravne prevod na ascii;
-     * 		metoda proto obsahuje kontrolu, a pokud neni dostupna moderni knihovna libiconv,
-     * 		prevede retezec na ascii sama; tento zpusob ale funguje pouze pro ceske a slovenske znaky  
+     *      metoda proto obsahuje kontrolu, a pokud neni dostupna moderni knihovna libiconv,
+     *      prevede retezec na ascii sama; tento zpusob ale funguje pouze pro ceske a slovenske znaky
      *
-     * @param	string	retezec, ktery chcete prevest
-     * @return	string
+     * @param   string  retezec, ktery chcete prevest
+     * @return  string
      */
     public static function coolUrl($title) {
         $title = preg_replace('~[^\\pL0-9_]+~u', '-', $title);
@@ -67,5 +70,5 @@ class HBasics
         $title = preg_replace('~[^-a-z0-9_]+~', '', $title);
         return $title;
     }
-    
+
 }
