@@ -3,10 +3,10 @@
 /**
  * HLEN FRAMEWORK
  *
- * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.5
- * @package    Hlen
+ * @author      Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright   Copyright (c) 2008, Jan Skrasek
+ * @version     0.5 $WCREV$
+ * @package     Hlen
  */
 
 HApplication::$startTime = microtime(true);
@@ -25,6 +25,7 @@ require_once dirname(__FILE__) . '/hrouter.php';
 require_once dirname(__FILE__) . '/hhttp.php';
 
 HConfigure::loadYaml(APP . 'config.yaml');
+
 
 /**
  * Trida HApplication ma na starost cely chod aplikace
@@ -77,17 +78,18 @@ class HApplication
      * Pokud je ladici rezim vypnut, zobrazi se chyba 404.
      *
      * @param   string  jmeno view
+     * @param   bool    nahradit v non-debug 404
      * @return  void
      */
-    public static function error($view)
+    public static function error($view, $debug = false)
     {
-        self::$error  = true;
+        self::$error = true;
 
-        if (HConfigure::read('Core.debug', 0) > 0) {
-            self::$controller->view->view($view);
-        } else {
+        if ($debug === true && HConfigure::read('Core.debug', 0) === 0) {
             HHttp::headerError('404');
             self::$controller->view->view('404');
+        } else {
+            self::$controller->view->view($view);
         }
     }
 
@@ -103,14 +105,20 @@ class HApplication
             eval('class Controller extends HController {}');
         }
 
-        $controllerClass = self::$admin . HBasics::camelize($controllerName) . 'Controller';
+        $namespace = null;
+        if (HRouter::$namespace !== false) {
+            $namespace = HBasics::camelize(HRouter::$namespace);
+        }
+
+        $controllerClass = $namespace . HBasics::camelize($controllerName) . 'Controller';
 
         if ($controllerClass === 'Controller') {
             self::$controller = new Controller;
-            self::error('routing');
+            self::error('routing', true);
         } elseif (!class_exists($controllerClass)) {
             self::$controller = new Controller;
-            self::error('controller');
+            self::error('controller', true);
+            self::$controller->view->missingController = $controllerClass;
         } else {
             self::$controller = new $controllerClass;
         }

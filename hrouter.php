@@ -3,10 +3,10 @@
 /**
  * HLEN FRAMEWORK
  *
- * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.5
- * @package    Hlen
+ * @author      Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright   Copyright (c) 2008, Jan Skrasek
+ * @version     0.5 $WCREV$
+ * @package     Hlen
  */
 
 require_once dirname(__FILE__) . '/hhttp.php';
@@ -19,8 +19,6 @@ class HRouter
 {
 
     public static $segments = array();
-    public static $baseRule = ':controller/:action/*';
-
     public static $allowedNamedArgs = array();
     public static $replaceNamedArgs = array();
 
@@ -28,13 +26,14 @@ class HRouter
     public static $action;
     public static $args = array();
     public static $rule = array();
+    public static $namespace = false;
 
     public static $service = false;
     public static $system = false;
 
     private static $routing = false;
 
-    
+
     /**
      * Parsuje url a ulozi do $segements
      */
@@ -52,7 +51,7 @@ class HRouter
     public static function addService($service)
     {
         $lastKey = count(self::$segments) - 1;
-        
+
         if (self::$service === false && isset(self::$segments[$lastKey])
                                      && self::$segments[$lastKey] === $service) {
             self::$service = $service;
@@ -74,7 +73,7 @@ class HRouter
         $rule = HHttp::sanitizeUrl($rule);
 
         if ($url === $rule) {
-            HHttp::headerRedirect(HHttp::getUrl() . $newUrl);
+            HHttp::headerRedirect(HHttp::getServerUrl() . HHttp::getInternalUrl() . $newUrl);
             exit;
         }
 
@@ -105,8 +104,8 @@ class HRouter
         $rule          = HHttp::urlToArray($rule);
         $segmentCount  = count(self::$segments);
         $lastRuleKey   = count($rule) - 1;
-        $multiArgs	   = false; 
-        
+        $multiArgs     = false;
+
         if (isset($rule[$lastRuleKey]) && $rule[$lastRuleKey] == '*') {
             array_pop($rule);
             $multiArgs = true;
@@ -152,7 +151,7 @@ class HRouter
             $router['action'] = $options['action'];
         }
 
-        if (isset($options['rule'])) {
+        if (isset($options['rule']) && !empty($options['rule'])) {
             $router['rule'] = HHttp::urlToArray($options['rule']);
         } else {
             $router['rule'] = $rule;
@@ -184,9 +183,9 @@ class HRouter
                 }
             }
         }
-        
-        if (isset($options['admin']) && !empty($options['admin'])) {
-            HApplication::$admin = HBasics::camelize($options['admin']); 
+
+        if (isset($options['namespace']) && !empty($options['namespace'])) {
+            self::$namespace = $options['namespace'];
         }
 
         self::$controller = $router['controller'];
