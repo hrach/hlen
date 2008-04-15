@@ -3,10 +3,10 @@
 /**
  * HLEN FRAMEWORK
  *
- * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.5
- * @package    Hlen
+ * @author      Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright   Copyright (c) 2008, Jan Skrasek
+ * @version     0.5 $WCREV$
+ * @package     Hlen
  */
 
 
@@ -62,6 +62,7 @@ class HDebug
      */
     public static function exceptionHandler(Exception $exception)
     {
+        ob_clean();
         require_once dirname(__FILE__) . '/hdebug_template.phtml';
     }
 
