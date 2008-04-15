@@ -1,73 +1,63 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="robots" content="noindex,noarchive" />
-	<meta name="generator" content="Hlen Framework" />
-	<title>Nezechycena výjimka - Hlen framework</title>
-	<style type="text/css" media="screen">
-	body {
-		font-family: sans-serif;
-		padding: 0;
-		margin: 0;
-	} 
-	a {
-		color: #079fd8;
-		text-decoration: none
-	} 
-	a:hover {
-		text-decoration: underline;
-	} 
-	h1 {
-		background: #dff4ff;
-		border-bottom: 2px solid #079fd8;
-		color: #80011f;
-		font-size: 22px;
-		margin: 0;
-		padding: 10px 20px;
-	}
-	h2 {
-		color: #00526f;
-		font-size: 18px;
-		margin: 0;
-	}
-	code{
-		background: #eff9ff;
-		border: 1px solid #d1e4ef;
-		padding: 1px;
-	}	
-	pre {
-		background: #f8f4ed;
-		border: 1px solid #efeae0;
-		font-size: 12px;
-		margin: 0;
-	}
-	</style>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="noindex,noarchive" />
+    <meta name="generator" content="Hlen Framework" />
+    <title>Neodchycená výjimka - HLEN framework</title>
+    <style type="text/css" media="screen">
+    body {
+        background: #f8f4ed;
+        font-family: sans-serif;
+        padding: 0;
+        margin: 0;
+    } 
+    a {
+        color: #079fd8;
+        text-decoration: none
+    } 
+    a:hover {
+        text-decoration: underline;
+    } 
+    h1 {
+        background: #f2fafe;
+        border-bottom: 3px solid #d5effb;
+        font-size: 22px;
+        margin: 0;
+        padding: 5px 20px;
+    }
+    h2 {
+        font-size: 18px;
+        margin: 0;
+    }
+    code{
+        background: white;
+        border: 1px solid #dfd5c3;
+        padding: 2px 3px;
+    }    
+    pre {
+        background: white;
+        border: 1px solid #dfd5c3;
+        padding: 2px 3px;
+        font-size: 12px;
+        margin: 0;
+    }
+    </style>
 </head>
 <body>
-	<h1>Nezachycena výjimka</h1>
-	
-	<div style="padding: 10px 20px;">
-	
-	<p>
-	<h2>Zpráva:</h2>
-	<code><?= $exception->getMessage(); ?></code>
-	</p>
-	
-	<p>
-	<h2>Soubor:</h2>
-	<code><?= $exception->getFile(); ?></code> - na řádku <code><?= $exception->getLine(); ?></code>
-	</p>
+<h1>Neodchycená výjimka - HLEN framework</h1>
+<div style="padding: 10px 20px;">
+    <h3 style="color: #75011b;"><?= $exception->getMessage(); ?></h3>
+    řádek <code><?= $exception->getLine(); ?></code> - <code><?= $exception->getFile(); ?></code>
 
-	<p>
-	<h2>Trasování:</h2>
-	<?= preg_replace('#(\[password\]\s=&gt;\s).+#mi', '$1***chraneno***', hdebug::dump($exception->getTrace(), true)) ?>
-	</p>
-	
-	<p>
-    Vygenerováno v <?php echo date('d.m.Y - h:i') ?><br />
-    <a href="http://hlen.programujte.com"><img src="http://hlen.programujte.com/design/hlen-powered.png" alt="hlen powered" style="border:0;" /></a>
+    <br /><br />
+    <?= preg_replace('#(\[password\]\s=&gt;\s).+#mi', '$1*CHRANENO*', hdebug::dump($exception->getTrace(), true)) ?>
+
+    <p>
+        Vygenerováno v <?php echo date('h:i - d.m.Y') ?><br />
+        HLEN framework - v 0.5<br /><br />
+        <a href="http://hlen.programujte.com"><img src="http://hlen.programujte.com/design/hlen-powered.png" alt="hlen powered" /></a>
     </p>
-	</div>
+</div>
 </body>
 </html>

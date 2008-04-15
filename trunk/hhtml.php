@@ -3,10 +3,10 @@
 /**
  * HLEN FRAMEWORK
  *
- * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.5
- * @package    Hlen
+ * @author      Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright   Copyright (c) 2008, Jan Skrasek
+ * @version     0.5 $WCREV$
+ * @package     Hlen
  */
 
 
@@ -32,12 +32,14 @@ class HHtml implements ArrayAccess
      *
      * @param   string  url
      * @param   string  text odkazu
+     * @param   array   pole s atributy
      * @return  string
      */
-    public static function link($href, $text = null) {
+    public static function link($href, $text = null, array $attrs = array()) {
         $link = new HHtml('a');
-        $link['href'] = $href;
+        $link->importAttrs($attrs);
 
+        $link['href'] = $href;
         if ($text === null) {
             $link->setContent($href);
         } else {
@@ -84,6 +86,13 @@ class HHtml implements ArrayAccess
     {
         if (!in_array($this->element, $this->emptyElements)) {
             return '</' . $this->element . '>';
+        }
+    }
+
+    public function importAttrs(array $attrs)
+    {
+        foreach ($attrs as $key => $val) {
+            $this->data[$key] = $val;
         }
     }
 

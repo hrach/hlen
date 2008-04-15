@@ -3,10 +3,10 @@
 /**
  * HLEN FRAMEWORK
  *
- * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.5
- * @package    Hlen
+ * @author      Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright   Copyright (c) 2008, Jan Skrasek
+ * @version     0.5 $WCREV$
+ * @package     Hlen
  */
 
 require_once dirname(__FILE__) . '/hview.php';
@@ -23,17 +23,18 @@ class HController
     /**
      * Konstruktor
      *
-     * @param   string  jmeno view tridy - muzete si vytvorit vlastni View tridu pro template systemy
+     * @param   string  jmeno view tridy
      * @return  void
      */
     public function __construct($viewClass = 'HView')
     {
-        $this->view = new $viewClass($this);
+        $this->view = new $viewClass();
 
-        $this->view->baseUrl = HHttp::getInternalUrl();
-        $this->view->realUrl = HHttp::getRealUrl();
-        $this->view->escape  = 'htmlspecialchars';
-        $this->view->title   = 'HLEN framework';
+        $this->view->controller = $this;
+        $this->view->baseUrl    = HHttp::getInternalUrl();
+        $this->view->realUrl    = HHttp::getRealUrl();
+        $this->view->escape     = 'htmlspecialchars';
+        $this->view->title      = 'HLEN framework';
     }
 
     /**
@@ -41,11 +42,15 @@ class HController
      *
      * @param   string  url - relativni
      * @param   bool    zavolat po presmerovani exit
+     * @param   bool    predana absolutni interni url
      * @return  void
      */
-    public function redirect($url, $exit = true)
+    public function redirect($url, $exit = true, $absoluteiUrl = true)
     {
-        HHttp::headerRedirect(HHttp::getUrl() . $url);
+        if (!$absoluteiUrl) {
+            $url = HHttp::getInternalUrl() . $url;
+        }
+        HHttp::headerRedirect(HHttp::getServerUrl() . $url);
 
         if ($exit) {
             exit;
@@ -61,62 +66,76 @@ class HController
     public function catchArg($name)
     {
         if (is_string($name) && isset(HRouter::$args[$name])) {
-            if (!isset(HRouter::$replaceNamedArgs[$name])) {
-                $this->catchedArgs[$name] = $name . ':' . HRouter::$args[$name];
-            } else {
-                $this->catchedArgs[$name] = HRouter::$args[$name];
-            }
+            $this->catchedArgs[$name] = HRouter::$args[$name];
             return true;
         }
         return false;
     }
 
     /**
-     * Recaller metody HApplication::error()
+     * Vrati pole/url-retezec argumentu
+     *
+     * @param   array           pole novych argumetnu
+     * @param   bool            dedit argumenty
+     * @param   bool            vratit pole
+     * @return  string|array
      */
-    public function error()
+    public function urlArgs(array $args = array(), $inherited = true, $returnArray = false)
     {
-        $args = func_get_args();
-        call_user_func_array(array('HApplication', 'error'), $args);
+        if ($inherited) {
+            $args = array_merge($this->catchedArgs, $args);
+        }
+
+        foreach ($args as $name => $value) {
+            if ($value === false) {
+                unset($args[$name]);
+            } elseif (is_string($name) && !isset(HRouter::$replaceNamedArgs[$name])) {
+                $args[$name] = $name . ':' . $value;
+            }
+        }
+
+        if ($returnArray) {
+            return $args;
+        } else {
+            return implode('/', $args);
+        }
     }
 
     /**
      * Vytvori URL v ramci frameworku
      *
-     * @param   string  jmeno controlleru
-     * @param   string  jmeno action
-     * @param   array   argumenty
-     * @param   bool    zdedit arguemnty (dedi se pouze zachycene jmenne argumenty!)
-     * @param   string  pravidlo, podle ktereho se ma url vytvorit
+     * @param   string|array    1) string - 'controller|action|service'
+     *                          2) array - array('controller' => '', 'action' => '', 'service' => '')
+     * @param   array           argumenty
+     * @param   bool            zdedit argumenty (dedi se pouze zachycene jmenne argumenty!)
+     * @param   string          pravidlo, podle ktereho se ma url vytvorit
+     * @param   bool            absolutni url
      * @return  string
      */
-    public function url($controller = null, $action = null, array $args = array(), $inherited = true, $rule = null)
+    public function url($driver = null, array $args = array(), $inheritedArgs = true, $rule = null, $absoluteUrl = false)
     {
         $newUrl = array();
 
         if ($rule === null) {
-            $newRule = HRouter::$rule;
+            $rule = HRouter::$rule;
         } else {
-            $newRule = HHttp::urlToArray($rule);
+            $rule = HHttp::urlToArray($rule);
         }
 
-        foreach ($args as $name => $value) {
-            if (is_string($name) && !isset(HRouter::$replaceNamedArgs[$name])) {
-                $args[$name] = $name . ':' . $value;
-            }
+        if (is_array($driver)) {
+            $controller = isset($driver['controller']) ? $driver['controller'] : null;
+            $action     = isset($driver['action'])     ? $driver['action']     : null;
+            $service    = isset($driver['service'])    ? $driver['service']    : null;
+        } else {
+            $driver     = explode('|', $driver);
+            $controller = isset($driver[0]) ? $driver[0] : null;
+            $action     = isset($driver[1]) ? $driver[1] : null;
+            $service    = isset($driver[2]) ? $driver[2] : null;
         }
 
-        if ($inherited) {
-            $args = array_merge($this->catchedArgs, $args);
-        }
-        
-        foreach ($args as $key => $value) {
-            if ($value === false) {
-                unset($args[$key]);
-            }
-        }
-        
-        foreach ($newRule as $index => $value) {
+        $args = $this->urlArgs($args, $inheritedArgs, true);
+
+        foreach ($rule as $index => $value) {
             switch ($value) {
                 case ':controller':
                     if (!empty($controller)) {
@@ -128,10 +147,8 @@ class HController
                 case ':action':
                     if (!empty($action)) {
                         $newUrl[$index] = $action;
-                    } elseif($inherited) {
-                        $newUrl[$index] = HRouter::$action;
                     } else {
-                        $newUrl[$index] = 'index';
+                        $newUrl[$index] = HRouter::$action;
                     }
                     break;
                 case ':arg':
@@ -143,21 +160,21 @@ class HController
             }
         }
 
-        while (!empty($args)) {
+        while (is_array($args) && !empty($args)) {
             $newUrl[] = array_shift($args);
         }
-        
-        return implode('/', $newUrl);
-    }
 
-    /**
-     * Vrati pole se vsemi argumenty
-     *
-     * @return  array
-     */
-    public function getArgs()
-    {
-        return HRouter::$args;
+        if (!empty($service)) {
+            $newUrl[] = $service;
+        }
+
+        $newUrl = HHttp::getInternalUrl() . implode('/', $newUrl);
+
+        if ($absoluteUrl) {
+            $newUrl = HHttp::getServerUrl() . $newUrl;
+        }
+
+        return $newUrl;
     }
 
     /**
@@ -187,13 +204,14 @@ class HController
 
         if ($run === false) {
             $run = true;
-            $actionName = HRouter::$action . 'Action';
-            $methodExists = method_exists(get_class($this), $actionName);
+            $methodName = HRouter::$action . 'Action';
+            $methodExists = method_exists(get_class($this), $methodName);
 
             if (!$methodExists) {
                 if (!HApplication::$error) {
-                    HApplication::error('method');
-                    $actionName = false;
+                    HApplication::error('method', true);
+                    HApplication::$controller->view->missingMethod = $methodName;
+                    $methodName = false;
                 }
             } else {
                 $this->view->view(HRouter::$action);
@@ -203,8 +221,8 @@ class HController
                 call_user_func(array($this, 'init'));
             }
 
-            if ($actionName !== false && $methodExists) {
-                call_user_func_array(array($this, $actionName), HRouter::$args);
+            if ($methodName !== false && $methodExists) {
+                call_user_func_array(array($this, $methodName), HRouter::$args);
             }
 
             $this->view->render();

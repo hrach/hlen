@@ -3,10 +3,10 @@
 /**
  * HLEN FRAMEWORK
  *
- * @author     Jan Skrasek <skrasek.jan@gmail.com>
- * @copyright  Copyright (c) 2008, Jan Skrasek
- * @version    0.5
- * @package    Hlen
+ * @author      Jan Skrasek <skrasek.jan@gmail.com>
+ * @copyright   Copyright (c) 2008, Jan Skrasek
+ * @version     0.5 $WCREV$
+ * @package     Hlen
  */
 
 require_once dirname(__FILE__) . '/hhttp.php';
@@ -35,14 +35,16 @@ class HForm implements ArrayAccess
     private $errors = array();
 
 
-    public function __construct($url = null, $method = 'post', $absoluteUrl = false)
+    public function __construct($url = null, $method = 'post', $absoluteiUrl = true)
     {
         $this->formElement = new HHtml('form');
-        if ($absoluteUrl) {
+
+        if ($absoluteiUrl) {
             $this->formElement['action'] = $url;
         } else {
             $this->formElement['action'] = HHttp::getInternalUrl() . $url;
         }
+
         $this->formElement['method'] = $method;
     }
 
